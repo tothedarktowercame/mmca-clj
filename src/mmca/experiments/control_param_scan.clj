@@ -112,7 +112,7 @@
         (sort-by key (group-by :width rows))))
 
 (defn- normalized-points [rows field]
-  (mapcat (fn [[width rs]]
+  (mapcat (fn [[_width rs]]
             (let [maximum (apply max (map field rs))]
               (map #(assoc % :normalized
                            (if (pos? maximum) (/ (double (field %)) maximum) 0.0))
