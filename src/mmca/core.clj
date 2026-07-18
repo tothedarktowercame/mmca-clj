@@ -10,6 +10,30 @@
 (def default-rule 0)
 (def rule-count 256)
 (def bit-count 8)
+(def wolfram-neighbourhoods
+  ["111" "110" "101" "100" "011" "010" "001" "000"])
+(def legacy-neighbourhoods
+  ["000" "001" "010" "100" "011" "101" "110" "111"])
+
+(defn positional-writing->neighbourhood-writing
+  "Re-express a writing defined in 2014 positions in Wolfram positions.
+
+  This is the ordering-independent `positional-sigma->neighbourhood-sigma`
+  shim: current-index -> neighbourhood -> legacy-index -> legacy destination
+  neighbourhood -> current destination index."
+  [positional-writing]
+  {:pre [(= bit-count (count positional-writing))
+         (every? #(<= 0 % 7) positional-writing)]}
+  (let [legacy-index (zipmap legacy-neighbourhoods (range bit-count))
+        wolfram-index (zipmap wolfram-neighbourhoods (range bit-count))]
+    (mapv (fn [current-index]
+            (let [neighbourhood (nth wolfram-neighbourhoods current-index)
+                  old-source (legacy-index neighbourhood)
+                  old-destination (nth positional-writing old-source)
+                  destination-neighbourhood
+                  (nth legacy-neighbourhoods old-destination)]
+              (wolfram-index destination-neighbourhood)))
+          (range bit-count))))
 
 (defn rule-bits
   "Rule byte as an MSB-first vector, matching the legacy engine."
@@ -142,7 +166,8 @@
   ([writing seed width steps]
    (run-propagator writing seed width steps {}))
   ([writing seed width steps {:keys [invert?] :or {invert? true}}]
-   (let [r (rng/make-rng (format "prop-%d" seed))
+   (let [writing (positional-writing->neighbourhood-writing writing)
+         r (rng/make-rng (format "prop-%d" seed))
          g0 (random-genotype r width)
          p0 (random-phenotype r width)]
      (loop [t 0
@@ -165,7 +190,8 @@
   ([writing seed width steps]
    (run-propagator-alone writing seed width steps {}))
   ([writing seed width steps {:keys [invert?] :or {invert? true}}]
-   (let [r (rng/make-rng (format "prop-%d" seed))
+   (let [writing (positional-writing->neighbourhood-writing writing)
+         r (rng/make-rng (format "prop-%d" seed))
          g0 (random-genotype r width)
          p0 (random-phenotype r width)]
      (loop [t 0 genotype g0 phenotype p0 genotypes [g0] phenotypes [p0]
@@ -200,7 +226,8 @@
                  (rule-output centre left middle right)))
            pb cb sb))))
 
-(def river-writing [2 3 4 5 6 7 0 1])
+(def river-writing
+  (positional-writing->neighbourhood-writing [2 3 4 5 6 7 0 1]))
 
 (defn river-genotype-step [r genotype phenotype next-phenotype]
   (let [width (count genotype)]

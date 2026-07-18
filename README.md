@@ -35,9 +35,13 @@ There is no phenotype-to-genotype feedback in `run-propagator`. `run-river` is
 named separately because its template construction does read the phenotype.
 Both genotype and phenotype use fixed Rule-0/state-0 boundaries.
 
-The `writing` vector is positional: source bit `k` writes its complement to
-`writing[k]`. It need not be bijective; Figure 8 deliberately uses
-`[0 0 1 2 3 4 5 6]`.
+The public `writing` vector is positional in the original 2014 neighbourhood
+order: source position `k` writes its complement to `writing[k]`. Before a run,
+`positional-writing->neighbourhood-writing` conjugates it into the current
+Wolfram order. This is the ordering-independent shim formerly called
+`positional-sigma->neighbourhood-sigma`; it preserves the semantic operator
+when the truth-table representation changes. A writing need not be bijective:
+Figure 8 deliberately uses `[0 0 1 2 3 4 5 6]`.
 
 ## Use
 
@@ -57,6 +61,7 @@ Generate one group directly:
 
 ```sh
 clojure -M -m mmca.figures fig6
+python3 scripts/plot_fig6.py
 ```
 
 Run one simulation from an EDN specification:

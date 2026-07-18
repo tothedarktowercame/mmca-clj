@@ -27,25 +27,40 @@
     (is (= 4 (count fixed)))
     (is (every? #(= 4 (reduce + (mmca/rule-bits %))) fixed))))
 
+(deftest positional-writing-is-order-independent
+  (is (= [6 7 0 2 1 4 3 5]
+         (mmca/positional-writing->neighbourhood-writing
+          [2 3 4 5 6 7 0 1])))
+  (is (= [1 2 4 5 3 6 7 7]
+         (mmca/positional-writing->neighbourhood-writing
+          [0 0 1 2 3 4 5 6]))))
+
 (deftest short-runs-match-elisp-golden-trajectories
   (testing "blending engine, including head/tail/interior RNG order"
     (let [run (mmca/run-propagator [2 3 4 5 6 7 0 1] 0 5 2)]
       (is (= [[245 78 238 9 143]
-              [2 236 79 159 16]
-              [236 78 222 64 143]]
+              [64 174 207 143 1]
+              [4 207 135 1 2]]
              (:gen run)))
       (is (= ["10100" "10101" "01100"] (:phe run)))))
   (testing "phenotype-reading river"
     (let [run (mmca/run-river 1 5 2)]
       (is (= [[67 42 203 255 31]
-              [188 203 222 63 225]
-              [188 71 58 225 33]]
+              [189 202 215 47 232]
+              [189 106 210 232 40]]
              (:gen run)))
-      (is (= ["00011" "10110" "10100"] (:phe run))))))
+      (is (= ["00011" "10110" "10000"] (:phe run))))))
 
 (deftest representative-full-run-is-grid-identical
   (let [run (mmca/run-propagator [1 6 2 5 0 3 7 4] 0 80 120)]
-    (is (= "ded7725367721c43596ff7daf7c2374b7af83c9d957df621c8cd005d7d7bcc0a"
+    (is (= "bcaeaed2ae7f83526b2e1846a00f0c377b83dc9b8bfdf8f70a6c7651bdf93815"
            (sha256 (select-keys run [:gen :phe]))))
-    (is (= {:death 120 :rules 31 :activity 2816}
+    (is (= {:death 120 :rules 15 :activity 3209}
+           (select-keys run [:death :rules :activity])))))
+
+(deftest figure6-river-run-is-grid-identical
+  (let [run (mmca/run-river 1 80 120)]
+    (is (= "5bfa8cdf9fa8af0949af0f6eeb1762a5a393c844dd4db6cc9cc5709f672474b2"
+           (sha256 (select-keys run [:gen :phe]))))
+    (is (= {:death 120 :rules 47 :activity 3976}
            (select-keys run [:death :rules :activity])))))
