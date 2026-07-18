@@ -6,6 +6,7 @@
             [mmca.control-param-scan-test]
             [mmca.transient-scaling-test]
             [mmca.directed-predictive-info-test]
+            [mmca.local-causal-states-test]
             [mmca.multiscale-spectra-test]
             [mmca.direct-computation-test]))
 
@@ -16,6 +17,7 @@
                         'mmca.control-param-scan-test
                         'mmca.transient-scaling-test
                         'mmca.directed-predictive-info-test
+                        'mmca.local-causal-states-test
                         'mmca.multiscale-spectra-test
                         'mmca.direct-computation-test)]
     (when (pos? (+ fail error))

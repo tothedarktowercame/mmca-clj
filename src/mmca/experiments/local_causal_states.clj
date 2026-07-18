@@ -184,17 +184,19 @@
      :held-out-n n}))
 
 (defn- candidate-score
-  [engine layer depth tolerance config]
-  (let [rows (samples engine layer depth config)
-        score (cross-validated-score rows (:folds config) tolerance
+  [rows depth tolerance config]
+  (let [score (cross-validated-score rows (:folds config) tolerance
                                      (:alpha config))]
     (assoc score :depth depth :tolerance tolerance)))
 
 (defn- select-model [engine layer config]
   (let [candidates
-        (vec (for [depth (:depths config)
-                   tolerance (:tolerances config)]
-               (candidate-score engine layer depth tolerance config)))]
+        (vec
+         (mapcat (fn [depth]
+                   (let [rows (samples engine layer depth config)]
+                     (mapv #(candidate-score rows depth % config)
+                           (:tolerances config))))
+                 (:depths config)))]
     {:selected (first (sort-by (juxt :loss :depth :tolerance) candidates))
      :candidates candidates}))
 
