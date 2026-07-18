@@ -58,6 +58,20 @@
     (is (= {:death 120 :rules 15 :activity 3209}
            (select-keys run [:death :rules :activity])))))
 
+(deftest continuous-interrupter-seam
+  (let [writing [4 5 6 7 0 1 2 3]
+        legacy (mmca/run-propagator writing 7 30 40)
+        explicit-one (mmca/run-propagator writing 7 30 40
+                                          {:interrupter-q 1.0})
+        q-half-a (mmca/run-propagator writing 7 30 40
+                                      {:interrupter-q 0.5})
+        q-half-b (mmca/run-propagator writing 7 30 40
+                                      {:interrupter-q 0.5})]
+    (is (= legacy explicit-one) "q=1 is the exact legacy engine")
+    (is (= q-half-a q-half-b) "intermediate q is seeded and deterministic")
+    (is (not= (:gen legacy) (:gen q-half-a))
+        "q changes genotype dynamics")))
+
 (deftest figure6-river-run-is-grid-identical
   (let [run (mmca/run-river 1 80 120)]
     (is (= "5bfa8cdf9fa8af0949af0f6eeb1762a5a393c844dd4db6cc9cc5709f672474b2"

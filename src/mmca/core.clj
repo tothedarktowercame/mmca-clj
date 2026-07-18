@@ -136,6 +136,36 @@
              (vec (repeat width nil))
              evaluation-order))))
 
+(defn genotype-step-interrupted
+  "One feedforward genotype step with continuous interrupter strength q.
+
+  For each cell, q is the probability of applying the propagator write to the
+  neighbour-agreement blend; otherwise the blended rule is held. A separate
+  interrupter RNG decides apply/hold, while the propagator RNG consumes one
+  source position per cell regardless of the decision. Thus q changes only the
+  intervention, not the source-position tape. This function never reads X."
+  ([propagator-r interrupter-r genotype writing q]
+   (genotype-step-interrupted propagator-r interrupter-r genotype writing q true))
+  ([propagator-r interrupter-r genotype writing q invert?]
+   {:pre [(number? q) (<= 0.0 (double q) 1.0)]}
+   (let [width (count genotype)
+         evaluation-order (concat [0 (dec width)] (range 1 (dec width)))]
+     (reduce
+      (fn [out i]
+        (let [predecessor (if (zero? i) default-rule
+                              (nth genotype (dec i)))
+              centre (nth genotype i)
+              successor (if (= i (dec width)) default-rule
+                            (nth genotype (inc i)))
+              blended (blend-rule predecessor centre successor)
+              source (rng/rand-int propagator-r bit-count)
+              apply? (< (rng/rand-double interrupter-r) (double q))]
+          (assoc out i (if apply?
+                         (propagate-at blended writing source invert?)
+                         blended))))
+      (vec (repeat width nil))
+      evaluation-order))))
+
 (defn genotype-step-alone
   ([r genotype writing] (genotype-step-alone r genotype writing true))
   ([r genotype writing invert?]
@@ -165,9 +195,12 @@
   matches the GNU Emacs 30/Linux Tier-1 stream."
   ([writing seed width steps]
    (run-propagator writing seed width steps {}))
-  ([writing seed width steps {:keys [invert?] :or {invert? true}}]
+  ([writing seed width steps {:keys [invert? interrupter-q]
+                              :or {invert? true interrupter-q 1.0}}]
    (let [writing (positional-writing->neighbourhood-writing writing)
          r (rng/make-rng (format "prop-%d" seed))
+         interrupter-r (when-not (= 1.0 (double interrupter-q))
+                         (rng/make-rng (format "interrupt-%d" seed)))
          g0 (random-genotype r width)
          p0 (random-phenotype r width)]
      (loop [t 0
@@ -179,7 +212,11 @@
        (if (= t steps)
          (finish-run phenotypes genotypes activities)
          (let [next-phenotype (phenotype-step genotype phenotype)
-               next-genotype (genotype-step r genotype writing invert?)]
+               next-genotype
+               (if (= 1.0 (double interrupter-q))
+                 (genotype-step r genotype writing invert?)
+                 (genotype-step-interrupted r interrupter-r genotype writing
+                                            interrupter-q invert?))]
            (recur (inc t) next-genotype next-phenotype
                   (conj genotypes next-genotype)
                   (conj phenotypes next-phenotype)

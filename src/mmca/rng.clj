@@ -95,3 +95,8 @@
         (if (< difference-limit difference)
           (recur)
           remainder)))))
+
+(defn rand-double
+  "Return a deterministic uniform double in [0,1) from the Emacs stream."
+  [rng]
+  (/ (double (draw! rng)) 2305843009213693952.0))
