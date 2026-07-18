@@ -321,10 +321,18 @@
                  (conj phenotypes next-phenotype)
                  (conj activities (changed-count phenotype next-phenotype))))))))
 
-(defn- java-random-genotype [^java.util.Random random width]
+(defn java-random-genotype
+  "Generate a width-length genotype by drawing rule indices from a
+  `java.util.Random`. Public so experiments can reproduce the river's exact
+  initial-state construction for injection (see `run-river-from`)."
+  [^java.util.Random random width]
   (mapv (fn [_] (.nextInt random rule-count)) (range width)))
 
-(defn- java-random-phenotype [^java.util.Random random width]
+(defn java-random-phenotype
+  "Generate a width-length binary phenotype string by drawing bits from a
+  `java.util.Random`. Public so experiments can reproduce the river's exact
+  initial-state construction for injection (see `run-river-from`)."
+  [^java.util.Random random width]
   (apply str
          (map (fn [_] (if (< (.nextDouble random) 0.5) \1 \0))
               (range width))))
@@ -348,6 +356,30 @@
           (.nextInt random bit-count))))
      (range width))))
 
+(defn run-river-from
+  "The iteration body of `run-river`, factored so experiments can inject into
+  the initial `genotype`/`phenotype` before running. `random` must already be
+  consumed past initialization (i.e. produced by the same construction as
+  `run-river`'s seed); the per-step RNG draws then proceed identically. This
+  preserves the matched-control guarantee: `run-river-from` and
+  `run-river-ablated-from` started from the same injected state share the exact
+  tape, construction, and fallback -- only the live-vs-frozen phenotype read
+  differs."
+  [^java.util.Random random genotype phenotype steps]
+  (loop [t 0 genotype genotype phenotype phenotype
+         genotypes [genotype] phenotypes [phenotype] activities []]
+    (if (= t steps)
+      (finish-run phenotypes genotypes activities)
+      (let [next-phenotype (phenotype-step genotype phenotype)
+            next-genotype
+            (original-paper-river-genotype-step
+             random genotype phenotype next-phenotype)]
+        (recur (inc t) next-genotype next-phenotype
+               (conj genotypes next-genotype)
+               (conj phenotypes next-phenotype)
+               (conj activities
+                     (changed-count phenotype next-phenotype)))))))
+
 (defn run-river
   "Replay original Figure 6: `quad-4cand / firstMatch prop:rot2`.
 
@@ -360,19 +392,27 @@
   (let [random (java.util.Random. (long seed))
         g0 (java-random-genotype random width)
         p0 (java-random-phenotype random width)]
-    (loop [t 0 genotype g0 phenotype p0 genotypes [g0] phenotypes [p0]
-           activities []]
-      (if (= t steps)
-        (finish-run phenotypes genotypes activities)
-        (let [next-phenotype (phenotype-step genotype phenotype)
-              next-genotype
-              (original-paper-river-genotype-step
-               random genotype phenotype next-phenotype)]
-          (recur (inc t) next-genotype next-phenotype
-                 (conj genotypes next-genotype)
-                 (conj phenotypes next-phenotype)
-                 (conj activities
-                       (changed-count phenotype next-phenotype))))))))
+    (run-river-from random g0 p0 steps)))
+
+(defn run-river-ablated-from
+  "The iteration body of `run-river-ablated`, factored for injection (see
+  `run-river-from`). Shares the river's exact RNG tape and construction; only
+  the genotype step reads the FROZEN `phenotype` (the initial, injected state)
+  instead of the live one."
+  [^java.util.Random random genotype phenotype steps]
+  (loop [t 0 genotype genotype phenotype phenotype
+         genotypes [genotype] phenotypes [phenotype] activities []]
+    (if (= t steps)
+      (finish-run phenotypes genotypes activities)
+      (let [next-phenotype (phenotype-step genotype phenotype)
+            next-genotype
+            (original-paper-river-genotype-step
+             random genotype phenotype phenotype)]
+        (recur (inc t) next-genotype next-phenotype
+               (conj genotypes next-genotype)
+               (conj phenotypes next-phenotype)
+               (conj activities
+                     (changed-count phenotype next-phenotype)))))))
 
 (defn run-river-ablated
   "Matched feedback-OFF control for `run-river`: identical Java
@@ -390,16 +430,4 @@
   (let [random (java.util.Random. (long seed))
         g0 (java-random-genotype random width)
         p0 (java-random-phenotype random width)]
-    (loop [t 0 genotype g0 phenotype p0 genotypes [g0] phenotypes [p0]
-           activities []]
-      (if (= t steps)
-        (finish-run phenotypes genotypes activities)
-        (let [next-phenotype (phenotype-step genotype phenotype)
-              next-genotype
-              (original-paper-river-genotype-step
-               random genotype p0 p0)]
-          (recur (inc t) next-genotype next-phenotype
-                 (conj genotypes next-genotype)
-                 (conj phenotypes next-phenotype)
-                 (conj activities
-                       (changed-count phenotype next-phenotype))))))))
+    (run-river-ablated-from random g0 p0 steps)))
