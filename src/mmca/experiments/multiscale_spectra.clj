@@ -1,16 +1,23 @@
 (ns mmca.experiments.multiscale-spectra
   "Excursion E6 of M-metaca-eoc: multiscale spacetime spectra S_AB(k,omega).
 
-  Computes full spacetime power spectra for genotype activity and phenotype
-  activity, their cross-spectrum, and a four-point dynamical susceptibility
-  (local overlap at lag tau, then spatial covariance).
+  Correction round (v2): the river panel now uses the AUTHENTIC paper river
+  (c/run-river), and adds a MATCHED feedback-off control (c/run-river-ablated)
+  that shares the river's exact Java seed, initial state, RNG tape, and
+  constant-zero quad-4cand construction -- only the live X->G edge is cut (the
+  genotype step reads the frozen initial phenotype). The contrast 'river minus
+  matched ablation' isolates the feedback-spectral signature.
 
-  All spectra are DESCRIPTIVE — they characterise the spatiotemporal structure
+  The ensemble path averages demeaned cross-spectra over seeds and reports
+  seed intervals (min/max), not bare averages. DC-dominated raw spectra from a
+  single seed cannot establish 'significance', so that word is avoided; we
+  report descriptive structure and the feedback contrast.
+
+  All spectra are DESCRIPTIVE -- they characterise the spatiotemporal structure
   but do not by themselves establish criticality.
 
   Deterministic: same seed/width/steps => identical output."
-  (:require [mmca.core :as c]
-            [mmca.rng :as rng])
+  (:require [mmca.core :as c])
   (:import [java.lang Math]))
 
 ;; -- math helpers -----------------------------------------------------------
@@ -85,6 +92,26 @@
                  (conj result (mapv #(if (= %1 %2) 0 1)
                                     row-a row-b))))))))
 
+;; -- demeaning (for ensemble cross-spectra) ---------------------------------
+
+(defn grid-temporal-mean
+  "Per-cell temporal mean of a [T][W] grid. Returns a [W] vector of means."
+  [grid width]
+  (let [T (count grid)]
+    (mapv (fn [x]
+            (/ (double (reduce + (map #(get-in % [x]) grid))) T))
+          (range width))))
+
+(defn demean-grid
+  "Subtract the per-cell temporal mean from each cell. This removes the DC
+  (k=0, omega=0) component that dominates raw activity spectra, revealing
+  off-DC structure. Returns a new [T][W] grid."
+  [grid width]
+  (let [means (grid-temporal-mean grid width)]
+    (mapv (fn [row]
+            (mapv (fn [x] (- (get-in row [x]) (nth means x))) (range width)))
+          grid)))
+
 ;; -- spectra ----------------------------------------------------------------
 
 (defn compute-power-spectrum
@@ -147,16 +174,17 @@
             mean-prod (/ (double sum-prod) n-pairs)]
         (- mean-prod (* mean-act mean-act))))))
 
-;; -- main experiment --------------------------------------------------------
+;; -- main experiment: single-seed spectra -----------------------------------
 
 (defn run-spectra
   "Run one simulation and return spectra data.
   writing = positional writing (e.g. [4 5 6 7 0 1 2 3])
-  seed, width, steps, engine ('base or 'river)."
+  seed, width, steps, engine (:base, :river, :river-ablated)."
   [writing seed width steps engine]
   (let [result (case engine
                  :base (c/run-propagator writing seed width steps)
-                 :river (c/run-river seed width steps))
+                 :river (c/run-river seed width steps)
+                 :river-ablated (c/run-river-ablated seed width steps))
         gen-rows (:gen result)
         phe-rows (:phe result)
         T (dec (count gen-rows))  ; activity has T-1 rows
@@ -199,25 +227,193 @@
     (println (format "\n  Peak S_GG at k=%d omega=%d (power=%.1f)" (:k peak-G) (:omega peak-G) (:power peak-G)))
     (println (format "  Peak S_XX at k=%d omega=%d (power=%.1f)" (:k peak-X) (:omega peak-X) (:power peak-X)))))
 
+;; -- ensemble: seed-averaged demeaned cross-spectra ------------------------
+
+(defn ensemble-cross-spectrum
+  "Compute the demeaned cross-spectrum S_GX(k,omega) for a single seed/engine,
+  then collect across seeds. Demeaning removes the DC dominance so off-DC
+  structure is visible per-seed.
+
+  Returns a map from [k omega] -> demeaned-cross value for the given seed."
+  [seed width steps engine k-list omega-list]
+  (let [{:keys [grid-G grid-X T]} (run-spectra nil seed width steps engine)
+        dmG (demean-grid grid-G width)
+        dmX (demean-grid grid-X width)]
+    (into {}
+          (for [{:keys [k omega cross]}
+                (compute-cross-spectrum dmG dmX width T k-list omega-list)]
+            [[k omega] cross]))))
+
+(defn ensemble-averaged-cross
+  "Average the demeaned cross-spectrum across seeds for one engine.
+  Returns a map from [k omega] -> {:mean :lo :hi} over the seed ensemble."
+  [seeds width steps engine k-list omega-list]
+  (let [per-seed (mapv #(ensemble-cross-spectrum % width steps engine
+                                                 k-list omega-list)
+                       seeds)
+        n (count seeds)]
+    (into {}
+          (for [kk (keys (first per-seed))]
+            (let [vals (mapv #(get % kk) per-seed)
+                  mean (/ (reduce + vals) (double n))]
+              [kk {:mean mean
+                   :lo (apply min vals)
+                   :hi (apply max vals)}])))))
+
+(defn ensemble-power
+  "Average the power spectrum S_GG or S_XX across seeds for one engine.
+  grid-key is :grid-G or :grid-X. Returns a map from [k omega] -> {:mean :lo :hi}."
+  [seeds width steps engine grid-key k-list omega-list]
+  (let [per-seed (mapv (fn [seed]
+                         (let [grids (run-spectra nil seed width steps engine)
+                               grid (grid-key grids)
+                               T (:T grids)]
+                           (into {}
+                                 (for [k k-list om omega-list]
+                                   [[k om] (dft-2d-power grid width T k om)]))))
+                       seeds)
+        n (count seeds)]
+    (into {}
+          (for [kk (keys (first per-seed))]
+            (let [vals (mapv #(get % kk) per-seed)
+                  mean (/ (reduce + vals) (double n))]
+              [kk {:mean mean
+                   :lo (apply min vals)
+                   :hi (apply max vals)}])))))
+
+(defn ensemble-susceptibility
+  "Average the four-point susceptibility C_overlap(r) across seeds for one engine.
+  Returns a map from tau -> vector of {:mean :lo :hi} per r."
+  [seeds width steps engine tau-list max-r]
+  (let [per-seed (mapv (fn [seed]
+                         (let [{:keys [grid-G T]} (run-spectra nil seed width steps engine)]
+                           (into {}
+                                 (for [tau tau-list]
+                                   (let [ov-T (- T tau)
+                                         ov (local-overlap grid-G width T tau)
+                                         cov (spatial-covariance ov width ov-T max-r)]
+                                     [tau cov])))))
+                       seeds)
+        n (count seeds)]
+    (into {}
+          (for [tau tau-list]
+            [tau (mapv (fn [r-idx]
+                         (let [vals (mapv #(nth (get % tau) r-idx) per-seed)
+                               mean (/ (reduce + vals) (double n))]
+                           {:mean mean :lo (apply min vals) :hi (apply max vals)}))
+                       (range (inc max-r)))]))))
+
+(defn format-interval
+  "Format a {:mean :lo :hi} map as 'mean [lo, hi]'."
+  [{:keys [mean lo hi]} width-places]
+  (let [fmt (str "%." width-places "f [%." width-places "f, %." width-places "f]")]
+    (format fmt mean lo hi)))
+
+(defn- format-row
+  "Format a row of interval strings with fixed-width columns."
+  [k-label cells]
+  (str k-label (apply str (map #(format "%22s" %) cells))))
+
+(defn- interval-cells
+  "Build a vector of formatted interval strings for given k across om-scan."
+  [result k om-scan places]
+  (vec (for [om om-scan] (format-interval (get result [k om]) places))))
+
+(defn print-ensemble-cross
+  "Print the ensemble-averaged demeaned cross-spectrum table for one engine."
+  [label seeds width steps engine k-scan om-scan]
+  (let [result (ensemble-averaged-cross seeds width steps engine k-scan om-scan)]
+    (println (format "\n  %s demeaned S_GX(k,omega) [ensemble mean, seed-range]:" label))
+    (println (format "    seeds %d-%d, demeaned per-cell (DC removed)" (first seeds) (last seeds)))
+    (doseq [k k-scan]
+      (println (format-row (format "    k=%-3d " k)
+                           (interval-cells result k om-scan 1))))
+    (println (format-row "           " (mapv #(str "om=" %) om-scan)))))
+
+(defn print-ensemble-power
+  "Print the ensemble-averaged power spectrum table for one engine."
+  [label seeds width steps engine grid-key k-scan om-scan]
+  (let [result (ensemble-power seeds width steps engine grid-key k-scan om-scan)]
+    (println (format "\n  %s %s(k,omega) [ensemble mean, seed-range]:" label (name grid-key)))
+    (doseq [k k-scan]
+      (println (format-row (format "    k=%-3d " k)
+                           (interval-cells result k om-scan 0))))))
+
+(defn print-ensemble-susceptibility
+  "Print the ensemble-averaged four-point susceptibility for one engine."
+  [label seeds width steps engine tau-list max-r]
+  (let [result (ensemble-susceptibility seeds width steps engine tau-list max-r)]
+    (println (format "\n  %s four-point susceptibility C_overlap(r) [mean, seed-range]:" label))
+    (doseq [tau tau-list]
+      (let [cells (mapv #(format-interval % 4) (get result tau))]
+        (println (format-row (format "    tau=%d: " tau)
+                             (mapv #(format " %s" %) cells))))))) 
+
+;; -- main -------------------------------------------------------------------
+
+(def default-config
+  {:seed 0 :width 60 :steps 80
+   :ensemble-seeds (vec (range 8))
+   :k-scan [0 5 10 15 20 25 30]
+   :om-scan [-10 -5 0 5 10]
+   :tau-list [1 5 10]
+   :max-r 15})
+
 (defn -main [& _]
-  (let [seed 0 width 60 steps 80
-        k-scan (range 0 (inc (/ width 2)) 5)
-        om-scan (range -10 11 5)
-        tau-list [1 5 10]
-        max-r 15]
-    (println "E6 multiscale spacetime spectra | seed=0 W=60 steps=80")
-    ;; Config 1: offset+4 (collapsing) on feedforward base
-    (let [{:keys [grid-G grid-X T width]}
-          (run-spectra [4 5 6 7 0 1 2 3] seed width steps :base)]
-      (print-spectra "offset+4 / base (collapsing null)" grid-G grid-X T width
-                     k-scan om-scan tau-list max-r))
-    ;; Config 2: offset+2 (sustained, gcd 2, two 4-cycles) on feedforward base
+  (let [{:keys [seed width steps ensemble-seeds
+                k-scan om-scan tau-list max-r]} default-config
+        k-scan-vec (vec k-scan)
+        om-scan-vec (vec om-scan)]
+    (println "E6 multiscale spacetime spectra (correction round v2)")
+    (println (format "  single-seed panels: seed=%d W=%d steps=%d" seed width steps))
+    (println (format "  ensemble: seeds %d-%d, demeaned cross-spectra"
+                     (first ensemble-seeds) (last ensemble-seeds)))
+    (println "  river = c/run-river (authentic); river-ablated = matched feedback-off control")
+    ;; ---- Panel 1: offset+2 / base (sustained) ----
     (let [{:keys [grid-G grid-X T width]}
           (run-spectra [2 3 4 5 6 7 0 1] seed width steps :base)]
       (print-spectra "offset+2 / base (sustained)" grid-G grid-X T width
-                     k-scan om-scan tau-list max-r))
-    ;; Config 3: river (feedback engine, reads phenotype back)
+                     k-scan-vec om-scan-vec tau-list max-r))
+    ;; ---- Panel 2: river / feedback (single-seed detailed) ----
     (let [{:keys [grid-G grid-X T width]}
           (run-spectra nil seed width steps :river)]
-      (print-spectra "river / feedback (treatment)" grid-G grid-X T width
-                     k-scan om-scan tau-list max-r))))
+      (print-spectra "river / feedback (authentic, treatment)" grid-G grid-X T width
+                     k-scan-vec om-scan-vec tau-list max-r))
+    ;; ---- Panel 3: river-ablated / matched feedback-off control (single-seed) ----
+    (let [{:keys [grid-G grid-X T width]}
+          (run-spectra nil seed width steps :river-ablated)]
+      (print-spectra "river-ablated / matched feedback-off (control)" grid-G grid-X T width
+                     k-scan-vec om-scan-vec tau-list max-r))
+    ;; ---- Ensemble: demeaned cross-spectrum, river vs ablated ----
+    (println "\n=== ENSEMBLE: demeaned cross-spectra (river vs matched ablation) ===")
+    (println "  Demeaning removes per-cell temporal mean (DC) before the cross-DFT.")
+    (println "  The contrast 'river - ablated' isolates the feedback-spectral structure.")
+    (print-ensemble-cross "river" ensemble-seeds width steps :river k-scan-vec om-scan-vec)
+    (print-ensemble-cross "river-ablated" ensemble-seeds width steps :river-ablated k-scan-vec om-scan-vec)
+    ;; ---- Ensemble: power spectra (river vs ablated) ----
+    (println "\n=== ENSEMBLE: power spectra (river vs matched ablation) ===")
+    (print-ensemble-power "river" ensemble-seeds width steps :river :grid-G k-scan-vec om-scan-vec)
+    (print-ensemble-power "river-ablated" ensemble-seeds width steps :river-ablated :grid-G k-scan-vec om-scan-vec)
+    ;; ---- Ensemble: susceptibility (river vs ablated) ----
+    (println "\n=== ENSEMBLE: four-point susceptibility (river vs matched ablation) ===")
+    (print-ensemble-susceptibility "river" ensemble-seeds width steps :river tau-list max-r)
+    (print-ensemble-susceptibility "river-ablated" ensemble-seeds width steps :river-ablated tau-list max-r)
+    ;; ---- Feedback contrast summary ----
+    (let [cross-rv (ensemble-averaged-cross ensemble-seeds width steps :river k-scan-vec om-scan-vec)
+          cross-ab (ensemble-averaged-cross ensemble-seeds width steps :river-ablated k-scan-vec om-scan-vec)
+          nyquist (last k-scan-vec)]
+      (println "\n=== FEEDBACK CONTRAST: demeaned S_GX(k=Nyquist, omega=0) ===")
+      (println (format "  k=%d (Nyquist for W=%d):" nyquist width))
+      (let [rv (get cross-rv [nyquist 0])
+            ab (get cross-ab [nyquist 0])]
+        (println (format "    river:          %s" (format-interval rv 2)))
+        (println (format "    river-ablated:  %s" (format-interval ab 2)))
+        (println (format "    contrast (rv-ab mean): %.2f" (- (:mean rv) (:mean ab)))))
+      (println "\n  Does the off-DC S_GX structure at k=Nyquist survive ablation?")
+      (let [rv-mean (:mean (get cross-rv [nyquist 0]))
+            ab-mean (:mean (get cross-ab [nyquist 0]))]
+        (println (format "    river mean=%.2f, ablated mean=%.2f, ratio=%.2f"
+                         rv-mean ab-mean
+                         (if (zero? ab-mean)
+                           Double/POSITIVE_INFINITY
+                           (/ rv-mean ab-mean))))))))
