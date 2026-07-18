@@ -368,3 +368,33 @@
                  (conj phenotypes next-phenotype)
                  (conj activities
                        (changed-count phenotype next-phenotype))))))))
+
+(defn run-original-paper-river-ablated
+  "Matched feedback-OFF control for `run-original-paper-river`: identical Java
+  seed, initial state, RNG tape, and constant-zero quad-4cand construction --
+  but the genotype step reads the FROZEN initial phenotype p0 for its template
+  context instead of the live (evolving) phenotype. The phenotype still evolves
+  as a G->X readout; only the dynamic X->G edge is cut. Because the context does
+  not consume the RNG and the per-step draw count is genotype-independent, this
+  shares the river's exact tape. Differencing the two genotype trajectories from
+  the same seed isolates the causal effect of the live phenotype->genotype
+  feedback; everything else (tape, construction, fallback, boundaries) is held
+  identical. (Nil context is NOT used: the constant-zero fallback would collapse
+  every cell to rule 0, a degenerate control.)"
+  [seed width steps]
+  (let [random (java.util.Random. (long seed))
+        g0 (java-random-genotype random width)
+        p0 (java-random-phenotype random width)]
+    (loop [t 0 genotype g0 phenotype p0 genotypes [g0] phenotypes [p0]
+           activities []]
+      (if (= t steps)
+        (finish-run phenotypes genotypes activities)
+        (let [next-phenotype (phenotype-step genotype phenotype)
+              next-genotype
+              (original-paper-river-genotype-step
+               random genotype p0 p0)]
+          (recur (inc t) next-genotype next-phenotype
+                 (conj genotypes next-genotype)
+                 (conj phenotypes next-phenotype)
+                 (conj activities
+                       (changed-count phenotype next-phenotype))))))))

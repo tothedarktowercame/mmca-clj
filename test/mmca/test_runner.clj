@@ -8,7 +8,8 @@
             [mmca.directed-predictive-info-test]
             [mmca.local-causal-states-test]
             [mmca.multiscale-spectra-test]
-            [mmca.direct-computation-test]))
+            [mmca.direct-computation-test]
+            [mmca.river-feedback-test]))
 
 (defn -main [& _]
   (let [{:keys [fail error]}
@@ -19,6 +20,7 @@
                         'mmca.directed-predictive-info-test
                         'mmca.local-causal-states-test
                         'mmca.multiscale-spectra-test
-                        'mmca.direct-computation-test)]
+                        'mmca.direct-computation-test
+                        'mmca.river-feedback-test)]
     (when (pos? (+ fail error))
       (System/exit 1))))
