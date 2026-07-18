@@ -86,3 +86,28 @@ individual Codex agents (NOT codex-9, who authored the plan) and to Zai agents.
 
 Recommended order: E1 → (E2,E3) decide *whether* there's a transition →
 (E4,E5,E7) explain *what it computes*.
+
+## Scoreboard (2026-07-18)
+
+All experiments topic-named, deterministic, `clojure -M:test` green (23/42).
+
+| Exc | file | headline result | commit |
+|-----|------|-----------------|--------|
+| E1 | `paired_perturbation.clj` | X→G≡0 null (ff correctness); live/dead scalpel | `7d331b9` |
+| E2 | `control_param_scan.clj` | **metastability** — susceptibility doesn't sharpen with L | `155569e` |
+| E3 | `transient_scaling.clj` | collapse width-dependent, **right-censored** at large L | `155569e` |
+| E4 | `directed_predictive_info.clj` | **river X→G = +0.122 bits**, ff ≈0; 105/204 = 0.512 | `756791b` |
+| E6 | `multiscale_spectra.clj` | ff baseline featureless; **river off-DC S_GX feedback signature** | `fedb90b`,`b8ff2d3` |
+| E7 | `direct_computation.clj` | G storage/transmission; **no XOR/modification capacity** | `0b374e8` |
+| E5 | `local_causal_states.clj` | joint vs marginal causal states — **in progress** (codex-4) | — |
+| — | (rename) | drop self-named files + shims | `8fa6b6c` |
+
+**Convergent finding:** E4 (predictive information) and E6 (cross-spectrum)
+independently detect the river's X→G feedback and its absence on the feedforward
+base. **Honest bounds:** E2 metastability (not a transition), E3 censored
+scaling, E7 no computation — the sweep confirms the coupled-system framing and
+declines the criticality/computation claims the data don't yet support.
+
+**Process findings:** fresh agents can use + extend the suite (E6 iterated on
+review). All failures were infra (network / zai-persistence / 30-min job cap);
+the git commit is the only durable artifact, so agents must commit incrementally.
