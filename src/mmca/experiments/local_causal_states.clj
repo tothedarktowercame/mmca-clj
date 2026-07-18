@@ -429,14 +429,14 @@
                        (:structure-count river-joint)
                        (:structure-count ablated-joint)
                        (:structure-delta-mean contrast)
-                       (first (:structure-delta-interval contrast))
-                       (second (:structure-delta-interval contrast))))
+                       (double (first (:structure-delta-interval contrast)))
+                       (double (second (:structure-delta-interval contrast)))))
       (println (format "  state-count:     river=%d  ablated=%d  delta mean=%.2f  seed-interval=[%.0f, %.0f]"
                        (:state-count river-joint)
                        (:state-count ablated-joint)
                        (:state-delta-mean contrast)
-                       (first (:state-delta-interval contrast))
-                       (second (:state-delta-interval contrast))))
+                       (double (first (:state-delta-interval contrast)))
+                       (double (second (:state-delta-interval contrast)))))
       (println (format "  joint held-out loss: river=%.6f  ablated=%.6f  delta=%+.6f bits/bit"
                        (:loss river-joint) (:loss ablated-joint)
                        (- (:loss ablated-joint) (:loss river-joint))))
