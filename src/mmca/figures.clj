@@ -83,6 +83,12 @@
           (render-run (mmca/run-river seed width steps))))
   (println "wrote Figure 6 data"))
 
+(defn generate-river-grid! []
+  (doseq [seed (range 1 37)]
+    (spit (format "data/river_grid_s%d.txt" seed)
+          (render-run (mmca/run-river seed width steps))))
+  (println "wrote 36 river-grid runs"))
+
 (defn generate-figure8! []
   (spit "data/fig8_raw.txt"
         (render-run
@@ -137,9 +143,10 @@
     "fig4" (generate-figure4!)
     "fig5" (generate-figure5!)
     "fig6" (generate-figure6!)
+    "river-grid" (generate-river-grid!)
     "fig8" (generate-figure8!)
     "stats" (generate-stats!)
     (throw (ex-info "Unknown command"
                     {:command command
                      :expected ["all" "fig1" "fig3" "fig4" "fig5"
-                                "fig6" "fig8" "stats"]}))))
+                                "fig6" "river-grid" "fig8" "stats"]}))))

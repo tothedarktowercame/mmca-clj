@@ -64,6 +64,13 @@ clojure -M -m mmca.figures fig6
 python3 scripts/plot_fig6.py
 ```
 
+Generate the 36-seed river contact sheet:
+
+```sh
+clojure -M -m mmca.figures river-grid
+python3 scripts/plot_river_grid.py
+```
+
 Run one simulation from an EDN specification:
 
 ```sh
