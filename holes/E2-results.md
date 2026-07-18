@@ -48,6 +48,6 @@ Susceptibility peaks: L30:q=0.5000,chi=2.0309, L60:q=0.3000,chi=0.4903, L120:q=0
 
 Exploratory collapse scores (lower RMSE is better; x=(q-qc)L^(1/nu)): nu=0.5 activity=0.2234[1 bins], survival=0.1671[1 bins]; nu=1.0 activity=0.2058[5 bins], survival=0.1657[5 bins]; nu=2.0 activity=0.1484[5 bins], survival=0.1593[5 bins].
 
-## Reading — metastability
+## Reading — finite-horizon mixed survival
 
-At least one L,q cell mixes collapsed and surviving seeds, while the susceptibility peaks do not meet the joint convergence-and-growth bar. The honest reading is metastability: seed-dependent residence times dominate this horizon, so E3 transient scaling should test whether the mixed region sharpens or remains broad.
+At least one L,q cell mixes collapsed and surviving seeds, while the susceptibility peaks do not meet the joint convergence-and-growth bar. The honest reading is finite-horizon mixed survival with long, seed-dependent residence times (calling this "metastability" would be premature -- it needs quasi-stationary plateaus or escape-time evidence not yet gathered); so E3 transient scaling should test whether the mixed region sharpens or remains broad.
