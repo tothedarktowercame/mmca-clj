@@ -164,54 +164,60 @@
         grid-X (phenotype-activity-grid phe-rows width)]
     {:grid-G grid-G :grid-X grid-X :T T :width width}))
 
+(defn print-spectra
+  "Print spectra for one config."
+  [label grid-G grid-X T width k-scan om-scan tau-list max-r]
+  (println (format "\n=== %s (T=%d, W=%d) ===" label T width))
+  (println "\n  S_GG(k,omega) - genotype activity power spectrum:")
+  (doseq [k k-scan]
+    (let [powers (for [om om-scan] (dft-2d-power grid-G width T k om))]
+      (println (format "    k=%-3d %s" k (apply str (map #(format "%10.2f" %) powers))))))
+  (println (format "           %s" (apply str (map #(format "%10s" (str "om=" %)) om-scan))))
+  (println "\n  S_XX(k,omega) - phenotype activity power spectrum:")
+  (doseq [k k-scan]
+    (let [powers (for [om om-scan] (dft-2d-power grid-X width T k om))]
+      (println (format "    k=%-3d %s" k (apply str (map #(format "%10.2f" %) powers))))))
+  (println "\n  S_GX(k,omega) - cross-spectrum (cospectrum = Re):")
+  (let [cross (compute-cross-spectrum grid-G grid-X width T
+                                      [0 5 10 15 20 25 30] [-10 -5 0 5 10])]
+    (doseq [{:keys [k omega cross]} cross]
+      (println (format "    k=%-3d  om=%-4d  cross=%12.2f" k omega cross))))
+  (println "\n  Four-point susceptibility C_overlap(r) at lag tau:")
+  (doseq [tau tau-list]
+    (let [ov-T (- T tau)
+          ov (local-overlap grid-G width T tau)
+          cov (spatial-covariance ov width ov-T max-r)]
+      (println (format "    tau=%d: %s" tau (apply str (map #(format " %.4f" %) cov))))))
+  (let [k-range (range 0 (inc (/ width 2)))
+        om-range (range (int (- (/ T 2))) (inc (int (/ T 2))))
+        peak-G (apply max-key :power
+                      (for [k k-range om om-range]
+                        {:k k :omega om :power (dft-2d-power grid-G width T k om)}))
+        peak-X (apply max-key :power
+                      (for [k k-range om om-range]
+                        {:k k :omega om :power (dft-2d-power grid-X width T k om)}))]
+    (println (format "\n  Peak S_GG at k=%d omega=%d (power=%.1f)" (:k peak-G) (:omega peak-G) (:power peak-G)))
+    (println (format "  Peak S_XX at k=%d omega=%d (power=%.1f)" (:k peak-X) (:omega peak-X) (:power peak-X)))))
+
 (defn -main [& _]
-  (let [writing [4 5 6 7 0 1 2 3]   ; offset+4 (all-even, collapses)
-        seed 0 width 60 steps 80
-        engine :base
-        k-scan (range 0 (inc (/ width 2)) 5)   ; k = 0,5,10,15,20,25,30
-        om-scan (range -10 11 5)                ; omega = -10,-5,0,5,10
+  (let [seed 0 width 60 steps 80
+        k-scan (range 0 (inc (/ width 2)) 5)
+        om-scan (range -10 11 5)
         tau-list [1 5 10]
         max-r 15]
-    (println "E6 spacetime spectra | offset+4 | base engine | seed=0 W=60 T=80")
-    (let [{:keys [grid-G grid-X T width]} (run-spectra writing seed width steps engine)]
-      ;; Power spectra at selected (k, omega) bins
-      (println "\n  S_GG(k,omega) - genotype activity power spectrum:")
-      (doseq [k k-scan]
-        (let [powers (for [om om-scan]
-                       (dft-2d-power grid-G width T k om))]
-          (println (format "    k=%-3d %s" k
-                           (apply str (map #(format "%10.2f" %) powers))))))
-      (println (format "           %s" (apply str (map #(format "%10s" (str "om=" %)) om-scan))))
-      (println "\n  S_XX(k,omega) - phenotype activity power spectrum:")
-      (doseq [k k-scan]
-        (let [powers (for [om om-scan]
-                       (dft-2d-power grid-X width T k om))]
-          (println (format "    k=%-3d %s" k
-                           (apply str (map #(format "%10.2f" %) powers))))))
-      ;; Cross-spectrum S_GX at selected bins
-      (println "\n  S_GX(k,omega) - cross-spectrum (cospectrum = Re):")
-      (let [cross (compute-cross-spectrum grid-G grid-X width T
-                                          [0 5 10 15 20 25 30] [-10 -5 0 5 10])]
-        (doseq [{:keys [k omega cross]} cross]
-          (println (format "    k=%-3d  om=%-4d  cross=%12.2f" k omega cross))))
-      ;; Four-point susceptibility: spatial covariance of overlap at lag tau
-      (println "\n  Four-point susceptibility C_overlap(r) at lag tau:")
-      (doseq [tau tau-list]
-        (let [ov-T (- T tau)
-              ov (local-overlap grid-G width T tau)
-              cov (spatial-covariance ov width ov-T max-r)]
-          (println (format "    tau=%d: %s" tau
-                           (apply str (map #(format " %.4f" %) cov))))))
-      ;; Ridges: find peak (k,omega) for each layer
-      (let [peak-G (apply max-key :power
-                          (for [k (range 0 (inc (/ width 2)))
-                                om (range (int (- (/ T 2))) (inc (int (/ T 2))))]
-                            {:k k :omega om :power (dft-2d-power grid-G width T k om)}))
-            peak-X (apply max-key :power
-                          (for [k (range 0 (inc (/ width 2)))
-                                om (range (int (- (/ T 2))) (inc (int (/ T 2))))]
-                            {:k k :omega om :power (dft-2d-power grid-X width T k om)}))]
-        (println (format "\n  Peak S_GG at k=%d omega=%d (power=%.1f)"
-                         (:k peak-G) (:omega peak-G) (:power peak-G)))
-        (println (format "  Peak S_XX at k=%d omega=%d (power=%.1f)"
-                         (:k peak-X) (:omega peak-X) (:power peak-X)))))))
+    (println "E6 multiscale spacetime spectra | seed=0 W=60 steps=80")
+    ;; Config 1: offset+4 (collapsing) on feedforward base
+    (let [{:keys [grid-G grid-X T width]}
+          (run-spectra [4 5 6 7 0 1 2 3] seed width steps :base)]
+      (print-spectra "offset+4 / base (collapsing null)" grid-G grid-X T width
+                     k-scan om-scan tau-list max-r))
+    ;; Config 2: offset+2 (sustained, gcd 2, two 4-cycles) on feedforward base
+    (let [{:keys [grid-G grid-X T width]}
+          (run-spectra [2 3 4 5 6 7 0 1] seed width steps :base)]
+      (print-spectra "offset+2 / base (sustained)" grid-G grid-X T width
+                     k-scan om-scan tau-list max-r))
+    ;; Config 3: river (feedback engine, reads phenotype back)
+    (let [{:keys [grid-G grid-X T width]}
+          (run-spectra nil seed width steps :river)]
+      (print-spectra "river / feedback (treatment)" grid-G grid-X T width
+                     k-scan om-scan tau-list max-r))))
