@@ -1,151 +1,274 @@
-# E6 — Multiscale spacetime spectra (result)
+E6 multiscale spacetime spectra (correction round v2)
+  single-seed panels: seed=0 W=60 steps=80
+  ensemble: seeds 0-7, demeaned cross-spectra
+  river = c/run-river (authentic); river-ablated = matched feedback-off control
 
-Reproduce: `clojure -M -m mmca.experiments.multiscale-spectra`
-Determinism test: `clojure -M:test` (see `mmca.multiscale-spectra-test`).
-Config: **seed=0, W=60, steps=80**. Three configs: offset+4/base (collapsing
-null), offset+2/base (sustained), river/feedback (treatment).
+=== offset+2 / base (sustained) (T=80, W=60) ===
 
-## Config 1: offset+4 / base (collapsing null)
+  S_GG(k,omega) - genotype activity power spectrum:
+    k=0      3845.61   2345.3417205904.00   2345.34   3845.61
+    k=5      1069.04   2307.31   2606.44   5524.81    449.42
+    k=10      824.93    308.14   1764.00    510.13    801.38
+    k=15       41.96    382.80    650.00    280.30     60.22
+    k=20       29.01    138.14     16.00    218.06    584.12
+    k=25      698.81    245.94    181.56    631.18    441.65
+    k=30       22.08     26.65     36.00     26.65     22.08
+               om=-10     om=-5      om=0      om=5     om=10
 
-### S_GG(k,omega) — genotype activity power spectrum
+  S_XX(k,omega) - phenotype activity power spectrum:
+    k=0       772.02   5660.022247001.00   5660.02    772.02
+    k=5       563.83    576.66  21959.42    924.36    289.15
+    k=10     2691.54    179.99    793.00     88.27    441.30
+    k=15      656.40    418.93    565.00   2497.49    318.34
+    k=20     2497.01   1920.98    325.00   3328.88     22.58
+    k=25       15.61    442.06     38.58   2338.46    176.62
+    k=30     2134.94      3.01   3025.00      3.01   2134.94
 
-| k \ om | -10 | -5 | 0 | 5 | 10 |
-|--------|-----|----|----|----|-----|
-| 0 | 11681 | 28952 | 1874161 | 28952 | 11681 |
-| 5 | 104 | 1328 | 1231 | 263 | 164 |
-| 10 | 3435 | 768 | 1027 | 2308 | 13 |
-| 30 | 303 | 198 | 49 | 198 | 303 |
+  S_GX(k,omega) - cross-spectrum (cospectrum = Re):
+    k=0    om=-10   cross=     -902.81
+    k=0    om=-5    cross=     1371.62
+    k=0    om=0     cross=  6217852.00
+    k=0    om=5     cross=     1371.62
+    k=0    om=10    cross=     -902.81
+    k=5    om=-10   cross=      667.90
+    k=5    om=-5    cross=      114.09
+    k=5    om=0     cross=    -4158.40
+    k=5    om=5     cross=     2180.65
+    k=5    om=10    cross=       55.15
+    k=10   om=-10   cross=    -1187.71
+    k=10   om=-5    cross=       79.19
+    k=10   om=0     cross=      885.00
+    k=10   om=5     cross=      197.47
+    k=10   om=10    cross=      510.59
+    k=15   om=-10   cross=        4.38
+    k=15   om=-5    cross=     -227.48
+    k=15   om=0     cross=     -335.00
+    k=15   om=5     cross=     -485.72
+    k=15   om=10    cross=      -61.36
+    k=20   om=-10   cross=     -238.94
+    k=20   om=-5    cross=      369.13
+    k=20   om=0     cross=       70.00
+    k=20   om=5     cross=      722.71
+    k=20   om=10    cross=       55.59
+    k=25   om=-10   cross=        9.69
+    k=25   om=-5    cross=     -314.46
+    k=25   om=0     cross=       83.40
+    k=25   om=5     cross=     1214.20
+    k=25   om=10    cross=      171.66
+    k=30   om=-10   cross=       16.91
+    k=30   om=-5    cross=       -8.96
+    k=30   om=0     cross=      330.00
+    k=30   om=5     cross=       -8.96
+    k=30   om=10    cross=       16.91
 
-Peak S_GG at k=0 omega=0 (power=1874161).
+  Four-point susceptibility C_overlap(r) at lag tau:
+    tau=1:  0.1682 0.0523 0.0307 0.0223 0.0134 0.0058 -0.0026 -0.0051 -0.0103 -0.0185 -0.0164 -0.0183 -0.0116 -0.0068 -0.0100 -0.0095
+    tau=5:  0.1858 0.0519 0.0281 0.0210 0.0168 0.0104 0.0009 -0.0090 -0.0106 -0.0201 -0.0198 -0.0173 -0.0075 -0.0075 -0.0055 -0.0066
+    tau=10:  0.1882 0.0510 0.0293 0.0213 0.0129 0.0067 0.0060 0.0011 -0.0016 -0.0091 -0.0004 -0.0067 -0.0068 -0.0044 -0.0076 -0.0121
 
-### S_XX(k,omega) — phenotype activity power spectrum
+  Peak S_GG at k=0 omega=0 (power=17205904.0)
+  Peak S_XX at k=0 omega=0 (power=2247001.0)
 
-| k \ om | -10 | -5 | 0 | 5 | 10 |
-|--------|-----|----|----|----|-----|
-| 0 | 1012 | 5017 | 153664 | 5017 | 1012 |
-| 5 | 267 | 1282 | 1335 | 136 | 78 |
-| 30 | 523 | 705 | 4 | 705 | 523 |
+=== river / feedback (authentic, treatment) (T=80, W=60) ===
 
-Peak S_XX at k=0 omega=0 (power=153664).
+  S_GG(k,omega) - genotype activity power spectrum:
+    k=0      1083.00    432.5021594609.00    432.50   1083.00
+    k=5       114.13     69.98    280.98    345.65     69.06
+    k=10      294.45     73.78    379.00     54.12      6.15
+    k=15       49.20      2.60     17.00     34.27    428.16
+    k=20      248.16    122.57     93.00     22.68     81.98
+    k=25       82.65      0.80     35.02    475.81     10.07
+    k=30       77.84     39.37    289.00     39.37     77.84
+               om=-10     om=-5      om=0      om=5     om=10
 
-### Four-point susceptibility C_overlap(r) at selected lags
+  S_XX(k,omega) - phenotype activity power spectrum:
+    k=0      1350.06    884.272879809.00    884.27   1350.06
+    k=5      1203.55   1610.70   1780.09   1032.22    126.78
+    k=10      662.04    109.13    193.00    219.35   1202.53
+    k=15     1188.69    483.91   1669.00     86.03   1728.90
+    k=20      504.97   1670.35    559.00   1010.35   1898.26
+    k=25     1627.60   3763.95    591.91    507.12    535.67
+    k=30     1171.38    634.37    529.00    634.37   1171.38
 
-| tau | r=0 | r=1 | r=5 | r=10 | r=15 |
-|-----|-----|-----|-----|------|------|
-| 1 | 0.1751 | 0.1251 | 0.1090 | 0.1011 | 0.0947 |
-| 5 | 0.1525 | 0.1055 | 0.0938 | 0.0863 | 0.0788 |
-| 10 | 0.1302 | 0.0831 | 0.0753 | 0.0673 | 0.0633 |
+  S_GX(k,omega) - cross-spectrum (cospectrum = Re):
+    k=0    om=-10   cross=      929.06
+    k=0    om=-5    cross=     -398.65
+    k=0    om=0     cross=  7885959.00
+    k=0    om=5     cross=     -398.65
+    k=0    om=10    cross=      929.06
+    k=5    om=-10   cross=      315.36
+    k=5    om=-5    cross=      230.01
+    k=5    om=0     cross=     -614.95
+    k=5    om=5     cross=      588.13
+    k=5    om=10    cross=      -32.99
+    k=10   om=-10   cross=       67.90
+    k=10   om=-5    cross=      -25.35
+    k=10   om=0     cross=      268.00
+    k=10   om=5     cross=       -5.49
+    k=10   om=10    cross=       84.86
+    k=15   om=-10   cross=     -170.80
+    k=15   om=-5    cross=       -5.51
+    k=15   om=0     cross=     -137.00
+    k=15   om=5     cross=      -42.09
+    k=15   om=10    cross=      851.97
+    k=20   om=-10   cross=       40.09
+    k=20   om=-5    cross=     -364.18
+    k=20   om=0     cross=     -168.00
+    k=20   om=5     cross=     -143.98
+    k=20   om=10    cross=     -394.47
+    k=25   om=-10   cross=     -344.53
+    k=25   om=-5    cross=      -53.94
+    k=25   om=0     cross=       70.95
+    k=25   om=5     cross=      489.34
+    k=25   om=10    cross=       -4.47
+    k=30   om=-10   cross=       -6.02
+    k=30   om=-5    cross=     -112.53
+    k=30   om=0     cross=      391.00
+    k=30   om=5     cross=     -112.53
+    k=30   om=10    cross=       -6.02
 
-## Config 2: offset+2 / base (sustained)
+  Four-point susceptibility C_overlap(r) at lag tau:
+    tau=1:  0.0537 0.0150 0.0090 0.0083 0.0072 0.0087 0.0092 0.0089 0.0104 0.0109 0.0099 0.0086 0.0081 0.0081 0.0067 0.0060
+    tau=5:  0.0568 0.0115 0.0078 0.0080 0.0063 0.0077 0.0088 0.0070 0.0095 0.0098 0.0087 0.0078 0.0061 0.0063 0.0045 0.0041
+    tau=10:  0.0579 0.0108 0.0075 0.0083 0.0078 0.0107 0.0092 0.0093 0.0091 0.0094 0.0090 0.0079 0.0061 0.0040 0.0040 0.0040
 
-### S_GG(k,omega)
+  Peak S_GG at k=0 omega=0 (power=21594609.0)
+  Peak S_XX at k=0 omega=0 (power=2879809.0)
 
-| k \ om | -10 | -5 | 0 | 5 | 10 |
-|--------|-----|----|----|----|-----|
-| 0 | 3846 | 2345 | 17205904 | 2345 | 3846 |
-| 5 | 1069 | 2307 | 2606 | 5525 | 449 |
-| 10 | 825 | 308 | 1764 | 510 | 801 |
-| 30 | 22 | 27 | 36 | 27 | 22 |
+=== river-ablated / matched feedback-off (control) (T=80, W=60) ===
 
-Peak S_GG at k=0 omega=0 (power=17205904).
+  S_GG(k,omega) - genotype activity power spectrum:
+    k=0        43.73    219.0821715600.00    219.08     43.73
+    k=5        80.30    100.49    960.68    199.50    732.26
+    k=10       55.08    175.59    193.00     89.22    486.18
+    k=15       63.21    167.66    160.00    152.80    332.63
+    k=20       42.32     86.02     19.00    815.35     58.13
+    k=25       72.46    194.25    271.32      0.65     32.00
+    k=30      166.81     80.75     64.00     80.75    166.81
+               om=-10     om=-5      om=0      om=5     om=10
 
-### S_XX(k,omega)
+  S_XX(k,omega) - phenotype activity power spectrum:
+    k=0      4358.39   1027.963348900.00   1027.96   4358.39
+    k=5       532.07   2185.30   8252.95    690.02      1.18
+    k=10      735.93     80.85   1809.00   1714.93   6082.19
+    k=15     2008.88    790.90   2138.00   3170.22      0.50
+    k=20      691.55   3487.41   1791.00     98.39   1910.10
+    k=25       15.92   2855.65   9739.05    632.71     96.42
+    k=30     2738.01   3166.69    144.00   3166.69   2738.01
 
-| k \ om | -10 | -5 | 0 | 5 | 10 |
-|--------|-----|----|----|----|-----|
-| 0 | 772 | 5660 | 2247001 | 5660 | 772 |
-| 5 | 564 | 577 | 21959 | 924 | 289 |
-| 10 | 2692 | 180 | 793 | 88 | 441 |
-| 30 | 2135 | 3 | 3025 | 3 | 2135 |
+  S_GX(k,omega) - cross-spectrum (cospectrum = Re):
+    k=0    om=-10   cross=      208.19
+    k=0    om=-5    cross=      201.90
+    k=0    om=0     cross=  8527800.00
+    k=0    om=5     cross=      201.90
+    k=0    om=10    cross=      208.19
+    k=5    om=-10   cross=     -134.75
+    k=5    om=-5    cross=      225.26
+    k=5    om=0     cross=     2529.38
+    k=5    om=5     cross=      361.54
+    k=5    om=10    cross=      -29.29
+    k=10   om=-10   cross=      -19.15
+    k=10   om=-5    cross=       49.65
+    k=10   om=0     cross=      427.50
+    k=10   om=5     cross=      279.97
+    k=10   om=10    cross=     1671.25
+    k=15   om=-10   cross=     -262.18
+    k=15   om=-5    cross=     -208.21
+    k=15   om=0     cross=      376.00
+    k=15   om=5     cross=       52.23
+    k=15   om=10    cross=      -12.80
+    k=20   om=-10   cross=        2.37
+    k=20   om=-5    cross=     -508.57
+    k=20   om=0     cross=      160.50
+    k=20   om=5     cross=       17.42
+    k=20   om=10    cross=     -300.65
+    k=25   om=-10   cross=       26.18
+    k=25   om=-5    cross=     -139.30
+    k=25   om=0     cross=     -943.38
+    k=25   om=5     cross=       11.43
+    k=25   om=10    cross=        4.88
+    k=30   om=-10   cross=     -465.30
+    k=30   om=-5    cross=       30.49
+    k=30   om=0     cross=      -96.00
+    k=30   om=5     cross=       30.49
+    k=30   om=10    cross=     -465.30
 
-Peak S_XX at k=0 omega=0 (power=2247001).
+  Four-point susceptibility C_overlap(r) at lag tau:
+    tau=1:  0.0535 0.0109 0.0123 0.0117 0.0120 0.0095 0.0104 0.0126 0.0093 0.0115 0.0105 0.0116 0.0109 0.0106 0.0109 0.0093
+    tau=5:  0.0538 0.0086 0.0117 0.0101 0.0105 0.0111 0.0105 0.0121 0.0092 0.0116 0.0107 0.0122 0.0098 0.0100 0.0107 0.0111
+    tau=10:  0.0556 0.0098 0.0114 0.0106 0.0113 0.0115 0.0101 0.0119 0.0088 0.0118 0.0106 0.0120 0.0101 0.0104 0.0109 0.0105
 
-### Four-point susceptibility
+  Peak S_GG at k=0 omega=0 (power=21715600.0)
+  Peak S_XX at k=0 omega=0 (power=3348900.0)
 
-| tau | r=0 | r=1 | r=5 | r=10 | r=15 |
-|-----|-----|-----|-----|------|------|
-| 1 | 0.1682 | 0.0523 | 0.0134 | -0.0164 | -0.0095 |
-| 5 | 0.1858 | 0.0519 | 0.0168 | -0.0198 | -0.0066 |
-| 10 | 0.1882 | 0.0510 | 0.0129 | -0.0004 | -0.0121 |
+=== ENSEMBLE: demeaned cross-spectra (river vs matched ablation) ===
+  Demeaning removes per-cell temporal mean (DC) before the cross-DFT.
+  The contrast 'river - ablated' isolates the feedback-spectral structure.
 
-## Config 3: river / feedback (treatment)
+  river demeaned S_GX(k,omega) [ensemble mean, seed-range]:
+    seeds 0-7, demeaned per-cell (DC removed)
+    k=0    193.8 [-221.1, 929.1]197.5 [-822.5, 1076.4]       0.0 [-0.0, 0.0]197.5 [-822.5, 1076.4] 193.8 [-221.1, 929.1]
+    k=5    -19.3 [-259.7, 315.4]   198.9 [-2.1, 427.5]       0.0 [-0.0, 0.0]339.6 [-349.8, 1287.3]  72.9 [-572.7, 506.0]
+    k=10    53.8 [-404.6, 432.7]  75.0 [-307.9, 690.4]      -0.0 [-0.0, 0.0]198.9 [-269.5, 1215.7] 149.1 [-139.4, 790.1]
+    k=15  -116.1 [-383.9, 132.2] -44.6 [-337.6, 529.1]      -0.0 [-0.0, 0.0]  79.4 [-144.1, 406.5] 123.2 [-327.6, 852.0]
+    k=20   -33.0 [-250.4, 281.1] -54.7 [-364.2, 227.2]       0.0 [-0.0, 0.0]   9.8 [-325.5, 538.4] -11.6 [-394.5, 261.2]
+    k=25   -133.7 [-344.5, 28.6]  52.2 [-150.0, 532.9]      -0.0 [-0.0, 0.0]  30.3 [-248.7, 489.3] -153.7 [-531.3, 31.0]
+    k=30   -58.0 [-551.4, 252.5]-284.9 [-1572.1, 117.5]       0.0 [-0.0, 0.0]-284.9 [-1572.1, 117.5] -58.0 [-551.4, 252.5]
+                           om=-10                 om=-5                  om=0                  om=5                 om=10
 
-### S_GG(k,omega)
+  river-ablated demeaned S_GX(k,omega) [ensemble mean, seed-range]:
+    seeds 0-7, demeaned per-cell (DC removed)
+    k=0     62.1 [-163.6, 402.4]  89.1 [-627.6, 498.8]      -0.0 [-0.0, 0.0]  89.1 [-627.6, 498.8]  62.1 [-163.6, 402.4]
+    k=5     60.8 [-172.0, 503.3] 102.0 [-412.6, 540.9]       0.0 [-0.0, 0.0]   0.5 [-539.4, 361.5]  126.6 [-76.2, 410.0]
+    k=10    40.8 [-260.7, 630.7]  11.0 [-236.6, 480.0]      -0.0 [-0.0, 0.0] 301.4 [-29.2, 1096.3]376.3 [-604.2, 1671.2]
+    k=15    65.8 [-262.2, 586.5]270.4 [-208.2, 1553.1]      -0.0 [-0.0, 0.0] 113.1 [-145.1, 580.5] -55.3 [-761.9, 439.7]
+    k=20  -165.2 [-1259.6, 155.1] -239.1 [-563.2, 71.5]       0.0 [-0.0, 0.0]-203.7 [-1028.8, 132.5] -28.5 [-398.1, 613.8]
+    k=25   152.4 [-103.0, 775.4]   5.8 [-540.5, 447.9]      -0.0 [-0.0, 0.0]  -78.4 [-314.2, 57.0] -35.4 [-263.0, 174.6]
+    k=30   -61.0 [-465.3, 226.6]  10.2 [-170.2, 194.4]       0.0 [-0.0, 0.0]  10.2 [-170.2, 194.4] -61.0 [-465.3, 226.6]
+                           om=-10                 om=-5                  om=0                  om=5                 om=10
 
-| k \ om | -10 | -5 | 0 | 5 | 10 |
-|--------|-----|----|----|----|-----|
-| 0 | 1274 | 2861 | 17388900 | 2861 | 1274 |
-| 5 | 1999 | 1152 | 2611 | 1524 | 176 |
-| 10 | 1842 | 599 | 2163 | 374 | 72 |
-| 15 | 103 | 598 | 4964 | 26 | 139 |
-| 20 | 307 | 101 | 7779 | 369 | 73 |
-| 25 | 38 | 78 | 4911 | 1500 | 271 |
-| 30 | 114 | 117 | 8100 | 117 | 114 |
+=== ENSEMBLE: power spectra (river vs matched ablation) ===
 
-Peak S_GG at k=0 omega=0 (power=17388900). Notable: off-DC structure at k=15-30,
-omega=0 (4964-8100) — sustained spatial structure in genotype activity.
+  river grid-G(k,omega) [ensemble mean, seed-range]:
+    k=0            261 [4, 1083]         259 [71, 597]21673719 [21031396, 21996100]         259 [71, 597]         261 [4, 1083]
+    k=5             117 [3, 327]         221 [12, 520]        458 [15, 1864]          242 [6, 570]         143 [24, 351]
+    k=10           263 [20, 633]          173 [4, 619]        527 [16, 2356]         195 [36, 494]          148 [6, 574]
+    k=15             85 [2, 226]          179 [3, 491]         293 [9, 1145]          117 [3, 257]         148 [10, 428]
+    k=20            122 [2, 251]         164 [35, 642]         306 [64, 637]         185 [23, 456]          87 [16, 227]
+    k=25           112 [26, 253]          161 [1, 528]           99 [0, 334]          109 [9, 476]          130 [2, 316]
+    k=30              48 [0, 93]          182 [8, 499]          194 [4, 625]          182 [8, 499]            48 [0, 93]
 
-### S_XX(k,omega)
+  river-ablated grid-G(k,omega) [ensemble mean, seed-range]:
+    k=0              65 [0, 197]          116 [5, 246]21742595 [21576025, 21921124]          116 [5, 246]           65 [0, 197]
+    k=5            113 [12, 246]        231 [100, 441]         413 [40, 964]          96 [16, 265]         167 [32, 732]
+    k=10           102 [15, 294]         141 [20, 298]        387 [108, 651]         118 [16, 241]         237 [10, 664]
+    k=15           135 [18, 440]         183 [21, 625]         216 [45, 585]         152 [25, 370]         175 [19, 507]
+    k=20           165 [26, 658]           89 [3, 333]         132 [19, 313]         204 [10, 815]          158 [9, 406]
+    k=25           121 [10, 260]         132 [31, 311]         122 [10, 369]           64 [1, 167]          79 [10, 199]
+    k=30            130 [1, 603]           79 [6, 277]            42 [1, 81]           79 [6, 277]          130 [1, 603]
 
-| k \ om | -10 | -5 | 0 | 5 | 10 |
-|--------|-----|----|----|----|-----|
-| 0 | 569 | 7049 | 1401856 | 7049 | 569 |
-| 5 | 633 | 834 | 4704 | 901 | 371 |
-| 10 | 177 | 292 | 457 | 2190 | 39 |
-| 30 | 70 | 340 | 256 | 340 | 70 |
+=== ENSEMBLE: four-point susceptibility (river vs matched ablation) ===
 
-Peak S_XX at k=0 omega=0 (power=1401856).
+  river four-point susceptibility C_overlap(r) [mean, seed-range]:
+    tau=1:  0.0511 [0.0391, 0.0675] 0.0127 [0.0096, 0.0188] 0.0090 [0.0085, 0.0098] 0.0090 [0.0072, 0.0120] 0.0090 [0.0056, 0.0127] 0.0094 [0.0067, 0.0150] 0.0102 [0.0065, 0.0160] 0.0114 [0.0076, 0.0163] 0.0116 [0.0067, 0.0171] 0.0119 [0.0059, 0.0189] 0.0116 [0.0046, 0.0198] 0.0108 [0.0045, 0.0165] 0.0105 [0.0049, 0.0163] 0.0104 [0.0040, 0.0204] 0.0090 [0.0029, 0.0164] 0.0090 [0.0032, 0.0173]
+    tau=5:  0.0552 [0.0435, 0.0775] 0.0109 [0.0081, 0.0175] 0.0087 [0.0078, 0.0094] 0.0092 [0.0079, 0.0128] 0.0089 [0.0063, 0.0129] 0.0090 [0.0060, 0.0134] 0.0100 [0.0063, 0.0154] 0.0108 [0.0058, 0.0158] 0.0117 [0.0054, 0.0176] 0.0118 [0.0049, 0.0220] 0.0117 [0.0037, 0.0251] 0.0106 [0.0032, 0.0204] 0.0104 [0.0043, 0.0197] 0.0102 [0.0032, 0.0237] 0.0085 [0.0005, 0.0196] 0.0083 [0.0010, 0.0202]
+    tau=10:  0.0561 [0.0445, 0.0829] 0.0109 [0.0071, 0.0193] 0.0086 [0.0075, 0.0100] 0.0091 [0.0069, 0.0122] 0.0088 [0.0049, 0.0138] 0.0093 [0.0058, 0.0131] 0.0103 [0.0063, 0.0161] 0.0110 [0.0062, 0.0165] 0.0118 [0.0059, 0.0194] 0.0120 [0.0049, 0.0234] 0.0114 [0.0043, 0.0246] 0.0105 [0.0036, 0.0216] 0.0104 [0.0043, 0.0223] 0.0099 [0.0030, 0.0260] 0.0086 [0.0007, 0.0216] 0.0084 [0.0008, 0.0188]
 
-### S_GX(k,omega) — cross-spectrum (selected bins)
+  river-ablated four-point susceptibility C_overlap(r) [mean, seed-range]:
+    tau=1:  0.0522 [0.0456, 0.0573] 0.0100 [0.0056, 0.0130] 0.0072 [0.0041, 0.0123] 0.0077 [0.0036, 0.0117] 0.0075 [0.0035, 0.0120] 0.0071 [0.0021, 0.0116] 0.0072 [0.0032, 0.0123] 0.0072 [0.0028, 0.0126] 0.0067 [0.0016, 0.0116] 0.0073 [0.0008, 0.0130] 0.0076 [0.0004, 0.0127] 0.0078 [0.0016, 0.0116] 0.0076 [0.0012, 0.0126] 0.0075 [0.0043, 0.0115] 0.0069 [0.0007, 0.0119] 0.0064 [0.0000, 0.0130]
+    tau=5:  0.0532 [0.0463, 0.0601] 0.0084 [0.0054, 0.0110] 0.0075 [0.0043, 0.0117] 0.0076 [0.0041, 0.0101] 0.0074 [0.0030, 0.0105] 0.0067 [0.0008, 0.0126] 0.0069 [0.0027, 0.0123] 0.0071 [0.0024, 0.0123] 0.0062 [0.0002, 0.0113] 0.0071 [-0.0014, 0.0136] 0.0075 [0.0011, 0.0107] 0.0085 [0.0022, 0.0122] 0.0075 [-0.0000, 0.0139] 0.0071 [0.0030, 0.0117] 0.0069 [0.0013, 0.0122] 0.0065 [-0.0014, 0.0134]
+    tau=10:  0.0534 [0.0464, 0.0585] 0.0083 [0.0044, 0.0118] 0.0074 [0.0035, 0.0114] 0.0075 [0.0031, 0.0106] 0.0073 [0.0026, 0.0113] 0.0070 [0.0001, 0.0123] 0.0070 [0.0006, 0.0135] 0.0074 [0.0016, 0.0129] 0.0067 [-0.0012, 0.0130] 0.0077 [-0.0018, 0.0146] 0.0075 [-0.0007, 0.0119] 0.0078 [0.0008, 0.0120] 0.0075 [-0.0007, 0.0140] 0.0071 [0.0017, 0.0130] 0.0067 [-0.0004, 0.0123] 0.0065 [-0.0004, 0.0121]
 
-| k \ om | -10 | -5 | 0 | 5 | 10 |
-|--------|-----|----|----|----|-----|
-| 0 | -823 | 2922 | 4937280 | 2922 | -823 |
-| 5 | 559 | 337 | 3339 | 140 | -175 |
-| 10 | -432 | -306 | -917 | -862 | 2 |
-| 25 | 74 | -54 | 667 | 66 | 365 |
-| 30 | 1 | -199 | 1440 | -199 | 1 |
+=== FEEDBACK CONTRAST: demeaned S_GX (river - matched ablation) ===
+  k=30 (Nyquist for W=60), all omega bins:
+    om=-10   river: -58.0 [-551.4, 252.5]  ablated: -61.0 [-465.3, 226.6]  contrast: 3.1
+    om=-5    river: -284.9 [-1572.1, 117.5]  ablated: 10.2 [-170.2, 194.4]  contrast: -295.0
+    om=0     river: 0.0 [-0.0, 0.0]  ablated: 0.0 [-0.0, 0.0]  contrast: -0.0
+    om=5     river: -284.9 [-1572.1, 117.5]  ablated: 10.2 [-170.2, 194.4]  contrast: -295.0
+    om=10    river: -58.0 [-551.4, 252.5]  ablated: -61.0 [-465.3, 226.6]  contrast: 3.1
 
-### Four-point susceptibility
+  Strongest feedback contrast across all bins: 339.10481555848867 at [5 5], contrast=339.1
 
-| tau | r=0 | r=1 | r=5 | r=10 | r=15 |
-|-----|-----|-----|-----|------|------|
-| 1 | 0.1565 | 0.0646 | 0.0179 | -0.0129 | -0.0283 |
-| 5 | 0.1741 | 0.0638 | 0.0221 | -0.0183 | -0.0335 |
-| 10 | 0.1762 | 0.0544 | 0.0175 | -0.0152 | -0.0304 |
-
-## Reading
-
-**Across all three configs, spectra are DC-dominated (k=0, omega=0)** —
-no propagating-wave ridges or oscillatory modes in any engine/writing
-combination. The off-DC power is broadband noise without dispersion
-structure.
-
-The key diagnostic differences between configs:
-
-1. **Collapsing null (offset+4/base)**: smoothest spectra, slowest
-   susceptibility decay (~2-3 cell correlation, monotone positive). The field
-   is dying gently.
-
-2. **Sustained (offset+2/base)**: susceptibility crosses zero at r~6-7 cells
-   — **anticorrelation** at intermediate range, the signature of domain
-   boundaries. S_XX at k=5, omega=0 is elevated (21959 vs 1335 in the
-   collapsing case): the phenotype has more spatial structure at wavelength
-   12. Still no propagating ridges.
-
-3. **River (feedback treatment)**: S_GG shows off-DC structure at k=15-30,
-   omega=0 (4964-8100): the feedback creates spatially periodic genotype
-   activity that the feedforward base lacks. The cross-spectrum S_GX at
-   k=30, omega=0 = 1440 (vs 14 in collapsing, 330 in sustained): the river
-   introduces significant small-wavelength coupling between genotype and
-   phenotype. Susceptibility anticorrelation is deeper (-0.03 vs -0.01),
-   extending to larger r (-0.0304 at r=15 for tau=10).
-
-**These spectra are descriptive, not evidence of criticality.** The
-river's off-DC cross-spectrum and deeper susceptibility anticorrelation
-are the feedback signature; the absence of propagating ridges or
-oscillatory peaks means the dynamics lack coherent wave modes even with
-feedback. The sustained operator's domain-boundary anticorrelation is the
-most physically interesting feature: it suggests intermittent domain
-structure worth probing with the full four-point susceptibility at
-higher resolution.
+  Does the off-DC S_GX structure survive ablation?
+  (Demeaning removes temporal DC, so omega=0 is structurally zero by construction.)
+    k=Nyquist off-DC sum: river=-685.6, ablated=-101.7, contrast=-583.9
