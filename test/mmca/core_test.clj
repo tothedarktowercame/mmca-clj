@@ -64,3 +64,10 @@
            (sha256 (select-keys run [:gen :phe]))))
     (is (= {:death 120 :rules 47 :activity 3976}
            (select-keys run [:death :rules :activity])))))
+
+(deftest original-paper-river-is-grid-identical
+  (let [run (mmca/run-original-paper-river 1 80 120)]
+    (is (= "40d60446166b69eebc6810e58d242ed3cc4e264731156a409be807072d782681"
+           (sha256 (select-keys run [:gen :phe]))))
+    (is (= {:death 120 :rules 41 :activity 3547}
+           (select-keys run [:death :rules :activity])))))

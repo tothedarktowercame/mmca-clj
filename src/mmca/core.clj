@@ -226,6 +226,25 @@
                  (rule-output centre left middle right)))
            pb cb sb))))
 
+(defn original-river-combine-rule
+  "Original Figure-6 `quad-4cand / firstMatch` construction.
+
+  Its complete typed coordinate is context-quadruple-four-candidates,
+  first-template-match-else-fallback, constant-zero, eight-bits-to-rule-byte.
+  The later reconstruction used the centre rule as fallback instead."
+  [predecessor centre successor context]
+  (let [pb (rule-bits predecessor)
+        cb (rule-bits centre)
+        sb (rule-bits successor)
+        templates (when context (apply river-templates context))]
+    (bits-rule
+     (mapv (fn [left middle right]
+             (or (some (fn [[parent result]]
+                         (when (= parent [left middle right]) result))
+                       templates)
+                 0))
+           pb cb sb))))
+
 (def river-writing
   (positional-writing->neighbourhood-writing [2 3 4 5 6 7 0 1]))
 
@@ -259,3 +278,56 @@
                  (conj genotypes next-genotype)
                  (conj phenotypes next-phenotype)
                  (conj activities (changed-count phenotype next-phenotype))))))))
+
+(defn- java-random-genotype [^java.util.Random random width]
+  (mapv (fn [_] (.nextInt random rule-count)) (range width)))
+
+(defn- java-random-phenotype [^java.util.Random random width]
+  (apply str
+         (map (fn [_] (if (< (.nextDouble random) 0.5) \1 \0))
+              (range width))))
+
+(defn- original-paper-river-genotype-step
+  [^java.util.Random random genotype phenotype next-phenotype]
+  (let [width (count genotype)]
+    (mapv
+     (fn [i]
+       (let [predecessor (if (zero? i) default-rule (nth genotype (dec i)))
+             centre (nth genotype i)
+             successor (if (= i (dec width)) default-rule (nth genotype (inc i)))
+             context (when (and (pos? i) (< i (dec width)))
+                       [(Character/digit (nth phenotype (dec i)) 2)
+                        (Character/digit (nth phenotype i) 2)
+                        (Character/digit (nth phenotype (inc i)) 2)
+                        (Character/digit (nth next-phenotype i) 2)])]
+         (propagate-at
+          (original-river-combine-rule predecessor centre successor context)
+          river-writing
+          (.nextInt random bit-count))))
+     (range width))))
+
+(defn run-original-paper-river
+  "Replay original Figure 6: `quad-4cand / firstMatch prop:rot2`.
+
+  The no-match fallback is constant zero. One `java.util.Random`, seeded by
+  the literal integer, supplies numeric rule initialization, `nextDouble`
+  phenotype bits, and propagator source positions. The ordering-independent
+  shim converts positional rot2 before the run. This is deliberately separate
+  from `run-river`, the later centre-rule/Emacs-seed reconstruction."
+  [seed width steps]
+  (let [random (java.util.Random. (long seed))
+        g0 (java-random-genotype random width)
+        p0 (java-random-phenotype random width)]
+    (loop [t 0 genotype g0 phenotype p0 genotypes [g0] phenotypes [p0]
+           activities []]
+      (if (= t steps)
+        (finish-run phenotypes genotypes activities)
+        (let [next-phenotype (phenotype-step genotype phenotype)
+              next-genotype
+              (original-paper-river-genotype-step
+               random genotype phenotype next-phenotype)]
+          (recur (inc t) next-genotype next-phenotype
+                 (conj genotypes next-genotype)
+                 (conj phenotypes next-phenotype)
+                 (conj activities
+                       (changed-count phenotype next-phenotype))))))))
