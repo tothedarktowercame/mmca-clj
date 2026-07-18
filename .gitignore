@@ -1,0 +1,5 @@
+/.cpcache/
+/.clj-kondo/.cache/
+/data/*.txt
+/figures/*.png
+__pycache__/

@@ -1,0 +1,6 @@
+{:paths ["src" "scripts"]
+ :aliases
+ {:test {:extra-paths ["test"]
+         :main-opts ["-m" "mmca.test-runner"]}
+  :figures {:main-opts ["-m" "mmca.figures" "all"]}
+  :stats {:main-opts ["-m" "mmca.figures" "stats"]}}}
