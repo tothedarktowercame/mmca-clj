@@ -49,14 +49,15 @@
 (defn- run-samples
   [engine {:keys [writing seeds width steps burn-in]}]
   (let [neighbourhood-writing
-        (if (= engine :river)
+        (if (contains? #{:river :river-ablated} engine)
           c/river-writing
           (c/positional-writing->neighbourhood-writing writing))]
     (vec
      (for [seed seeds
            :let [run (case engine
                        :base (c/run-propagator writing seed width steps)
-                       :river (c/run-river seed width steps))]
+                       :river (c/run-river seed width steps)
+                       :river-ablated (c/run-river-ablated seed width steps))]
            t (range burn-in steps)
            i (range 1 (dec width))
            :let [g (nth (:gen run) t)
@@ -207,17 +208,24 @@
   ([{:keys [folds surrogate-seed width burn-in steps alpha] :as config}]
    (let [base (run-samples :base config)
          river (run-samples :river config)
+         ablated (run-samples :river-ablated config)
          controls (fixed-rule-samples config)
          base-g-to-x (x-direction base folds alpha)
          base-x-to-g (g-direction base folds alpha)
          river-g-to-x (x-direction river folds alpha)
-         river-x-to-g (g-direction river folds alpha)]
+         river-x-to-g (g-direction river folds alpha)
+         ablated-x-to-g (g-direction ablated folds alpha)]
      {:config (select-keys config [:writing :seeds :width :steps :burn-in
                                    :folds :surrogate-seed :alpha])
       :base {:g-to-x base-g-to-x
              :x-to-g base-x-to-g}
       :river {:g-to-x river-g-to-x
               :x-to-g river-x-to-g}
+      ;; MATCHED feedback-off control: run-river-ablated shares the river's exact
+      ;; Java seed/tape/construction/fallback, cutting only the X->G edge (frozen
+      ;; phenotype). river X->G minus this is the isolated causal feedback --
+      ;; replacing the old base-engine control, which differed in RNG + construction.
+      :river-ablated {:x-to-g ablated-x-to-g}
       :surrogates
       {:rule-label-shuffle
        {:g-to-x (x-direction (shuffled-g-source river surrogate-seed) folds alpha)}
@@ -226,7 +234,7 @@
                  (spacetime-shuffled-g-source river width burn-in steps)
                  folds alpha)}
        :feedback-breaking
-       {:x-to-g base-x-to-g}}
+       {:x-to-g ablated-x-to-g}}
       :live-dead-control
       {:rules [105 204]
        :g-to-x (x-direction controls folds alpha)}})))
@@ -255,10 +263,15 @@
                           (get-in result [:surrogates
                                           :spatial-temporal-genotype-shuffle
                                           :g-to-x])))
-    (println (metric-line "feedback-breaking X->G"
-                          (get-in result [:surrogates :feedback-breaking :x-to-g])))
+    (println (metric-line "river-ablated MATCHED feedback-off X->G"
+                          (get-in result [:river-ablated :x-to-g])))
     (println (metric-line "Rule 105/204 pooled control G->X"
                           (get-in result [:live-dead-control :g-to-x])))
+    (let [rv (get-in result [:river :x-to-g :improvement])
+          ab (get-in result [:river-ablated :x-to-g :improvement])]
+      (println (format "%-43s % .6f"
+                       "ISOLATED X->G feedback (river - matched ablation)"
+                       (- rv ab))))
     (let [null-value (get-in result [:base :x-to-g :improvement])]
       (println)
       (println (format "CHECK feedforward X->G |value| < 0.05: %s (%.6f)"

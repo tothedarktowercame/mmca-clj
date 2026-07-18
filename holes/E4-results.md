@@ -1,41 +1,38 @@
-# E4 — Directed conditional predictive information (result)
+# E4 — Directed predictive information (corrected: authentic river + matched ablation)
 
-Reproduce: `clojure -M -m mmca.experiments.directed-predictive-info`
+Reproduce: `clojure -M -m mmca.experiments.directed-predictive-info`.
+Determinism: `clojure -M:test` (`mmca.directed-predictive-info-test`).
+Config: seeds 0–7, W=48, T=64, burn-in=16, 4 seed-held-out folds, Jeffreys α=0.5,
+radius-1 past lightcones. Values are held-out baseline log loss minus joint log
+loss, **bits per site-step** — a held-out predictive-log-loss gain, *not*
+unrestricted conditional mutual information and not by itself causality.
 
-Determinism gate: `clojure -M:test` (see `mmca.directed-predictive-info-test`).
+**Correction (Codex review):** this now uses the authentic river `c/run-river`
+(was the reconstruction) and a MATCHED feedback-off control
+`c/run-river-ablated` (was the base engine, which differed in RNG + construction
++ fallback, so it could not isolate feedback).
 
-Config: simulation seeds 0–7, surrogate seed `e4-surrogate-1729`, W=48,
-T=64, burn-in=16, four seed-held-out folds, Jeffreys smoothing α=0.5.
-
-Predictors use one-step radius-1 past lightcones. Values are held-out baseline
-log loss minus joint log loss, in bits per site-step. For G⁺, the eight rule
-bits are predicted separately and their losses summed. Negative surrogate/null
-values are retained rather than clipped: they expose finite-sample estimation
-cost instead of manufacturing nonnegative information.
-
-| condition | directed quantity | baseline loss | joint loss | improvement |
-|---|---:|---:|---:|---:|
-| feedforward base | I(G⁻;X⁺\|X⁻) | 0.221621 | 0.070785 | **0.150836** |
-| feedforward base (correctness check) | I(X⁻;G⁺\|G⁻) | 0.339171 | 0.365636 | **−0.026465** |
-| river treatment | I(G⁻;X⁺\|X⁻) | 0.899665 | 0.113493 | **0.786172** |
-| river treatment | I(X⁻;G⁺\|G⁻) | 6.842218 | 6.720639 | **0.121578** |
-| river, rule-label shuffle | G→X surrogate | 0.899665 | 0.956901 | −0.057235 |
-| river, spatial/temporal G shuffle | G→X surrogate | 0.899665 | 0.980577 | −0.080912 |
-| feedback-breaking (feedforward) | X→G surrogate | 0.339171 | 0.365636 | −0.026465 |
-| pooled Rule 105/204 λ=1/2 control | I(G⁻;X⁺\|X⁻) | 0.512204 | 0.000443 | **0.511761** |
-
-**CHECK: feedforward I(X⁻;G⁺|G⁻) has |value| < 0.05 → PASS.**
+| quantity | value | note |
+|---|---:|---|
+| base I(G⁻;X⁺\|X⁻) | 0.1508 | expression, feedforward |
+| base I(X⁻;G⁺\|G⁻) | **−0.0265** | null CHECK, PASS (\|·\|<0.05) |
+| river I(G⁻;X⁺\|X⁻) | 0.7589 | strong expression |
+| river I(X⁻;G⁺\|G⁻) | 0.3005 | raw river reverse gain |
+| **river-ablated (matched) I(X⁻;G⁺\|G⁻)** | **0.0913** | non-feedback shared structure |
+| **ISOLATED X→G feedback (river − matched)** | **0.2092** | the clean causal estimate |
+| river rule-label shuffle G→X | −0.0511 | surrogate, destroys signal |
+| river spacetime-G shuffle G→X | −0.0656 | surrogate |
+| Rule 105/204 pooled λ=1/2 control G→X | 0.5118 | neighbourhood-semantics scalpel |
 
 ## Reading
 
-The directed held-out result distinguishes ordinary expression from feedback:
-G⁻ improves X⁺ prediction in both engines, strongly so in the river, but X⁻
-improves G⁺ only in the phenotype-reading river (`+0.121578` bits/site-step).
-The feedforward reverse estimate is a small negative generalization penalty
-(`−0.026465`), correctly reading as zero within the predeclared ±0.05 harness
-check rather than as reverse influence. Destroying the river’s local G–X
-alignment by rule-label or spacetime shuffle removes its positive G→X gain,
-and replacing the river with the feedback-breaking base removes X→G. Finally,
-the balanced Rule 105/204 pair remains sharply distinguishable predictively
-despite equal λ=1/2, confirming that the estimator sees neighbourhood semantics
-rather than merely rule-table balance.
+On the authentic river the phenotype improves genotype-future prediction, but
+the **matched ablation already accounts for 0.091 bits of that** — so the old
+base-engine control (which read ~0) would have over-attributed the whole 0.30 to
+feedback. Differencing against the matched control gives an isolated feedback of
+**0.209 bits/site-step**, RNG/construction/fallback held identical. The λ=1/2
+105/204 pair stays sharply distinguishable (0.512) despite equal λ, confirming
+the estimator sees neighbourhood semantics.
+
+Remaining (Codex #5): report per-seed/fold intervals or a permutation
+distribution alongside these point estimates.
