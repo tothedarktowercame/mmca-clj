@@ -287,41 +287,37 @@
      :mean-absolute-velocity (mean (map #(Math/abs %) velocities))
      :mean-signed-velocity (mean velocities)}))
 
-(defn- single-seed-config
-  "Restrict a config to one seed for per-seed reconstruction."
-  [config seed]
-  (assoc config :seeds [seed] :folds 1))
+(defn- pooled-model-per-seed-structures
+  "Using the POOLED model (fit on all seeds), classify each seed's rows and
+  count structures per seed. Background states come from the pooled
+  classification (same 80% mass threshold applied globally), but components
+  are built within each seed only (spacetime adjacency doesn't cross seeds).
 
-(defn- per-seed-reconstruction
-  "Reconstruct on each seed individually. Returns a vector of
-  {:seed s :structure-count n :state-count n :joint-loss ...} maps.
-  Loss is in-sample (single seed, no held-out fold) so it is a descriptive
-  per-seed summary, not a cross-validated estimate; structure/state counts are
-  the stable diagnostic."
-  [engine layer selected config]
-  (let [{:keys [depth tolerance]} selected]
+  This is the per-seed decomposition of the aggregate structure count: the
+  sum of per-seed structure counts equals the pooled structure count, because
+  `components` already groups by `[seed t i]` adjacency and never connects
+  points across seeds."
+  [engine layer {:keys [depth tolerance]} config]
+  (let [all-rows (samples engine layer depth config)
+        model (fit-naive-bayes all-rows)
+        classified (mapv (fn [row]
+                           (assoc row :state
+                                  (signature (predict model (:past row)
+                                                      (:alpha config))
+                                             tolerance)))
+                         all-rows)
+        background (background-states classified (:background-mass config))
+        candidate-rows (remove #(contains? background (:state %)) classified)]
     (vec
      (for [seed (:seeds config)]
-       (let [seed-cfg (single-seed-config config seed)
-             rows (samples engine layer depth seed-cfg)
-             model (fit-naive-bayes rows)
-             states (fit-states model rows tolerance (:alpha config))
-             classified (mapv (fn [row]
-                                (assoc row :state
-                                       (signature (predict model (:past row)
-                                                           (:alpha config))
-                                                  tolerance)))
-                              rows)
-             background (background-states classified (:background-mass config))
-             candidate-points (map (juxt :seed :t :i)
-                                   (remove #(contains? background (:state %))
-                                           classified))
-             structures (->> (components candidate-points)
+       (let [seed-points (->> candidate-rows
+                              (filter #(= (:seed %) seed))
+                              (map (juxt :seed :t :i)))
+             structures (->> (components seed-points)
                              (filter #(>= (count %)
                                           (:minimum-structure-size config)))
                              vec)]
          {:seed seed
-          :state-count (count states)
           :structure-count (count structures)})))))
 
 (defn- interval
@@ -332,7 +328,8 @@
     [0 0]))
 
 (defn- per-seed-deltas
-  "For each seed, return river-minus-ablated contrast map for the joint layer."
+  "For each seed, return river-minus-ablated contrast map for the joint layer,
+  using pooled-model per-seed decomposition."
   [river-seeds ablated-seeds]
   (vec
    (for [rv river-seeds
@@ -341,8 +338,7 @@
      {:seed (:seed rv)
       :river-structures (:structure-count rv)
       :ablated-structures (:structure-count ab)
-      :structure-delta (- (:structure-count rv) (:structure-count ab))
-      :state-delta (- (:state-count rv) (:state-count ab))})))
+      :structure-delta (- (:structure-count rv) (:structure-count ab))})))
 
 (defn experiment
   "Run E5 and return deterministic, printable data."
@@ -367,19 +363,18 @@
                           [layer
                            (merge selected
                                   (reconstruction engine layer selected config))]))]))
-         ;; Per-seed joint-layer reconstruction for the river-vs-ablated
-         ;; contrast (isolated feedback). Structure/state counts per seed give
-         ;; the seed intervals; the pooled held-out loss already selects depth
-         ;; and tolerance, so we reuse that selected pair per seed.
+         ;; Pooled-model per-seed decomposition for the river-vs-ablated
+         ;; contrast (isolated feedback). Uses the SAME pooled model and
+         ;; background threshold as the aggregate reconstruction, so the per-seed
+         ;; structure counts sum to the aggregate count.
          joint-selected-river (get-in selection [:river :joint :selected])
          joint-selected-ablated (get-in selection [:river-ablated :joint :selected])
-         river-per-seed (per-seed-reconstruction :river :joint
-                                                 joint-selected-river config)
-         ablated-per-seed (per-seed-reconstruction :river-ablated :joint
-                                                   joint-selected-ablated config)
+         river-per-seed (pooled-model-per-seed-structures :river :joint
+                                                           joint-selected-river config)
+         ablated-per-seed (pooled-model-per-seed-structures :river-ablated :joint
+                                                             joint-selected-ablated config)
          deltas (per-seed-deltas river-per-seed ablated-per-seed)
-         struct-deltas (map :structure-delta deltas)
-         state-deltas (map :state-delta deltas)]
+         struct-deltas (map :structure-delta deltas)]
      {:config (select-keys config [:writing :seeds :width :steps :burn-in
                                    :folds :depths :tolerances :alpha
                                    :background-mass :minimum-structure-size])
@@ -388,9 +383,7 @@
       :ablation-contrast
       {:per-seed deltas
        :structure-delta-mean (mean struct-deltas)
-       :structure-delta-interval (interval struct-deltas)
-       :state-delta-mean (mean state-deltas)
-       :state-delta-interval (interval state-deltas)}})))
+       :structure-delta-interval (interval struct-deltas)}})))
 
 (defn- model-line [engine layer result]
   (let [m (get-in result [:models engine layer])]
@@ -431,20 +424,13 @@
                        (:structure-delta-mean contrast)
                        (double (first (:structure-delta-interval contrast)))
                        (double (second (:structure-delta-interval contrast)))))
-      (println (format "  state-count:     river=%d  ablated=%d  delta mean=%.2f  seed-interval=[%.0f, %.0f]"
-                       (:state-count river-joint)
-                       (:state-count ablated-joint)
-                       (:state-delta-mean contrast)
-                       (double (first (:state-delta-interval contrast)))
-                       (double (second (:state-delta-interval contrast)))))
       (println (format "  joint held-out loss: river=%.6f  ablated=%.6f  delta=%+.6f bits/bit"
                        (:loss river-joint) (:loss ablated-joint)
                        (- (:loss ablated-joint) (:loss river-joint))))
-      (println "  per-seed structure deltas:")
+      (println "  per-seed structure deltas (pooled-model decomposition, sums to aggregate):")
       (doseq [d (:per-seed contrast)]
-        (println (format "    seed %d: river-struct=%d  ablated-struct=%d  delta=%+d  (states delta=%+d)"
+        (println (format "    seed %d: river-struct=%d  ablated-struct=%d  delta=%+d"
                          (:seed d)
                          (:river-structures d)
                          (:ablated-structures d)
-                         (:structure-delta d)
-                         (:state-delta d)))))))
+                         (:structure-delta d)))))))
