@@ -2,11 +2,11 @@
 > (widths [30 60 120], 16 seeds, 9 q values, 200 steps) so `-main` completes under
 > the 30-min job cap that killed codex-5's original run. The full L=240 / 32-seed /
 > 13-q / 300-step sweep is preserved as `full-config` in the source and is a
-> documented follow-up. Reproduce this artifact: `clojure -M -m mmca.experiments.codex-5`.
+> documented follow-up. Reproduce this artifact: `clojure -M -m mmca.experiments.control-param-scan`.
 
 # E2 — Continuous interrupter finite-size scan (result)
 
-Reproduce bit-for-bit: `clojure -M -m mmca.experiments.codex-5`.
+Reproduce bit-for-bit: `clojure -M -m mmca.experiments.control-param-scan`.
 Config: writing=[4 5 6 7 0 1 2 3], seeds 0–15 (16), widths=[30 60 120], steps=200, late window=60, collapse window=8.
 Feedforward base only: `run-propagator`, so X→G remains zero by construction. q=Pr(propagator write); 1-q holds the neighbour blend.
 

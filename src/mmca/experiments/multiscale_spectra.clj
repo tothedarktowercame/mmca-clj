@@ -1,4 +1,4 @@
-(ns mmca.experiments.zai-5
+(ns mmca.experiments.multiscale-spectra
   "Excursion E6 of M-metaca-eoc: multiscale spacetime spectra S_AB(k,omega).
 
   Computes full spacetime power spectra for genotype activity and phenotype

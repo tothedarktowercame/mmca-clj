@@ -1,6 +1,6 @@
-(ns mmca.zai-5-test
+(ns mmca.multiscale-spectra-test
   (:require [clojure.test :refer [deftest is]]
-            [mmca.experiments.zai-5 :as e6]))
+            [mmca.experiments.multiscale-spectra :as e6]))
 
 (def W [4 5 6 7 0 1 2 3])
 

@@ -1,5 +1,5 @@
 #_{:clj-kondo/ignore [:namespace-name-mismatch]}
-(ns mmca.experiments.codex-4
+(ns mmca.experiments.directed-predictive-info
   "Excursion E4: directed, cross-validated predictive information.
 
   We compare held-out categorical log loss for two local predictors:

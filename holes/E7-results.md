@@ -1,6 +1,6 @@
 # E7 — Direct computation primitives (result)
 
-Reproduce bit-for-bit: `clojure -M -m mmca.experiments.codex-8 > holes/E7-results.md`.
+Reproduce bit-for-bit: `clojure -M -m mmca.experiments.direct-computation > holes/E7-results.md`.
 Determinism gate: `clojure -M:test`.
 Config: feedforward base, train seeds 0–23, held-out seeds 24–47, W=81, T=8, tau_storage=8, tau_transmission=8, d=8, XOR inputs at +/- 4, decoder radius=2.
 

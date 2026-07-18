@@ -1,7 +1,7 @@
 # E6 — Multiscale spacetime spectra (result)
 
-Reproduce: `clojure -M -m mmca.experiments.zai-5`
-Determinism test: `clojure -M:test` (see `mmca.zai-5-test`).
+Reproduce: `clojure -M -m mmca.experiments.multiscale-spectra`
+Determinism test: `clojure -M:test` (see `mmca.multiscale-spectra-test`).
 Config: **seed=0, W=60, steps=80**. Three configs: offset+4/base (collapsing
 null), offset+2/base (sustained), river/feedback (treatment).
 

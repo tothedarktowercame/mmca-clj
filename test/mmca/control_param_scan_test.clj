@@ -1,6 +1,6 @@
-(ns mmca.codex-5-test
+(ns mmca.control-param-scan-test
   (:require [clojure.test :refer [deftest is]]
-            [mmca.experiments.codex-5 :as e2]))
+            [mmca.experiments.control-param-scan :as e2]))
 
 (def tiny-config
   (assoc e2/default-config

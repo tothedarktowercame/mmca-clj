@@ -1,8 +1,8 @@
 # E4 — Directed conditional predictive information (result)
 
-Reproduce: `clojure -M -m mmca.experiments.codex-4`
+Reproduce: `clojure -M -m mmca.experiments.directed-predictive-info`
 
-Determinism gate: `clojure -M:test` (see `mmca.codex-4-test`).
+Determinism gate: `clojure -M:test` (see `mmca.directed-predictive-info-test`).
 
 Config: simulation seeds 0–7, surrogate seed `e4-surrogate-1729`, W=48,
 T=64, burn-in=16, four seed-held-out folds, Jeffreys smoothing α=0.5.

@@ -1,4 +1,4 @@
-(ns mmca.experiments.codex-3
+(ns mmca.experiments.transient-scaling
   "Excursion E3 of M-metaca-eoc: deterministic transient-collapse scaling.
 
   Treats the transient as the observable. For the feedforward offset+4

@@ -1,7 +1,7 @@
-(ns mmca.codex-3-test
+(ns mmca.transient-scaling-test
   (:require [clojure.test :refer [deftest is testing]]
             [mmca.core :as c]
-            [mmca.experiments.codex-3 :as e3]))
+            [mmca.experiments.transient-scaling :as e3]))
 
 (def tiny-config
   (assoc e3/default-config

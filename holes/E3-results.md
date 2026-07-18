@@ -1,6 +1,6 @@
 # E3 — transient collapse scaling
 
-Reproduce: `clojure -M src/mmca/experiments/codex-3.clj > holes/E3-results.md`
+Reproduce: `clojure -M -m mmca.experiments.transient-scaling`
 Determinism gate: `clojure -M:test`.
 Config: feedforward offset+4, q=[0.1 0.5 1.0], seeds 0–63 (64 per q/width), widths [30 60 120 240], T=600, collapse = first t with <=3 distinct rules.
 

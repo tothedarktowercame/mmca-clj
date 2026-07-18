@@ -1,5 +1,5 @@
 #_{:clj-kondo/ignore [:namespace-name-mismatch]}
-(ns mmca.experiments.codex-8
+(ns mmca.experiments.direct-computation
   "E7: held-out decoding of storage, transmission, and XOR modification.
 
   Signals are injected into X and G separately. X carries a literal state bit;
@@ -161,7 +161,7 @@
                 transmission-delay distance xor-spacing feature-radius]} config]
     (str
      "# E7 — Direct computation primitives (result)\n\n"
-     "Reproduce bit-for-bit: `clojure -M -m mmca.experiments.codex-8 > holes/E7-results.md`.\n"
+     "Reproduce bit-for-bit: `clojure -M -m mmca.experiments.direct-computation > holes/E7-results.md`.\n"
      "Determinism gate: `clojure -M:test`.\n"
      (format "Config: feedforward base, train seeds %d–%d, held-out seeds %d–%d, W=%d, T=%d, tau_storage=%d, tau_transmission=%d, d=%d, XOR inputs at +/- %d, decoder radius=%d.\n\n"
              (first train-seeds) (last train-seeds) (first test-seeds)

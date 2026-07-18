@@ -1,6 +1,6 @@
-(ns mmca.codex-8-test
+(ns mmca.direct-computation-test
   (:require [clojure.test :refer [deftest is]]
-            [mmca.experiments.codex-8 :as e7]))
+            [mmca.experiments.direct-computation :as e7]))
 
 (def tiny-config
   {:operators [{:id :offset+4 :class :all-even

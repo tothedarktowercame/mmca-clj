@@ -1,6 +1,6 @@
-(ns mmca.codex-4-test
+(ns mmca.directed-predictive-info-test
   (:require [clojure.test :refer [deftest is]]
-            [mmca.experiments.codex-4 :as e4]))
+            [mmca.experiments.directed-predictive-info :as e4]))
 
 (def test-config
   (assoc e4/default-config
