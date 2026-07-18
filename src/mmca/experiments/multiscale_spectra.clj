@@ -68,7 +68,7 @@
   "Build a W x T activity grid from genotype history.
   Activity[i,t] = 1 if rule byte at position i changed from t to t+1, else 0.
   Returns grid indexed as [t][x], t=0..T-2 (one fewer than total rows)."
-  [gen-rows width]
+  [gen-rows ^long width]
   (let [T (dec (count gen-rows))]
     (loop [t 0 result []]
       (if (= t T)
@@ -81,7 +81,7 @@
 (defn phenotype-activity-grid
   "Build a W x T activity grid from phenotype history.
   Activity[i,t] = 1 if bit at position i changed from t to t+1, else 0."
-  [phe-rows width]
+  [phe-rows ^long width]
   (let [T (dec (count phe-rows))]
     (loop [t 0 result []]
       (if (= t T)
@@ -401,19 +401,31 @@
     ;; ---- Feedback contrast summary ----
     (let [cross-rv (ensemble-averaged-cross ensemble-seeds width steps :river k-scan-vec om-scan-vec)
           cross-ab (ensemble-averaged-cross ensemble-seeds width steps :river-ablated k-scan-vec om-scan-vec)
-          nyquist (last k-scan-vec)]
-      (println "\n=== FEEDBACK CONTRAST: demeaned S_GX(k=Nyquist, omega=0) ===")
-      (println (format "  k=%d (Nyquist for W=%d):" nyquist width))
-      (let [rv (get cross-rv [nyquist 0])
-            ab (get cross-ab [nyquist 0])]
-        (println (format "    river:          %s" (format-interval rv 2)))
-        (println (format "    river-ablated:  %s" (format-interval ab 2)))
-        (println (format "    contrast (rv-ab mean): %.2f" (- (:mean rv) (:mean ab)))))
-      (println "\n  Does the off-DC S_GX structure at k=Nyquist survive ablation?")
-      (let [rv-mean (:mean (get cross-rv [nyquist 0]))
-            ab-mean (:mean (get cross-ab [nyquist 0]))]
-        (println (format "    river mean=%.2f, ablated mean=%.2f, ratio=%.2f"
-                         rv-mean ab-mean
-                         (if (zero? ab-mean)
-                           Double/POSITIVE_INFINITY
-                           (/ rv-mean ab-mean))))))))
+          nyquist (last k-scan-vec)
+          ;; find the (k, omega) bin with the largest |river - ablated| contrast
+          all-bins (for [k k-scan-vec om om-scan-vec] [k om])
+          contrasts (sort-by (comp abs second)
+                             (mapv (fn [kk]
+                                     (let [rv (:mean (get cross-rv kk))
+                                           ab (:mean (get cross-ab kk))]
+                                       [kk (- rv ab)]))
+                                   all-bins))
+          [_ strongest] (last contrasts)]
+      (println "\n=== FEEDBACK CONTRAST: demeaned S_GX (river - matched ablation) ===")
+      (println (format "  k=%d (Nyquist for W=%d), all omega bins:" nyquist width))
+      (doseq [om om-scan-vec]
+        (let [rv (get cross-rv [nyquist om])
+              ab (get cross-ab [nyquist om])]
+          (println (format "    om=%-4d  river: %s  ablated: %s  contrast: %.1f"
+                           om (format-interval rv 1) (format-interval ab 1)
+                           (- (:mean rv) (:mean ab))))))
+      (println (format "\n  Strongest feedback contrast across all bins: %s at %s, contrast=%.1f"
+                       (str strongest) (str (first (last contrasts))) strongest))
+      (println "\n  Does the off-DC S_GX structure survive ablation?")
+      (println "  (Demeaning removes temporal DC, so omega=0 is structurally zero by construction.)")
+      (let [rv-offdc (reduce + (map #(:mean (get cross-rv [nyquist %]))
+                                    (remove #{0} om-scan-vec)))
+            ab-offdc (reduce + (map #(:mean (get cross-ab [nyquist %]))
+                                    (remove #{0} om-scan-vec)))]
+        (println (format "    k=Nyquist off-DC sum: river=%.1f, ablated=%.1f, contrast=%.1f"
+                         rv-offdc ab-offdc (- rv-offdc ab-offdc)))))))
