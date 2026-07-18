@@ -25,7 +25,7 @@ def rgb(hex_colour):
     return [int(value[i : i + 2], 16) for i in (0, 2, 4)]
 
 
-figure = plt.figure(figsize=(15, 18))
+figure = plt.figure(figsize=(12, 37))
 outer = figure.add_gridspec(
     6, 6, hspace=0.10, wspace=0.055, left=0.015, right=0.995,
     bottom=0.015, top=0.975
@@ -47,9 +47,9 @@ for index, seed in enumerate(range(1, 37)):
     genotype_axis = figure.add_subplot(cell[0, 0])
     phenotype_axis = figure.add_subplot(cell[1, 0])
 
-    genotype_axis.imshow(genotype_image, aspect="auto", interpolation="nearest")
+    genotype_axis.imshow(genotype_image, aspect="equal", interpolation="nearest")
     phenotype_axis.imshow(
-        phenotype_image, aspect="auto", cmap="gray", interpolation="nearest"
+        phenotype_image, aspect="equal", cmap="gray", interpolation="nearest"
     )
     for axis in (genotype_axis, phenotype_axis):
         axis.set_xticks([])
