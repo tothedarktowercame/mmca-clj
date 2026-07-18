@@ -1,5 +1,7 @@
 (ns mmca.experiments.local-causal-states
-  "Excursion E5: held-out joint local-causal-state reconstruction.
+  "Excursion E5 (correction round): held-out joint local-causal-state
+  reconstruction on the AUTHENTIC paper river, with a matched feedback-off
+  control.
 
   A local past cone ends at time t and contains radius (lag + 1) at each
   preceding row.  Its depth is selected by seed-held-out likelihood.  Separate
@@ -12,7 +14,15 @@
   states outside the fixed 80% background mass `coherent candidates` and join
   their spacetime points with an 8-neighbour graph.  Components smaller than
   three points are discarded.  Counts, lifetimes, and centroid velocities are
-  descriptive diagnostics, not an assertion that every candidate is a particle."
+  descriptive diagnostics, not an assertion that every candidate is a particle.
+
+  MATCHED CONTROL. `:river` is the authentic paper river (`c/run-river`;
+  constant-zero/Java seed). `:river-ablated` is the MATCHED feedback-off control
+  (`c/run-river-ablated`): identical Java seed, tape, initial state, and
+  constant-zero quad-4cand construction -- only the live X->G edge is cut via a
+  frozen phenotype. The river-minus-ablated contrast on causal-state
+  reconstruction is therefore the ISOLATED effect of phenotype->genotype
+  feedback. The feedforward base stands as the non-river reference."
   (:require [mmca.core :as c]))
 
 (def default-config
@@ -56,7 +66,8 @@
 (defn- engine-run [engine writing seed width steps]
   (case engine
     :base (c/run-propagator writing seed width steps)
-    :river (c/run-river seed width steps)))
+    :river (c/run-river seed width steps)
+    :river-ablated (c/run-river-ablated seed width steps)))
 
 (defn- samples
   [engine layer depth {:keys [writing seeds width steps burn-in]}]
@@ -276,20 +287,78 @@
      :mean-absolute-velocity (mean (map #(Math/abs %) velocities))
      :mean-signed-velocity (mean velocities)}))
 
+(defn- single-seed-config
+  "Restrict a config to one seed for per-seed reconstruction."
+  [config seed]
+  (assoc config :seeds [seed] :folds 1))
+
+(defn- per-seed-reconstruction
+  "Reconstruct on each seed individually. Returns a vector of
+  {:seed s :structure-count n :state-count n :joint-loss ...} maps.
+  Loss is in-sample (single seed, no held-out fold) so it is a descriptive
+  per-seed summary, not a cross-validated estimate; structure/state counts are
+  the stable diagnostic."
+  [engine layer selected config]
+  (let [{:keys [depth tolerance]} selected]
+    (vec
+     (for [seed (:seeds config)]
+       (let [seed-cfg (single-seed-config config seed)
+             rows (samples engine layer depth seed-cfg)
+             model (fit-naive-bayes rows)
+             states (fit-states model rows tolerance (:alpha config))
+             classified (mapv (fn [row]
+                                (assoc row :state
+                                       (signature (predict model (:past row)
+                                                           (:alpha config))
+                                                  tolerance)))
+                              rows)
+             background (background-states classified (:background-mass config))
+             candidate-points (map (juxt :seed :t :i)
+                                   (remove #(contains? background (:state %))
+                                           classified))
+             structures (->> (components candidate-points)
+                             (filter #(>= (count %)
+                                          (:minimum-structure-size config)))
+                             vec)]
+         {:seed seed
+          :state-count (count states)
+          :structure-count (count structures)})))))
+
+(defn- interval
+  "Return [lo hi] across a numeric seq, or [0 0] for empty."
+  [xs]
+  (if (seq xs)
+    [(apply min xs) (apply max xs)]
+    [0 0]))
+
+(defn- per-seed-deltas
+  "For each seed, return river-minus-ablated contrast map for the joint layer."
+  [river-seeds ablated-seeds]
+  (vec
+   (for [rv river-seeds
+         :let [ab (first (filter #(= (:seed %) (:seed rv)) ablated-seeds))]
+         :when ab]
+     {:seed (:seed rv)
+      :river-structures (:structure-count rv)
+      :ablated-structures (:structure-count ab)
+      :structure-delta (- (:structure-count rv) (:structure-count ab))
+      :state-delta (- (:state-count rv) (:state-count ab))})))
+
 (defn experiment
   "Run E5 and return deterministic, printable data."
   ([] (experiment default-config))
   ([config]
-   (let [selection
+   (let [engines [:base :river :river-ablated]
+         selection
          (into {}
-               (for [engine [:base :river]]
+               (for [engine engines]
                  [engine
                   (into {}
                         (for [layer layer-order]
                           [layer (select-model engine layer config)]))]))
          result
          (into {}
-               (for [engine [:base :river]]
+               (for [engine engines]
                  [engine
                   (into {}
                         (for [layer layer-order
@@ -297,16 +366,35 @@
                                                      [engine layer :selected])]]
                           [layer
                            (merge selected
-                                  (reconstruction engine layer selected config))]))]))]
+                                  (reconstruction engine layer selected config))]))]))
+         ;; Per-seed joint-layer reconstruction for the river-vs-ablated
+         ;; contrast (isolated feedback). Structure/state counts per seed give
+         ;; the seed intervals; the pooled held-out loss already selects depth
+         ;; and tolerance, so we reuse that selected pair per seed.
+         joint-selected-river (get-in selection [:river :joint :selected])
+         joint-selected-ablated (get-in selection [:river-ablated :joint :selected])
+         river-per-seed (per-seed-reconstruction :river :joint
+                                                 joint-selected-river config)
+         ablated-per-seed (per-seed-reconstruction :river-ablated :joint
+                                                   joint-selected-ablated config)
+         deltas (per-seed-deltas river-per-seed ablated-per-seed)
+         struct-deltas (map :structure-delta deltas)
+         state-deltas (map :state-delta deltas)]
      {:config (select-keys config [:writing :seeds :width :steps :burn-in
                                    :folds :depths :tolerances :alpha
                                    :background-mass :minimum-structure-size])
       :models result
-      :selection selection})))
+      :selection selection
+      :ablation-contrast
+      {:per-seed deltas
+       :structure-delta-mean (mean struct-deltas)
+       :structure-delta-interval (interval struct-deltas)
+       :state-delta-mean (mean state-deltas)
+       :state-delta-interval (interval state-deltas)}})))
 
 (defn- model-line [engine layer result]
   (let [m (get-in result [:models engine layer])]
-    (format "%-5s %-9s d=%d tau=%.2f loss=%.6f states=%4d structures=%4d lifetime(mean/max)=%.2f/%d |v|=%.3f v=%+.3f"
+    (format "%-14s %-9s d=%d tau=%.2f loss=%.6f states=%4d structures=%4d lifetime(mean/max)=%.2f/%d |v|=%.3f v=%+.3f"
             (name engine) (name layer) (:depth m) (:tolerance m) (:loss m)
             (:state-count m) (:structure-count m) (:mean-lifetime m)
             (:maximum-lifetime m) (:mean-absolute-velocity m)
@@ -320,14 +408,43 @@
                      (:steps cfg) (:burn-in cfg) (:folds cfg)))
     (println "future loss: mean held-out bits per predicted G/X bit")
     (println "state/structure diagnostics use held-out-selected depth and tolerance")
+    (println ":river = authentic paper river; :river-ablated = matched feedback-off control")
     (println)
-    (doseq [engine [:base :river]
+    (doseq [engine [:base :river :river-ablated]
             layer layer-order]
       (println (model-line engine layer result)))
     (println)
-    (doseq [engine [:base :river]
+    (doseq [engine [:base :river :river-ablated]
             :let [joint (get-in result [:models engine :joint :loss])
                   g (get-in result [:models engine :genotype :loss])
                   x (get-in result [:models engine :phenotype :loss])]]
-      (println (format "%s joint gain vs best marginal: %+.6f bits/bit"
-                       (name engine) (- (min g x) joint))))))
+      (println (format "%-14s joint gain vs best marginal: %+.6f bits/bit"
+                       (name engine) (- (min g x) joint))))
+    (println)
+    (let [river-joint (get-in result [:models :river :joint])
+          ablated-joint (get-in result [:models :river-ablated :joint])
+          contrast (:ablation-contrast result)]
+      (println "ISOLATED feedback contrast (river - matched ablation), joint layer:")
+      (println (format "  structure-count: river=%d  ablated=%d  delta mean=%.2f  seed-interval=[%.0f, %.0f]"
+                       (:structure-count river-joint)
+                       (:structure-count ablated-joint)
+                       (:structure-delta-mean contrast)
+                       (first (:structure-delta-interval contrast))
+                       (second (:structure-delta-interval contrast))))
+      (println (format "  state-count:     river=%d  ablated=%d  delta mean=%.2f  seed-interval=[%.0f, %.0f]"
+                       (:state-count river-joint)
+                       (:state-count ablated-joint)
+                       (:state-delta-mean contrast)
+                       (first (:state-delta-interval contrast))
+                       (second (:state-delta-interval contrast))))
+      (println (format "  joint held-out loss: river=%.6f  ablated=%.6f  delta=%+.6f bits/bit"
+                       (:loss river-joint) (:loss ablated-joint)
+                       (- (:loss ablated-joint) (:loss river-joint))))
+      (println "  per-seed structure deltas:")
+      (doseq [d (:per-seed contrast)]
+        (println (format "    seed %d: river-struct=%d  ablated-struct=%d  delta=%+d  (states delta=%+d)"
+                         (:seed d)
+                         (:river-structures d)
+                         (:ablated-structures d)
+                         (:structure-delta d)
+                         (:state-delta d)))))))
