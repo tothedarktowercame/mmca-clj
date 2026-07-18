@@ -93,7 +93,7 @@
   (doseq [seed (range 1 7)]
     (spit (format "data/original_river_s%d.txt" seed)
           (render-run
-           (mmca/run-original-paper-river seed width steps))))
+           (mmca/run-river seed width steps))))
   (println "wrote original-paper river runs"))
 
 (defn generate-figure8! []

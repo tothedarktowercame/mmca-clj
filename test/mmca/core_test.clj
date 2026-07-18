@@ -44,7 +44,7 @@
              (:gen run)))
       (is (= ["10100" "10101" "01100"] (:phe run)))))
   (testing "phenotype-reading river"
-    (let [run (mmca/run-river 1 5 2)]
+    (let [run (mmca/run-river-reconstruction 1 5 2)]
       (is (= [[67 42 203 255 31]
               [189 202 215 47 232]
               [189 106 210 232 40]]
@@ -73,14 +73,14 @@
         "q changes genotype dynamics")))
 
 (deftest figure6-river-run-is-grid-identical
-  (let [run (mmca/run-river 1 80 120)]
+  (let [run (mmca/run-river-reconstruction 1 80 120)]
     (is (= "5bfa8cdf9fa8af0949af0f6eeb1762a5a393c844dd4db6cc9cc5709f672474b2"
            (sha256 (select-keys run [:gen :phe]))))
     (is (= {:death 120 :rules 47 :activity 3976}
            (select-keys run [:death :rules :activity])))))
 
 (deftest original-paper-river-is-grid-identical
-  (let [run (mmca/run-original-paper-river 1 80 120)]
+  (let [run (mmca/run-river 1 80 120)]
     (is (= "40d60446166b69eebc6810e58d242ed3cc4e264731156a409be807072d782681"
            (sha256 (select-keys run [:gen :phe]))))
     (is (= {:death 120 :rules 41 :activity 3547}

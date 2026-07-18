@@ -301,7 +301,12 @@
                     river-writing)))
      (range width))))
 
-(defn run-river [seed width steps]
+(defn run-river-reconstruction
+  "DEPRECATED reconstruction (centre-rule local fallback, Emacs-seed). This is
+  NOT the paper river -- use `run-river`, the authentic constant-zero/Java-seed
+  Figure 6 system. Kept only for provenance; do not use it in experiments or
+  figures (that mistake is what the correction round fixed)."
+  [seed width steps]
   (let [r (rng/make-rng (format "prop-%d" seed))
         g0 (random-genotype r width)
         p0 (random-phenotype r width)]
@@ -343,14 +348,14 @@
           (.nextInt random bit-count))))
      (range width))))
 
-(defn run-original-paper-river
+(defn run-river
   "Replay original Figure 6: `quad-4cand / firstMatch prop:rot2`.
 
   The no-match fallback is constant zero. One `java.util.Random`, seeded by
   the literal integer, supplies numeric rule initialization, `nextDouble`
   phenotype bits, and propagator source positions. The ordering-independent
   shim converts positional rot2 before the run. This is deliberately separate
-  from `run-river`, the later centre-rule/Emacs-seed reconstruction."
+  from `run-river-reconstruction`, the later centre-rule/Emacs-seed reconstruction."
   [seed width steps]
   (let [random (java.util.Random. (long seed))
         g0 (java-random-genotype random width)
@@ -369,8 +374,8 @@
                  (conj activities
                        (changed-count phenotype next-phenotype))))))))
 
-(defn run-original-paper-river-ablated
-  "Matched feedback-OFF control for `run-original-paper-river`: identical Java
+(defn run-river-ablated
+  "Matched feedback-OFF control for `run-river`: identical Java
   seed, initial state, RNG tape, and constant-zero quad-4cand construction --
   but the genotype step reads the FROZEN initial phenotype p0 for its template
   context instead of the live (evolving) phenotype. The phenotype still evolves
