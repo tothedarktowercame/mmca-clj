@@ -3,3 +3,4 @@
 /data/*.txt
 /figures/*.png
 __pycache__/
+holes/E2b-offset2-checkpoint.edn

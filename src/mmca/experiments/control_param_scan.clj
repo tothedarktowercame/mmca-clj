@@ -140,13 +140,12 @@
      :rmse (Math/sqrt (mean variances))
      :bins (count comparable)}))
 
-(defn scan
-  ([] (scan default-config))
-  ([{:keys [seed-start seed-count widths qs] :as config}]
-   (let [seeds (range seed-start (+ seed-start seed-count))
-         rows (vec (for [width widths q qs]
-                     (summarize-cell config width q seeds)))
-         peaks (peak-by-width rows)
+(defn summarize-rows
+  "Cheap post-processing over already-computed per-cell rows -> the scan result
+  map. Separated from `scan` so a resumable runner can checkpoint the expensive
+  per-cell `summarize-cell` work and still produce identical output."
+  [config rows]
+  (let [peaks (peak-by-width rows)
          q-critical (median (map :q peaks))
          collapse-candidates
          (mapv (fn [nu]
@@ -172,7 +171,15 @@
       :peak-q-span peak-q-span
       :peak-growth peak-growth
       :collapse-candidates collapse-candidates
-      :classification classification})))
+      :classification classification}))
+
+(defn scan
+  ([] (scan default-config))
+  ([{:keys [seed-start seed-count widths qs] :as config}]
+   (let [seeds (range seed-start (+ seed-start seed-count))
+         rows (vec (for [width widths q qs]
+                     (summarize-cell config width q seeds)))]
+     (summarize-rows config rows))))
 
 (defn- f [x] (format "%.4f" (double x)))
 (defn- maybe-time [x] (if x (format "%.1f" (double x)) ">T"))
