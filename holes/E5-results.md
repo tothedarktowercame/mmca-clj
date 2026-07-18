@@ -3,7 +3,7 @@
 Reproduce: `clojure -M -m mmca.experiments.local-causal-states`
 
 Determinism gate: `clojure -M:test` (see
-`mmca.local-causal-states-test`). Run time ~22 min.
+`mmca.local-causal-states-test`). Run time ~20 min.
 
 Config: simulation seeds 0–5, W=40, T=56, burn-in=12, three seed-held-out
 folds, Jeffreys smoothing α=0.5. The declared model grid is past-cone depth
@@ -58,38 +58,40 @@ available. The ablated control shows near-zero joint gain.
 
 This is the key correction-round result: comparing the authentic river against
 its matched feedback-off control (same seed/tape/construction, frozen p0 — the
-true X→G cut).
+true X→G cut). All numbers below use the **same pooled model and background
+threshold** — the per-seed decomposition sums exactly to the aggregate.
 
-| metric | river | ablated | delta mean | seed interval |
-|---|---:|---:|---:|---|
-| structure count | 90 | 125 | **+3.00** | [−4, +10] |
-| state count | 7743 | 6966 | **+111.67** | [−148, +247] |
-| joint held-out loss | 1.015996 | 0.867252 | **−0.148744** bits/bit | — |
+| metric | river | ablated | delta |
+|---|---:|---:|---:|
+| structure count (aggregate) | 90 | 125 | **−35** |
+| joint held-out loss | 1.015996 | 0.867252 | **−0.148744** bits/bit |
 
-### Per-seed structure deltas (joint layer)
+### Per-seed structure deltas (pooled-model decomposition)
 
-| seed | river structures | ablated structures | delta | states delta |
-|---:|---:|---:|---:|---:|
-| 0 | 30 | 20 | +10 | +146 |
-| 1 | 23 | 21 | +2 | +247 |
-| 2 | 26 | 21 | +5 | +225 |
-| 3 | 16 | 17 | −1 | −6 |
-| 4 | 24 | 18 | +6 | +206 |
-| 5 | 11 | 15 | −4 | −148 |
+| seed | river structures | ablated structures | delta |
+|---:|---:|---:|---:|
+| 0 | 15 | 21 | −6 |
+| 1 | 17 | 20 | −3 |
+| 2 | 18 | 24 | −6 |
+| 3 | 12 | 20 | −8 |
+| 4 | 17 | 15 | +2 |
+| 5 | 11 | 25 | −14 |
+
+Per-seed delta mean: **−5.83**, seed interval: **[−14, +2]**. Five of six seeds
+show the ablated (feedback-off) control with more structures. The per-seed
+deltas sum to −35, matching the aggregate exactly.
 
 ## Reading
 
-With the corrected ablation (frozen p0 for all context bits, a true X→G cut), the
-feedback contrast shows that the live phenotype→genotype feedback does not create
-extra coherent causal-state structures. The ablated control (no feedback) has a
-better joint held-out loss (0.867 vs 1.016) and comparable structure counts (125
-vs 90). Per-seed structure deltas range [−4, +10] with 4 of 6 seeds showing the
-river with *more* structures — but the predictive quality is worse.
+With the corrected ablation (frozen p0 for all context bits, a true X→G cut) and
+a consistent pooled-model decomposition, the feedback contrast shows that the
+live phenotype→genotype feedback does not create extra coherent causal-state
+structures. The ablated control (no feedback) has more structures (125 vs 90,
+5/6 seeds) and a better joint held-out loss (0.867 vs 1.016 bits/bit).
 
-The feedforward base result is unchanged and stands: joint reconstruction
-predicts the nine-bit local future +0.0646 bits/predicted-bit better than either
-marginal alone, confirming a coupled predictive state description even without
-feedback. On the authentic river, the genotype layer alone is already a stronger
-predictor than the joint layer, suggesting that the river's feedback enriches the
-genotype layer's information content enough that the phenotype bit adds no
-incremental predictive value.
+The primary conclusion rests on the **joint held-out loss**, which is clean and
+unambiguous: feedback-off predicts the nine-bit future better than feedback-on.
+The structure-count contrast (aggregate −35, per-seed mean −5.83) is a
+consistent secondary diagnostic in the same direction. The feedforward base
+result is unchanged: joint reconstruction predicts the nine-bit local future
++0.0646 bits/predicted-bit better than either marginal alone.
