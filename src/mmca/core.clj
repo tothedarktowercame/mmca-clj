@@ -396,23 +396,26 @@
 
 (defn run-river-ablated-from
   "The iteration body of `run-river-ablated`, factored for injection (see
-  `run-river-from`). Shares the river's exact RNG tape and construction; only
-  the genotype step reads the FROZEN `phenotype` (the initial, injected state)
-  instead of the live one."
+  `run-river-from`). Shares the river's exact RNG tape and construction; the
+  genotype step reads the FROZEN initial phenotype (`frozen`, captured once
+  before the loop) for ALL context bits instead of the live evolving one.
+  The phenotype still evolves as a G->X readout (the `phenotypes` trajectory is
+  unchanged from the live river); only the dynamic X->G edge is cut."
   [^java.util.Random random genotype phenotype steps]
-  (loop [t 0 genotype genotype phenotype phenotype
-         genotypes [genotype] phenotypes [phenotype] activities []]
-    (if (= t steps)
-      (finish-run phenotypes genotypes activities)
-      (let [next-phenotype (phenotype-step genotype phenotype)
-            next-genotype
-            (original-paper-river-genotype-step
-             random genotype phenotype phenotype)]
-        (recur (inc t) next-genotype next-phenotype
-               (conj genotypes next-genotype)
-               (conj phenotypes next-phenotype)
-               (conj activities
-                     (changed-count phenotype next-phenotype)))))))
+  (let [frozen phenotype]
+    (loop [t 0 genotype genotype phenotype phenotype
+           genotypes [genotype] phenotypes [phenotype] activities []]
+      (if (= t steps)
+        (finish-run phenotypes genotypes activities)
+        (let [next-phenotype (phenotype-step genotype phenotype)
+              next-genotype
+              (original-paper-river-genotype-step
+               random genotype frozen frozen)]
+          (recur (inc t) next-genotype next-phenotype
+                 (conj genotypes next-genotype)
+                 (conj phenotypes next-phenotype)
+                 (conj activities
+                       (changed-count phenotype next-phenotype))))))))
 
 (defn run-river-ablated
   "Matched feedback-OFF control for `run-river`: identical Java
