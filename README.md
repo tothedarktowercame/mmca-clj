@@ -75,12 +75,15 @@ clojure -M -m mmca.figures eoc
 python3 scripts/plot_eoc_phase.py
 python3 scripts/plot_eoc_tint.py
 python3 scripts/plot_eoc_interface.py
+python3 scripts/plot_eoc_churn.py
 ```
 
 This writes `figures/eoc_phase.png`, `figures/eoc_tint.png`, and
-`figures/eoc_interface.png`. The plotters print the manuscript verification
-statistics (three-way regime entropy and the box-counting dimensions) as part
-of the reproducible run. `clojure -M:figures` also includes these datasets.
+`figures/eoc_interface.png`, plus the activity-domain comparison
+`figures/eoc_churn.png`. The plotters print the manuscript verification
+statistics (three-way regime entropy, box-counting dimensions, and per-region
+genotype churn) as part of the reproducible run. `clojure -M:figures` also
+includes these datasets.
 
 The isolated-rule tint is generated independently with periodic boundaries at
 width 300 for 300 steps from `java.util.Random(1)`, averaging cell-change rate
