@@ -187,7 +187,8 @@
 (defn markdown-report [{:keys [config rows susceptibility-peaks peak-q-span
                                peak-growth collapse-candidates classification]}]
   (let [{:keys [writing seed-start seed-count widths steps late-window
-                collapse-window]} config
+                collapse-window main-ns]
+         :or {main-ns "mmca.experiments.control-param-scan"}} config
         seed-end (dec (+ seed-start seed-count))
         line (fn [{:keys [width q a-G a-X effective-diversity susceptibility
                           binder collapse-probability median-collapse-time]}]
@@ -214,7 +215,7 @@
           "At least one L,q cell mixes collapsed and surviving seeds, while the susceptibility peaks do not meet the joint convergence-and-growth bar. The honest reading is metastability: seed-dependent residence times dominate this horizon, so E3 transient scaling should test whether the mixed region sharpens or remains broad."
           "The susceptibility peaks fail the joint convergence-and-growth bar and no cell shows mixed collapse probability. The honest result at this horizon is a long-lived crossover, not evidence of a critical transition; the finite-size-collapse scores are descriptive only." )]
     (str "# E2 — Continuous interrupter finite-size scan (result)\n\n"
-         "Reproduce bit-for-bit: `clojure -M -m mmca.experiments.control-param-scan`.\n"
+         "Reproduce bit-for-bit: `clojure -M -m " main-ns "`.\n"
          "Config: writing=" (pr-str writing) ", seeds " seed-start "–" seed-end
          " (" seed-count "), widths=" (pr-str widths) ", steps=" steps
          ", late window=" late-window ", collapse window=" collapse-window ".\n"
