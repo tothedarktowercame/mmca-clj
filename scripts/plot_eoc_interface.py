@@ -54,9 +54,8 @@ def main():
         ("river", "river", [1, 2], "#d73027"),
     ]
     widths = [128, 256, 512, 768]
-    fig = plt.figure(figsize=(12, 7.5))
-    grid = fig.add_gridspec(2, 3, height_ratios=[1, 0.85], hspace=0.30,
-                            wspace=0.12)
+    fig = plt.figure(figsize=(12, 4.4))
+    grid = fig.add_gridspec(1, 3, wspace=0.12)
 
     for column, (name, label, _, _) in enumerate(operators):
         field = np.loadtxt(DATA / f"eoc_interface_top_{name}.txt", dtype=int)
@@ -67,16 +66,16 @@ def main():
         axis.imshow(boundary, cmap="gray_r", vmin=0, vmax=1,
                     interpolation="nearest", aspect="equal")
         suffix = "no boundary" if np.isnan(dimension) else f"D={dimension:.2f}"
-        axis.set_title(f"{label}: {suffix}", fontsize=10)
+        axis.set_title(f"{label}: {suffix}", fontsize=11)
         axis.set_xticks([])
         axis.set_yticks([])
         print(f"BOX_DIMENSION L256 {name} "
               f"{'nan' if np.isnan(dimension) else f'{dimension:.6f}'}")
 
-    axis = fig.add_subplot(grid[1, :])
-    for name, label, seeds, color in operators:
-        means = []
-        deviations = []
+    # Finite-size stability of D is computed for the record (and quoted in the
+    # caption) but no longer plotted: the old D-vs-L panel only restated the
+    # numbers already shown in the boundary-image titles.
+    for name, _, seeds, _ in operators:
         for width in widths:
             values = []
             for seed in seeds:
@@ -85,18 +84,9 @@ def main():
                     dtype=int)
                 values.append(box_dimension(activity_boundary(field, scores)))
             finite = np.asarray([value for value in values if np.isfinite(value)])
-            means.append(np.mean(finite) if finite.size else np.nan)
-            deviations.append(np.std(finite) if finite.size else np.nan)
-            print(f"BOX_DIMENSION_SERIES {name} L={width} values={values}")
-        axis.errorbar(widths, means, yerr=deviations, marker="o", lw=1.5,
-                      capsize=3, label=label, color=color)
-    axis.set_xlabel("width $L$")
-    axis.set_ylabel("box-counting dimension $D$")
-    axis.set_xticks(widths)
-    axis.set_ylim(0.9, 1.9)
-    axis.grid(alpha=0.25)
-    axis.legend(frameon=False)
-    axis.set_title("Finite-size interface dimension (late-time square fields)")
+            mean = np.mean(finite) if finite.size else np.nan
+            print(f"BOX_DIMENSION_SERIES {name} L={width} "
+                  f"mean={mean:.3f} values={values}")
     fig.suptitle("Activity-domain boundaries at threshold 0.35", fontsize=12)
     FIGURES.mkdir(parents=True, exist_ok=True)
     output = FIGURES / "eoc_interface.png"
