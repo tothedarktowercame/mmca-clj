@@ -99,7 +99,7 @@ def main():
     panels = [(0, "$q=0$: all blend (low activity)"),
               (50, "$q=0.05$: sparse"),
               (250, "$q=0.25$: coexisting domains"),
-              (750, "$q=0.75$: propagator-dominated (high activity)")]
+              (1000, "$q=1$: system-spanning domains")]
     for i, (q_code, label) in enumerate(panels):
         axis = fig.add_subplot(grid[1, i])
         field = np.loadtxt(DATA / f"eoc_phase_q{q_code:03d}.txt", dtype=int)
@@ -108,10 +108,10 @@ def main():
         axis.set_xticks([])
         axis.set_yticks([])
         axis.set_title(label, fontsize=8)
-    fig.suptitle("offset$+2$ feedforward finite-size scan ($L = 30$–$240$, 32 seeds): "
-                 "a smooth crossover with no critical point in the band,\n"
-                 "yet run-to-run fluctuations grow with size at $q=1$, where system-spanning "
-                 "domains form  (bottom: one realization across $q$, width 240)",
+    fig.suptitle("offset$+2$ feedforward scan across system size $L$ (row width in cells, "
+                 "$30$–$240$; 32 seeds): a smooth crossover with no critical point in the band,\n"
+                 "yet run-to-run fluctuations grow with $L$ at $q=1$, where system-spanning "
+                 "domains form  (bottom: one realization across $q$, at $L=240$)",
                  fontsize=9.5)
     FIGURES.mkdir(parents=True, exist_ok=True)
     output = FIGURES / "eoc_phase.png"

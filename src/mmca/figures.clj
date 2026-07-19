@@ -108,7 +108,7 @@
   (println "wrote EoC tint fields"))
 
 (defn generate-eoc-phase! []
-  (doseq [q [0.0 0.05 0.25 0.75]]
+  (doseq [q [0.0 0.05 0.25 1.0]]
     (write-genotype-field!
      (format "data/eoc_phase_q%03d.txt" (long (* 1000 q)))
      (mmca/run-propagator eoc-offset2 1 240 300 {:interrupter-q q})))
