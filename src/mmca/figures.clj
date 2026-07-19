@@ -18,6 +18,16 @@
    ["reduced024" [2 1 4 3 0 5 6 7]]
    ["reduced02" [2 1 0 3 4 5 6 7]]])
 
+(def eoc-offset2 [2 3 4 5 6 7 0 1])
+(def eoc-offset4 [4 5 6 7 0 1 2 3])
+(def eoc-sigma16250374 [1 6 2 5 0 3 7 4])
+(def activity-width 300)
+(def activity-steps 300)
+(def activity-late-window 150)
+(def activity-seed 1)
+(def eoc-width 256)
+(def eoc-steps 600)
+
 (def ^:private color-overrides
   {29 "#00ff33", 30 "#0033ff", 71 "#00ff33", 90 "#ffcc00"
    110 "#ff3300", 118 "#ff3300", 120 "#0033ff", 135 "#0033ff"
@@ -49,6 +59,91 @@
 
 (defn- rotation [offset]
   (mapv #(mod (+ % offset) 8) (range 8)))
+
+(defn periodic-rule-step
+  "Evolve a binary state under one ECA rule with periodic boundaries."
+  [rule state]
+  (let [w (count state)]
+    (mapv (fn [i]
+            (mmca/rule-output rule
+                              (nth state (mod (dec i) w))
+                              (nth state i)
+                              (nth state (mod (inc i) w))))
+          (range w))))
+
+(defn isolated-rule-activity
+  "Asymptotic per-step cell-change rate for RULE run alone as a periodic ECA.
+   Parameters are pinned to the calibration used by the EoC paper figures."
+  [rule]
+  (let [random (java.util.Random. activity-seed)
+        initial (vec (repeatedly activity-width #(.nextInt random 2)))
+        rates (loop [t 0 state initial rates []]
+                (if (= t activity-steps)
+                  rates
+                  (let [next-state (periodic-rule-step rule state)]
+                    (recur (inc t) next-state
+                           (conj rates
+                                 (/ (double (mmca/changed-count state next-state))
+                                    activity-width))))))]
+    (/ (reduce + 0.0 (take-last activity-late-window rates))
+       activity-late-window)))
+
+(defn- write-genotype-field! [path run]
+  (spit path
+        (str (str/join "\n" (map #(str/join " " %) (:gen run))) "\n")))
+
+(defn generate-activity-scores! []
+  (spit "data/rule_activity_scores.txt"
+        (apply str
+               (for [rule (range mmca/rule-count)]
+                 (format "%d %.5f\n" rule (isolated-rule-activity rule)))))
+  (println "wrote isolated-rule activity scores"))
+
+(defn generate-eoc-tint! []
+  (doseq [[id writing] [["offset2" eoc-offset2]
+                        ["sigma16250374" eoc-sigma16250374]]]
+    (write-genotype-field!
+     (format "data/eoc_tint_%s.txt" id)
+     (mmca/run-propagator writing 1 eoc-width eoc-steps)))
+  (println "wrote EoC tint fields"))
+
+(defn generate-eoc-phase! []
+  (doseq [q [0.0 0.05 0.25 0.75]]
+    (write-genotype-field!
+     (format "data/eoc_phase_q%03d.txt" (long (* 1000 q)))
+     (mmca/run-propagator eoc-offset2 1 240 300 {:interrupter-q q})))
+  (println "wrote EoC phase example fields"))
+
+(defn- run-interface [kind writing seed width steps]
+  (if (= kind :river)
+    (mmca/run-river seed width steps)
+    (mmca/run-propagator writing seed width steps)))
+
+(defn generate-eoc-interface! []
+  (let [operators [[:offset2 eoc-offset2 [1 2 3]]
+                   [:offset4 eoc-offset4 [1 2]]
+                   [:river nil [1 2]]]]
+    ;; Full-height representative panels at the paper's W=256, T=600 setting.
+    (doseq [[kind writing _] operators]
+      (write-genotype-field!
+       (format "data/eoc_interface_top_%s.txt" (name kind))
+       (run-interface kind writing 1 eoc-width eoc-steps)))
+    ;; Square late-time fields for finite-size box counting.
+    (doseq [width [128 256 512 768]
+            [kind writing seeds] operators
+            seed seeds
+            :let [run (run-interface kind writing seed width (+ width 200))
+                  square (assoc run :gen (vec (take-last width (:gen run))))]]
+      (write-genotype-field!
+       (format "data/eoc_interface_%s_L%d_s%d.txt" (name kind) width seed)
+       square)))
+  (println "wrote EoC interface fields"))
+
+(defn generate-eoc! []
+  (generate-activity-scores!)
+  (generate-eoc-tint!)
+  (generate-eoc-phase!)
+  (generate-eoc-interface!))
 
 (defn generate-figure1! []
   (doseq [[name writing] figure1-operators]
@@ -139,7 +234,8 @@
   (generate-figure5!)
   (generate-figure6!)
   (generate-figure8!)
-  (generate-stats!))
+  (generate-stats!)
+  (generate-eoc!))
 
 (defn -main [& [command]]
   (ensure-output-dirs!)
@@ -154,8 +250,15 @@
     "original-river" (generate-original-river!)
     "fig8" (generate-figure8!)
     "stats" (generate-stats!)
+    "activity-scores" (generate-activity-scores!)
+    "eoc-tint" (generate-eoc-tint!)
+    "eoc-phase" (generate-eoc-phase!)
+    "eoc-interface" (generate-eoc-interface!)
+    "eoc" (generate-eoc!)
     (throw (ex-info "Unknown command"
                     {:command command
                      :expected ["all" "fig1" "fig3" "fig4" "fig5"
                                 "fig6" "river-grid" "original-river"
-                                "fig8" "stats"]}))))
+                                "fig8" "stats" "activity-scores"
+                                "eoc-tint" "eoc-phase" "eoc-interface"
+                                "eoc"]}))))

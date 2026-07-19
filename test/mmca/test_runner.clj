@@ -2,6 +2,7 @@
   (:require [clojure.test :as test]
             [mmca.rng-test]
             [mmca.core-test]
+            [mmca.figures-test]
             [mmca.paired-perturbation-test]
             [mmca.control-param-scan-test]
             [mmca.transient-scaling-test]
@@ -13,7 +14,7 @@
 
 (defn -main [& _]
   (let [{:keys [fail error]}
-        (test/run-tests 'mmca.rng-test 'mmca.core-test
+        (test/run-tests 'mmca.rng-test 'mmca.core-test 'mmca.figures-test
                         'mmca.paired-perturbation-test
                         'mmca.control-param-scan-test
                         'mmca.transient-scaling-test

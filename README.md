@@ -66,6 +66,34 @@ clojure -M -m mmca.figures fig6
 python3 scripts/plot_fig6.py
 ```
 
+Reproduce the three edge-of-chaos Discussion figures from an empty `data/`
+directory:
+
+```sh
+mkdir -p data figures
+clojure -M -m mmca.figures eoc
+python3 scripts/plot_eoc_phase.py
+python3 scripts/plot_eoc_tint.py
+python3 scripts/plot_eoc_interface.py
+```
+
+This writes `figures/eoc_phase.png`, `figures/eoc_tint.png`, and
+`figures/eoc_interface.png`. The plotters print the manuscript verification
+statistics (three-way regime entropy and the box-counting dimensions) as part
+of the reproducible run. `clojure -M:figures` also includes these datasets.
+
+The isolated-rule tint is generated independently with periodic boundaries at
+width 300 for 300 steps from `java.util.Random(1)`, averaging cell-change rate
+over the final 150 steps. Generate just its 256-rule table with:
+
+```sh
+clojure -M -m mmca.figures activity-scores
+```
+
+The phase plot reads the committed, reproducible finite-size scan in
+`holes/E2b-offset2-finite-size-results.md`; regenerate that scan with
+`clojure -M -m mmca.experiments.offset2-finite-size`.
+
 Generate the 36-seed river contact sheet:
 
 ```sh
