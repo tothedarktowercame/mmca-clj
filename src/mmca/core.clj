@@ -51,18 +51,11 @@
   [rule left centre right]
   (if (bit-test rule (+ (* 4 left) (* 2 centre) right)) 1 0))
 
-(def ^:private legacy-low-order [0 1 2 4 3 5 6 7])
-
-(defn legacy-index->rule
-  "The 2014 truth-table-8 entry at index i.
-
-  Its table swaps entries 3 and 4 in each block of eight. Random initialization
-  selects table entries, so retaining this ordering is required for exact runs."
-  [i]
-  (+ (* 8 (quot i 8)) (legacy-low-order (mod i 8))))
-
 (defn random-genotype [r width]
-  (mapv (fn [_] (legacy-index->rule (rng/rand-int r rule-count)))
+  ;; Standard Wolfram order: the RNG draw IS the rule byte (no 2014 truth-table
+  ;; re-ordering). Dropped the legacy `legacy-index->rule` shim per the
+  ;; Wolfram-order convention.
+  (mapv (fn [_] (rng/rand-int r rule-count))
         (range width)))
 
 (defn random-phenotype [r width]
@@ -197,7 +190,8 @@
    (run-propagator writing seed width steps {}))
   ([writing seed width steps {:keys [invert? interrupter-q]
                               :or {invert? true interrupter-q 1.0}}]
-   (let [writing (positional-writing->neighbourhood-writing writing)
+   (let [;; Wolfram order: the writing IS the truth-table-position permutation,
+         ;; applied directly (no legacy 2014->Wolfram conjugation).
          r (rng/make-rng (format "prop-%d" seed))
          interrupter-r (when-not (= 1.0 (double interrupter-q))
                          (rng/make-rng (format "interrupt-%d" seed)))
@@ -227,7 +221,8 @@
   ([writing seed width steps]
    (run-propagator-alone writing seed width steps {}))
   ([writing seed width steps {:keys [invert?] :or {invert? true}}]
-   (let [writing (positional-writing->neighbourhood-writing writing)
+   (let [;; Wolfram order: the writing IS the truth-table-position permutation,
+         ;; applied directly (no legacy 2014->Wolfram conjugation).
          r (rng/make-rng (format "prop-%d" seed))
          g0 (random-genotype r width)
          p0 (random-phenotype r width)]
@@ -282,8 +277,8 @@
                  0))
            pb cb sb))))
 
-(def river-writing
-  (positional-writing->neighbourhood-writing [2 3 4 5 6 7 0 1]))
+;; Wolfram order: the river's rot+2 write applied directly (no conjugation).
+(def river-writing [2 3 4 5 6 7 0 1])
 
 (defn river-genotype-step [r genotype phenotype next-phenotype]
   (let [width (count genotype)]

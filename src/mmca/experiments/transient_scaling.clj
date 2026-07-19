@@ -24,7 +24,7 @@
   phenotype RNG draws even though feedforward G evolution does not read X, so
   this is the exact genotype trajectory of core/run-propagator."
   [writing seed width q steps threshold]
-  (let [writing (c/positional-writing->neighbourhood-writing writing)
+  (let [;; Wolfram order: writing applied directly (matches core/run-propagator).
         r (rng/make-rng (format "prop-%d" seed))
         interrupter-r (when-not (= 1.0 (double q))
                         (rng/make-rng (format "interrupt-%d" seed)))

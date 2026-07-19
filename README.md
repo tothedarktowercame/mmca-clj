@@ -18,11 +18,16 @@ Family of Operators on Cellular Automata*. It is the Clojure counterpart of
   head/tail/interior evaluation order;
 - GNU Emacs 30/Linux's seeded `random` stream, implemented in pure Clojure.
 
-The last item matters: the Elisp engine calls `(random "prop-N")`. GNU Emacs
-folds that string into a 32-bit seed, uses glibc's degree-31 additive generator,
-and combines two draws for each bounded random value. `mmca.rng` reproduces that
-algorithm, so complete Clojure trajectories are grid-identical to the current
-Elisp working tree for the same writing, seed, width, and step count.
+The RNG matters: the seeded stream calls `(random "prop-N")`; `mmca.rng` folds
+that string into a 32-bit seed, uses glibc's degree-31 additive generator, and
+combines two draws for each bounded value, so a run is fully deterministic in the
+seed. **Convention (standard Wolfram order throughout).** Operators act directly
+on truth-table positions in Wolfram's standard neighbourhood order
+(`111,110,...,000`): the `writing` vector *is* the position permutation, applied
+with no re-ordering, and random genotypes are drawn as plain rule bytes. The
+legacy 2014 truth-table order and the Emacs-exact reproduction shim have been
+dropped, so trajectories are no longer grid-identical to the 2014 Elisp tree;
+they are the standard-order dynamics the paper reports.
 
 ## Dynamics and boundaries
 
@@ -134,15 +139,16 @@ The public functions return:
  :phe ["1010..." ...]}   ; binary rows, initial row included
 ```
 
-## Convention boundary
+## Convention
 
-This port follows the current `../mmca` working tree's Wolfram-standard
-neighbourhood order (`111,110,...,000`). Earlier committed paper figures were
-made before that uncommitted convention correction and therefore have different
-dynamics and statistics. The port does not disguise that incompatibility: its
-golden tests target the corrected working engine. Revert or settle the upstream
-convention decision before treating old and new figure statistics as one data
-series.
+Everything is in standard Wolfram neighbourhood order (`111,110,...,000`). A
+`writing` such as offset $+2$ = `[2 3 4 5 6 7 0 1]` is the permutation of
+truth-table positions in that order, applied directly. The golden-master tests in
+`test/mmca/core_test.clj` are Wolfram-order regression masters (deterministic in
+the seed), not ties to the 2014 Elisp engine. Note that which operators sustain a
+high-diversity field is order-dependent: in this standard order the coprime
+rotations (offset $\pm1,\pm3$; single 8-cycles) sustain, while offset $\pm2,\pm4$
+settle onto fixed rules and collapse.
 
 ## Validation
 

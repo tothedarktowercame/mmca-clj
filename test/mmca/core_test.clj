@@ -35,27 +35,27 @@
          (mmca/positional-writing->neighbourhood-writing
           [0 0 1 2 3 4 5 6]))))
 
-(deftest short-runs-match-elisp-golden-trajectories
+(deftest short-runs-are-deterministic-wolfram-golden
   (testing "blending engine, including head/tail/interior RNG order"
     (let [run (mmca/run-propagator [2 3 4 5 6 7 0 1] 0 5 2)]
       (is (= [[245 78 238 9 143]
-              [64 174 207 143 1]
-              [4 207 135 1 2]]
+              [2 236 79 159 16]
+              [236 78 222 64 143]]
              (:gen run)))
       (is (= ["10100" "10101" "01100"] (:phe run)))))
   (testing "phenotype-reading river"
     (let [run (mmca/run-river-reconstruction 1 5 2)]
-      (is (= [[67 42 203 255 31]
-              [189 202 215 47 232]
-              [189 106 210 232 40]]
+      (is (= [[68 42 204 255 31]
+              [68 204 9 63 225]
+              [2 76 196 246 33]]
              (:gen run)))
-      (is (= ["00011" "10110" "10000"] (:phe run))))))
+      (is (= ["00011" "00010" "00010"] (:phe run))))))
 
-(deftest representative-full-run-is-grid-identical
+(deftest representative-full-run-wolfram-golden
   (let [run (mmca/run-propagator [1 6 2 5 0 3 7 4] 0 80 120)]
-    (is (= "bcaeaed2ae7f83526b2e1846a00f0c377b83dc9b8bfdf8f70a6c7651bdf93815"
+    (is (= "792e88112b0f45a175b6d86b432bfd77c74d14bf09b7c313b36cf0a08642e8ff"
            (sha256 (select-keys run [:gen :phe]))))
-    (is (= {:death 120 :rules 15 :activity 3209}
+    (is (= {:death 120 :rules 30 :activity 2719}
            (select-keys run [:death :rules :activity])))))
 
 (deftest continuous-interrupter-seam
@@ -72,16 +72,16 @@
     (is (not= (:gen legacy) (:gen q-half-a))
         "q changes genotype dynamics")))
 
-(deftest figure6-river-run-is-grid-identical
+(deftest figure6-river-run-wolfram-golden
   (let [run (mmca/run-river-reconstruction 1 80 120)]
-    (is (= "5bfa8cdf9fa8af0949af0f6eeb1762a5a393c844dd4db6cc9cc5709f672474b2"
+    (is (= "baffa03a7eda023d52aa289bdca370d4e15efee51bc014ac401386a02c8882ae"
            (sha256 (select-keys run [:gen :phe]))))
-    (is (= {:death 120 :rules 47 :activity 3976}
+    (is (= {:death 31 :rules 2 :activity 436}
            (select-keys run [:death :rules :activity])))))
 
-(deftest original-paper-river-is-grid-identical
+(deftest original-paper-river-wolfram-golden
   (let [run (mmca/run-river 1 80 120)]
-    (is (= "40d60446166b69eebc6810e58d242ed3cc4e264731156a409be807072d782681"
+    (is (= "2442124f667007b46d5f2b36a0044ad316d00328eb4be1b595e3fe092b915135"
            (sha256 (select-keys run [:gen :phe]))))
-    (is (= {:death 120 :rules 41 :activity 3547}
+    (is (= {:death 120 :rules 31 :activity 3940}
            (select-keys run [:death :rules :activity])))))
