@@ -45,10 +45,11 @@ def main():
     scores = load_scores()
     widths = sorted(set(scan[:, 0]))
     colors = {30: "#4575b4", 60: "#74add1", 120: "#f46d43", 240: "#a50026"}
-    fig = plt.figure(figsize=(13, 8))
-    grid = fig.add_gridspec(2, 4, height_ratios=[1.15, 1],
-                            hspace=0.34, wspace=0.28)
-    ax_a, ax_b, ax_c, ax_d = (fig.add_subplot(grid[0, i]) for i in range(4))
+    fig = plt.figure(figsize=(12, 7.6))
+    grid = fig.add_gridspec(2, 4, height_ratios=[1.2, 1],
+                            hspace=0.32, wspace=0.32)
+    ax_a = fig.add_subplot(grid[0, 0:2])
+    ax_b = fig.add_subplot(grid[0, 2:4])
     q_grid = np.linspace(0, 1, 200)
     for system_width in widths:
         sample = scan[scan[:, 0] == system_width]
@@ -60,36 +61,44 @@ def main():
         residual = sample[:, 2] - logistic(sample[:, 1], *params)
         r_squared = 1 - np.sum(residual ** 2) / np.sum(
             (sample[:, 2] - sample[:, 2].mean()) ** 2)
-        ax_a.plot(sample[:, 1], sample[:, 2], "o", color=color, ms=3.5,
+        ax_a.plot(sample[:, 1], sample[:, 2], "o", color=color, ms=4,
                   label=f"L={int(system_width)} ($w$={params[3]:.2f}, "
                         f"$R^2$={r_squared:.3f})")
         ax_a.plot(q_grid, logistic(q_grid, *params), "-", color=color,
-                  lw=1.1, alpha=0.7)
-        ax_b.plot(sample[:, 1], sample[:, 5], "o-", color=color, ms=3)
-        ax_c.plot(sample[:, 1], sample[:, 7], "o-", color=color, ms=3)
-        ax_d.plot(sample[:, 1], sample[:, 6], "o-", color=color, ms=3)
+                  lw=1.2, alpha=0.7)
+        ax_b.plot(sample[:, 1], sample[:, 5], "o-", color=color, ms=4,
+                  label=f"L={int(system_width)}")
     ax_a.axvspan(0.10, 0.50, color="0.88", zorder=0)
-    ax_a.set_title(r"(a) activity $a_G$: smooth logistic crossover", fontsize=9)
-    ax_a.legend(fontsize=5.6, loc="upper left")
-    ax_a.annotate("$w$ size-independent ($\\sim L^{-0.04}$):\n"
-                  "no sharpening $\\Rightarrow$ no transition",
-                  (0.52, 0.10), fontsize=6.2, ha="left", color="0.25")
-    ax_b.set_title(r"(b) susceptibility $L\,\mathrm{Var}(a_G)$", fontsize=9)
-    ax_b.annotate("no convergent interior maximum;\n"
-                  "large-L maxima at the sampled boundary",
-                  (0.02, 2.5), fontsize=6.5, color="#a50026", ha="left")
-    ax_c.set_title("(c) finite-horizon P(collapse)", fontsize=9)
-    ax_c.annotate("vanishes with size", (0.25, 0.35), fontsize=6.5, color="0.35")
-    ax_d.set_title("(d) Binder cumulant (no crossing)", fontsize=9)
-    ax_d.axhline(0, color="gray", lw=0.5, ls=":")
-    for axis in (ax_a, ax_b, ax_c, ax_d):
-        axis.set_xlabel("propagator duty cycle  $q$", fontsize=8)
-        axis.tick_params(labelsize=7)
+    ax_a.set_title(r"(a) activity $a_G$: a smooth crossover that never sharpens",
+                   fontsize=10)
+    ax_a.legend(fontsize=6.8, loc="upper left")
+    ax_a.annotate("the crossover width $w$ does not shrink with size\n"
+                  "($w \\sim L^{-0.04}$): the curve never steepens into a\n"
+                  "step, as a real transition would $\\Rightarrow$ no critical point",
+                  (0.28, 0.10), fontsize=7.3, ha="left", color="0.25")
+    ax_a.set_ylabel(r"genotype activity $a_G$", fontsize=9)
+
+    ax_b.set_title(r"(b) run-to-run spread grows with size only at $q=1$",
+                   fontsize=10)
+    ax_b.legend(fontsize=7, loc="upper center", ncol=2)
+    ax_b.annotate("at $q=1$ the curves fan out with $L$:\n"
+                  "activity does not average out\n"
+                  "$\\Rightarrow$ system-spanning domains",
+                  (0.40, 2.25), fontsize=7.3, ha="left", color="#a50026")
+    ax_b.annotate("in the band: flat and low across $L$\n"
+                  "(averages out, no critical point)",
+                  (0.05, 1.55), fontsize=7.3, ha="left", color="0.30")
+    ax_b.set_ylabel(r"run-to-run activity spread  $L\,\mathrm{Var}(a_G)$", fontsize=9)
+
+    for axis in (ax_a, ax_b):
+        axis.set_xlabel(r"propagator fraction $q$   (0: all blend $\to$ 1: all propagator)",
+                        fontsize=8.5)
+        axis.tick_params(labelsize=8)
         axis.grid(alpha=0.25)
 
-    panels = [(0, "$q=0$: blend-dominated (low activity)"),
+    panels = [(0, "$q=0$: all blend (low activity)"),
               (50, "$q=0.05$: sparse"),
-              (250, "$q=0.25$: intermediate (coexisting domains)"),
+              (250, "$q=0.25$: coexisting domains"),
               (750, "$q=0.75$: propagator-dominated (high activity)")]
     for i, (q_code, label) in enumerate(panels):
         axis = fig.add_subplot(grid[1, i])
@@ -98,11 +107,12 @@ def main():
                     aspect="auto", interpolation="nearest")
         axis.set_xticks([])
         axis.set_yticks([])
-        axis.set_title(label, fontsize=7.5)
-    fig.suptitle("offset$+2$ feedforward finite-size scan ($L=30$–$240$, "
-                 "32 seeds): no sharp critical point, a finite-width crossover band\n"
-                 "(bottom: paired illustrative realization, width 240, single seed, shared IC)",
-                 fontsize=10)
+        axis.set_title(label, fontsize=8)
+    fig.suptitle("offset$+2$ feedforward finite-size scan ($L = 30$–$240$, 32 seeds): "
+                 "a smooth crossover with no critical point in the band,\n"
+                 "yet run-to-run fluctuations grow with size at $q=1$, where system-spanning "
+                 "domains form  (bottom: one realization across $q$, width 240)",
+                 fontsize=9.5)
     FIGURES.mkdir(parents=True, exist_ok=True)
     output = FIGURES / "eoc_phase.png"
     fig.savefig(output, dpi=115, bbox_inches="tight", facecolor="white")
