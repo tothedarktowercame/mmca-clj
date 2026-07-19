@@ -121,7 +121,7 @@
 
 (defn generate-eoc-interface! []
   (let [operators [[:offset2 eoc-offset2 [1 2 3]]
-                   [:offset4 eoc-offset4 [1 2]]
+                   [:sigma16250374 eoc-sigma16250374 [1 2 3]]
                    [:river nil [1 2]]]]
     ;; Full-height representative panels at the paper's W=256, T=600 setting.
     (doseq [[kind writing _] operators]
