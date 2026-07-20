@@ -18,6 +18,7 @@
    ["reduced024" [2 1 4 3 0 5 6 7]]
    ["reduced02" [2 1 0 3 4 5 6 7]]])
 
+(def eoc-offset1 [1 2 3 4 5 6 7 0])   ; Wolfram-order survivor (8-cycle): EoC exemplar
 (def eoc-offset2 [2 3 4 5 6 7 0 1])
 (def eoc-offset4 [4 5 6 7 0 1 2 3])
 (def eoc-sigma16250374 [1 6 2 5 0 3 7 4])
@@ -100,7 +101,7 @@
   (println "wrote isolated-rule activity scores"))
 
 (defn generate-eoc-tint! []
-  (doseq [[id writing] [["offset2" eoc-offset2]
+  (doseq [[id writing] [["offset1" eoc-offset1]
                         ["sigma16250374" eoc-sigma16250374]]]
     (write-genotype-field!
      (format "data/eoc_tint_%s.txt" id)
@@ -111,7 +112,7 @@
   (doseq [q [0.0 0.05 0.25 1.0]]
     (write-genotype-field!
      (format "data/eoc_phase_q%03d.txt" (long (* 1000 q)))
-     (mmca/run-propagator eoc-offset2 1 240 300 {:interrupter-q q})))
+     (mmca/run-propagator eoc-offset1 1 240 300 {:interrupter-q q})))
   (println "wrote EoC phase example fields"))
 
 (defn- run-interface [kind writing seed width steps]
@@ -120,7 +121,7 @@
     (mmca/run-propagator writing seed width steps)))
 
 (defn generate-eoc-interface! []
-  (let [operators [[:offset2 eoc-offset2 [1 2 3]]
+  (let [operators [[:offset1 eoc-offset1 [1 2 3]]
                    [:sigma16250374 eoc-sigma16250374 [1 2 3]]
                    [:river nil [1 2]]]]
     ;; Full-height representative panels at the paper's W=256, T=600 setting.

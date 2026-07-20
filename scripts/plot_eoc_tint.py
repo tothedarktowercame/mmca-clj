@@ -36,7 +36,7 @@ def regime_entropy(field, scores):
 def main():
     scores = load_scores()
     fields = [
-        ("offset2", "offset $+2$"),
+        ("offset1", "offset $+1$"),
         ("sigma16250374", r"$\sigma=16250374$"),
     ]
     fig, axes = plt.subplots(1, 2, figsize=(8.2, 7.0), constrained_layout=True)

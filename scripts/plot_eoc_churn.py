@@ -17,7 +17,7 @@ DATA = ROOT / "data"
 FIGURES = ROOT / "figures"
 WIDTHS = [128, 256, 512, 768]
 OPERATORS = [
-    ("offset2", "offset +2", [1, 2, 3]),
+    ("offset1", "offset +1", [1, 2, 3]),
     ("sigma16250374", "σ = 16250374", [1, 2, 3]),
     ("river", "river", [1, 2]),
 ]
