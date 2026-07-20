@@ -12,7 +12,7 @@ from scipy.optimize import curve_fit
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
-SCAN = ROOT / "holes" / "E2b-offset2-finite-size-results.md"
+SCAN = ROOT / "holes" / "E2b-offset1-finite-size-results.md"
 FIGURES = ROOT / "figures"
 
 
@@ -108,7 +108,7 @@ def main():
         axis.set_xticks([])
         axis.set_yticks([])
         axis.set_title(label, fontsize=8)
-    fig.suptitle("offset$+2$ feedforward scan across system size $L$ (row width in cells, "
+    fig.suptitle("offset$+1$ feedforward scan across system size $L$ (row width in cells, "
                  "$30$–$240$; 32 seeds): a smooth crossover with no critical point in the band,\n"
                  "yet run-to-run fluctuations grow with $L$ at $q=1$, where system-spanning "
                  "domains form  (bottom: one realization across $q$, at $L=240$)",
