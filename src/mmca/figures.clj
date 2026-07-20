@@ -8,9 +8,13 @@
 (def steps 120)
 (def rotations [-4 -3 -2 -1 1 2 3 4])
 (def rotation-seeds [0 1])
+;; The two search-found operators, expressed in standard Wolfram order (their
+;; conjugates). The legacy 2014 truth-table integers still name them, but the
+;; writing is the Wolfram-order permutation -- 16250374 = [4 0 3 2 7 5 1 6],
+;; which concentrates the field on Rule 110 (~44%) as the legacy figure did.
 (def figure1-operators
-  {"16250374" [1 6 2 5 0 3 7 4]
-   "10275364" [1 0 2 7 5 3 6 4]})
+  {"16250374" (mmca/positional-writing->neighbourhood-writing [1 6 2 5 0 3 7 4])
+   "10275364" (mmca/positional-writing->neighbourhood-writing [1 0 2 7 5 3 6 4])})
 (def figure3-operators
   [["rot2" [2 3 4 5 6 7 0 1]]
    ["rot1" [1 2 3 4 5 6 7 0]]
@@ -21,7 +25,7 @@
 (def eoc-offset1 [1 2 3 4 5 6 7 0])   ; Wolfram-order survivor (8-cycle): EoC exemplar
 (def eoc-offset2 [2 3 4 5 6 7 0 1])
 (def eoc-offset4 [4 5 6 7 0 1 2 3])
-(def eoc-sigma16250374 [1 6 2 5 0 3 7 4])
+(def eoc-sigma16250374 (mmca/positional-writing->neighbourhood-writing [1 6 2 5 0 3 7 4]))  ; Wolfram form (Rule-110-dominated foil)
 (def activity-width 300)
 (def activity-steps 300)
 (def activity-late-window 150)
