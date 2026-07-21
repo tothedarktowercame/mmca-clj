@@ -78,16 +78,16 @@ def main():
                   (0.28, 0.10), fontsize=7.3, ha="left", color="0.25")
     ax_a.set_ylabel(r"genotype activity $a_G$", fontsize=9)
 
-    ax_b.set_title(r"(b) run-to-run spread grows with size only at $q=1$",
+    ax_b.set_title(r"(b) susceptibility peaks in the band, but drifts and barely grows",
                    fontsize=10)
-    ax_b.legend(fontsize=7, loc="upper center", ncol=2)
-    ax_b.annotate("at $q=1$ the curves fan out with $L$:\n"
-                  "activity does not average out\n"
-                  "$\\Rightarrow$ system-spanning domains",
-                  (0.40, 2.25), fontsize=7.3, ha="left", color="#a50026")
-    ax_b.annotate("in the band: flat and low across $L$\n"
-                  "(averages out, no critical point)",
-                  (0.05, 1.55), fontsize=7.3, ha="left", color="0.30")
+    ax_b.legend(fontsize=7, loc="upper right", ncol=2)
+    ax_b.annotate("peak drifts with $L$ ($q\\approx0.2\\to0.5$)\n"
+                  "and grows only ${\\sim}1.1\\times$:\n"
+                  "no clean critical point",
+                  (0.015, 1.95), fontsize=7.3, ha="left", color="#a50026")
+    ax_b.annotate("at $q=1$: low spread\n"
+                  "(domains form reproducibly)",
+                  (0.60, 1.15), fontsize=7.3, ha="left", color="0.30")
     ax_b.set_ylabel(r"run-to-run activity spread  $L\,\mathrm{Var}(a_G)$", fontsize=9)
 
     for axis in (ax_a, ax_b):
@@ -109,9 +109,9 @@ def main():
         axis.set_yticks([])
         axis.set_title(label, fontsize=8)
     fig.suptitle("offset$+1$ feedforward scan across system size $L$ (row width in cells, "
-                 "$30$–$240$; 32 seeds): a smooth crossover with no critical point in the band,\n"
-                 "yet run-to-run fluctuations grow with $L$ at $q=1$, where system-spanning "
-                 "domains form  (bottom: one realization across $q$, at $L=240$)",
+                 "$30$–$240$; 32 seeds): a smooth crossover with no critical point,\n"
+                 "and a susceptibility that peaks in the band but drifts and barely grows---"
+                 "metastability, not criticality  (bottom: one realization across $q$, $L=240$)",
                  fontsize=9.5)
     FIGURES.mkdir(parents=True, exist_ok=True)
     output = FIGURES / "eoc_phase.png"
