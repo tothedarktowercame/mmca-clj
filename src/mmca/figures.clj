@@ -112,6 +112,7 @@
 
 (defn generate-eoc-tint! []
   (doseq [[id writing] [["offset1" eoc-offset1]
+                        ["two4cyc" two-4cycle-sustain]
                         ["sigma16250374" eoc-sigma16250374]]]
     (write-genotype-field!
      (format "data/eoc_tint_%s.txt" id)
@@ -132,6 +133,7 @@
 
 (defn generate-eoc-interface! []
   (let [operators [[:offset1 eoc-offset1 [1 2 3]]
+                   [:two4cyc two-4cycle-sustain [1 2 3]]
                    [:sigma16250374 eoc-sigma16250374 [1 2 3]]
                    [:river nil [1 2]]]]
     ;; Full-height representative panels at the paper's W=256, T=600 setting.

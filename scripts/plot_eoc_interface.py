@@ -50,6 +50,7 @@ def main():
     scores = load_scores()
     operators = [
         ("offset1", "offset $+1$", [1, 2, 3], "#4575b4"),
+        ("two4cyc", r"$[6\,7\,0\,2\,1\,4\,3\,5]$", [1, 2, 3], "#1b7837"),
         ("sigma16250374", r"$\sigma$=16250374", [1, 2, 3], "#7570b3"),
         ("river", "river", [1, 2], "#d73027"),
     ]

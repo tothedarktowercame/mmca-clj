@@ -36,10 +36,11 @@ def regime_entropy(field, scores):
 def main():
     scores = load_scores()
     fields = [
-        ("offset1", "offset $+1$"),
+        ("offset1", "offset $+1$ (8-cycle)"),
+        ("two4cyc", r"$[6\,7\,0\,2\,1\,4\,3\,5]$ (two 4-cycles)"),
         ("sigma16250374", r"$\sigma=16250374$"),
     ]
-    fig, axes = plt.subplots(1, 2, figsize=(8.2, 7.0), constrained_layout=True)
+    fig, axes = plt.subplots(1, 3, figsize=(11.4, 6.6), constrained_layout=True)
     image = None
     for axis, (name, label) in zip(axes, fields):
         field = np.loadtxt(DATA / f"eoc_tint_{name}.txt", dtype=int)
