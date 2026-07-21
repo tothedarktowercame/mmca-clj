@@ -209,6 +209,19 @@
          true))
   (println "wrote Figure 8 data"))
 
+;; Figure 2, two terminal-diversity solutions of the same historical operator.
+;; draft4: [0 0 1 2 3 4 5 6] Wolfram-direct -> genotype stays diverse (~30 rules).
+;; draft3: its conjugate [1 2 4 5 3 6 7 7] -> genotype collapses to 2 rules (76,77).
+(def fig2-draft4 [0 0 1 2 3 4 5 6])
+(def fig2-draft3 [1 2 4 5 3 6 7 7])
+
+(defn generate-fig2pair! []
+  (spit "data/fig2pair_draft3.txt"
+        (render-run (mmca/run-propagator fig2-draft3 4 width steps)))
+  (spit "data/fig2pair_draft4.txt"
+        (render-run (mmca/run-propagator fig2-draft4 4 width steps)))
+  (println "wrote Figure 2 pair (2-genotype vs many-genotype) data"))
+
 (defn generate-figshell! []
   ;; Critical-shell example: sigma=[2 3 0 1 5 4 7 6] is an all-even involution
   ;; that fixes the lambda=1/2 shell (Rule 105, LIVE). All-even => collapses:
@@ -299,6 +312,7 @@
   (generate-figure5!)
   (generate-figure6!)
   (generate-figure8!)
+  (generate-fig2pair!)
   (generate-figshell!)
   (generate-two-4cycle!)
   (generate-braid!)
@@ -318,6 +332,7 @@
     "river-grid" (generate-river-grid!)
     "original-river" (generate-original-river!)
     "fig8" (generate-figure8!)
+    "fig2pair" (generate-fig2pair!)
     "figshell" (generate-figshell!)
     "two4cycle" (generate-two-4cycle!)
     "braid" (generate-braid!)
@@ -332,7 +347,7 @@
                     {:command command
                      :expected ["all" "fig1" "fig3" "fig4" "fig5"
                                 "fig6" "river-grid" "original-river"
-                                "fig8" "figshell" "two4cycle" "braid" "knob"
+                                "fig8" "fig2pair" "figshell" "two4cycle" "braid" "knob"
                                 "stats" "activity-scores"
                                 "eoc-tint" "eoc-phase" "eoc-interface"
                                 "eoc"]}))))
