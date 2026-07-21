@@ -26,6 +26,12 @@
 (def eoc-offset2 [2 3 4 5 6 7 0 1])
 (def eoc-offset4 [4 5 6 7 0 1 2 3])
 (def eoc-sigma16250374 (mmca/positional-writing->neighbourhood-writing [1 6 2 5 0 3 7 4]))  ; Wolfram form (Rule-110-dominated foil)
+
+;; Two operators with identical cycle type (two 4-cycles) and OPPOSITE fate --
+;; cycle structure does not determine aliveness. The sustaining one is the
+;; Wolfram-order conjugate of draft3's offset+2 "edge of chaos" exemplar.
+(def two-4cycle-sustain [6 7 0 2 1 4 3 5])   ; sustains (live/live)
+(def two-4cycle-collapse [2 3 4 5 6 7 0 1])  ; offset+2 rotation; collapses (dead/dead)
 (def activity-width 300)
 (def activity-steps 300)
 (def activity-late-window 150)
@@ -212,6 +218,13 @@
         (render-run (mmca/run-propagator [2 3 0 1 5 4 7 6] 1 width steps)))
   (println "wrote Figure 7 (critical-shell) data"))
 
+(defn generate-two-4cycle! []
+  (spit "data/two4cycle_sustain.txt"
+        (render-run (mmca/run-propagator two-4cycle-sustain 0 width steps)))
+  (spit "data/two4cycle_collapse.txt"
+        (render-run (mmca/run-propagator two-4cycle-collapse 0 width steps)))
+  (println "wrote two-4-cycle (opposite-fate) data"))
+
 (defn- mean [xs]
   (/ (reduce + 0.0 xs) (count xs)))
 
@@ -249,6 +262,7 @@
   (generate-figure6!)
   (generate-figure8!)
   (generate-figshell!)
+  (generate-two-4cycle!)
   (generate-stats!)
   (generate-eoc!))
 
@@ -265,6 +279,7 @@
     "original-river" (generate-original-river!)
     "fig8" (generate-figure8!)
     "figshell" (generate-figshell!)
+    "two4cycle" (generate-two-4cycle!)
     "stats" (generate-stats!)
     "activity-scores" (generate-activity-scores!)
     "eoc-tint" (generate-eoc-tint!)
@@ -275,6 +290,6 @@
                     {:command command
                      :expected ["all" "fig1" "fig3" "fig4" "fig5"
                                 "fig6" "river-grid" "original-river"
-                                "fig8" "figshell" "stats" "activity-scores"
+                                "fig8" "figshell" "two4cycle" "stats" "activity-scores"
                                 "eoc-tint" "eoc-phase" "eoc-interface"
                                 "eoc"]}))))
