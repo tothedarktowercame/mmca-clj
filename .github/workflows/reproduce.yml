@@ -1,0 +1,80 @@
+name: Reproduce figures
+
+# Guards the paper's claim that every figure is reproducible from mmca-clj alone
+# (the drift that bit draft3). The pure-integer RNG (src/mmca/rng.clj) makes the
+# simulation grid-identical across machines, so a clean runner must produce the
+# same data and the same discrete figure numbers as the author's box. PNG bytes
+# are NOT checked -- font/freetype rendering differs across machines; the science
+# lives in the data and the printed numbers, not the pixels.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Clojure CLI
+        uses: DeLaGuardo/setup-clojure@12.5
+        with:
+          cli: 1.12.3.1577
+
+      - name: Cache Clojure deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+          key: cljdeps-${{ hashFiles('deps.edn') }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python deps (pinned to the author's box)
+        run: pip install "numpy==1.26.4" "matplotlib==3.6.3"
+
+      - name: Unit tests (RNG determinism + figure reference values)
+        run: clojure -M:test
+
+      - name: Reproduce every figure from source
+        run: bash scripts/reproduce_all.sh | tee repro.log
+
+      - name: Assert key figure claims did not drift
+        run: |
+          set -e
+          # Parity dichotomy (Fig 5): rot2 settles(4), rot1 all-even yet lives(12),
+          # the odd-cycle operators stay diverse (27,56,54). "same parity, opposite fate."
+          grep -qF "diversities: [4, 12, 27, 56, 54]" repro.log \
+            || { echo "::error::parity diversities drifted from [4, 12, 27, 56, 54]"; exit 1; }
+          # Every expected figure PNG was produced.
+          missing=0
+          for f in rule110_spread fig8 fig2pair survey_a survey_b lambda_analogue \
+                   river critical_shell two4cycle braid knob eoc_tint eoc_interface eoc_phase; do
+            [ -s "figures/$f.png" ] || { echo "::error::missing figures/$f.png"; missing=1; }
+          done
+          [ -s figures/parity-dichotomy.png ] || { echo "::error::missing parity-dichotomy.png"; missing=1; }
+          [ "$missing" -eq 0 ]
+          echo "All figures reproduced; key claims intact."
+
+      - name: Upload reproduced figures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reproduced-figures
+          path: |
+            figures/
+            repro.log
