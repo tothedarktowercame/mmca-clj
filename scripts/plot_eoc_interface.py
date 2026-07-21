@@ -55,8 +55,8 @@ def main():
         ("river", "river", [1, 2], "#d73027"),
     ]
     widths = [128, 256, 512, 768]
-    fig = plt.figure(figsize=(12, 4.4))
-    grid = fig.add_gridspec(1, 3, wspace=0.12)
+    fig = plt.figure(figsize=(15, 4.2))
+    grid = fig.add_gridspec(1, 4, wspace=0.12)
 
     for column, (name, label, _, _) in enumerate(operators):
         field = np.loadtxt(DATA / f"eoc_interface_top_{name}.txt", dtype=int)
