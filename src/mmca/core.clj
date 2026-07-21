@@ -170,6 +170,16 @@
 (defn distinct-rules [genotype]
   (count (distinct genotype)))
 
+(defn genotype-noise
+  "Replace each genotype cell by a uniform random rule with probability p."
+  [noise-r genotype p]
+  {:pre [(number? p) (<= 0.0 (double p) 1.0)]}
+  (mapv (fn [rule]
+          (if (< (rng/rand-double noise-r) (double p))
+            (rng/rand-int noise-r rule-count)
+            rule))
+        genotype))
+
 (defn- finish-run [phenotypes genotypes activities]
   {:death (reduce-kv (fn [last-active i activity]
                        (if (pos? activity) (inc i) last-active))
@@ -185,16 +195,21 @@
 
   Returns `:gen` as rows of integer rule bytes and `:phe` as binary strings,
   including the initial row. Same writing+seed+width+steps is deterministic and
-  matches the GNU Emacs 30/Linux Tier-1 stream."
+  matches the GNU Emacs 30/Linux Tier-1 stream. `:noise-p` replaces each rule
+  after a genotype generation with an independently drawn uniform rule at the
+  given probability; its default of zero consumes no noise RNG draws."
   ([writing seed width steps]
    (run-propagator writing seed width steps {}))
-  ([writing seed width steps {:keys [invert? interrupter-q]
-                              :or {invert? true interrupter-q 1.0}}]
+  ([writing seed width steps {:keys [invert? interrupter-q noise-p]
+                              :or {invert? true interrupter-q 1.0 noise-p 0.0}}]
+   {:pre [(number? noise-p) (<= 0.0 (double noise-p) 1.0)]}
    (let [;; Wolfram order: the writing IS the truth-table-position permutation,
          ;; applied directly (no legacy 2014->Wolfram conjugation).
          r (rng/make-rng (format "prop-%d" seed))
          interrupter-r (when-not (= 1.0 (double interrupter-q))
                          (rng/make-rng (format "interrupt-%d" seed)))
+         noise-r (when (pos? (double noise-p))
+                   (rng/make-rng (format "noise-%d" seed)))
          g0 (random-genotype r width)
          p0 (random-phenotype r width)]
      (loop [t 0
@@ -206,11 +221,14 @@
        (if (= t steps)
          (finish-run phenotypes genotypes activities)
          (let [next-phenotype (phenotype-step genotype phenotype)
-               next-genotype
+               updated-genotype
                (if (= 1.0 (double interrupter-q))
                  (genotype-step r genotype writing invert?)
                  (genotype-step-interrupted r interrupter-r genotype writing
-                                            interrupter-q invert?))]
+                                            interrupter-q invert?))
+               next-genotype (if noise-r
+                               (genotype-noise noise-r updated-genotype noise-p)
+                               updated-genotype)]
            (recur (inc t) next-genotype next-phenotype
                   (conj genotypes next-genotype)
                   (conj phenotypes next-phenotype)
