@@ -242,6 +242,27 @@
         (render-run (mmca/run-braid braid-off2 braid-offm2 0 width steps)))
   (println "wrote braiding data"))
 
+;; Complexity knob: braid the dead sigma^2 (two 4-cycles) with the mixing sigma^1
+;; (8-cycle) at ratio num/12. Sustained diversity rises with the sigma^1 fraction.
+(def knob-sigma1 [1 2 3 4 5 6 7 0])
+(def knob-sigma2 [2 3 4 5 6 7 0 1])
+
+(defn generate-knob! []
+  (let [den 12
+        sched (fn [num] (vec (concat (repeat (- den num) knob-sigma2)
+                                     (repeat num knob-sigma1))))
+        gdiv (fn [num seed]
+               (let [lg (take-last 40 (:gen (mmca/run-schedule (sched num) seed width steps)))]
+                 (double (/ (reduce + (map mmca/distinct-rules lg)) (count lg)))))]
+    (spit "data/knob_curve.txt"
+          (apply str (for [num (range 0 (inc den))]
+                       (format "%.4f %.3f\n" (/ (double num) den)
+                               (/ (reduce + (map #(gdiv num %) (range 5))) 5.0)))))
+    (doseq [[id num] [["low" 3] ["mid" 6] ["high" 12]]]
+      (spit (format "data/knob_%s.txt" id)
+            (render-run (mmca/run-schedule (sched num) 0 width steps))))
+    (println "wrote complexity-knob data")))
+
 (defn- mean [xs]
   (/ (reduce + 0.0 xs) (count xs)))
 
@@ -281,6 +302,7 @@
   (generate-figshell!)
   (generate-two-4cycle!)
   (generate-braid!)
+  (generate-knob!)
   (generate-stats!)
   (generate-eoc!))
 
@@ -299,6 +321,7 @@
     "figshell" (generate-figshell!)
     "two4cycle" (generate-two-4cycle!)
     "braid" (generate-braid!)
+    "knob" (generate-knob!)
     "stats" (generate-stats!)
     "activity-scores" (generate-activity-scores!)
     "eoc-tint" (generate-eoc-tint!)
@@ -309,6 +332,7 @@
                     {:command command
                      :expected ["all" "fig1" "fig3" "fig4" "fig5"
                                 "fig6" "river-grid" "original-river"
-                                "fig8" "figshell" "two4cycle" "braid" "stats" "activity-scores"
+                                "fig8" "figshell" "two4cycle" "braid" "knob"
+                                "stats" "activity-scores"
                                 "eoc-tint" "eoc-phase" "eoc-interface"
                                 "eoc"]}))))

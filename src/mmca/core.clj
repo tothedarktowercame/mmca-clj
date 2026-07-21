@@ -257,6 +257,26 @@
                  (conj phenotypes next-phenotype)
                  (conj activities (changed-count phenotype next-phenotype))))))))
 
+(defn run-schedule
+  "Braid a cyclic schedule of writings: step t applies writings[t mod n].
+  Generalizes `run-braid` to any list of operators -- e.g. powers of an 8-cycle,
+  whose residence ratio drives the sustained complexity up or down."
+  [writings seed width steps]
+  (let [r (rng/make-rng (format "prop-%d" seed))
+        g0 (random-genotype r width)
+        p0 (random-phenotype r width)
+        n (count writings)]
+    (loop [t 0 genotype g0 phenotype p0 genotypes [g0] phenotypes [p0] activities []]
+      (if (= t steps)
+        (finish-run phenotypes genotypes activities)
+        (let [writing (nth writings (mod t n))
+              next-phenotype (phenotype-step genotype phenotype)
+              next-genotype (genotype-step r genotype writing true)]
+          (recur (inc t) next-genotype next-phenotype
+                 (conj genotypes next-genotype)
+                 (conj phenotypes next-phenotype)
+                 (conj activities (changed-count phenotype next-phenotype))))))))
+
 (defn river-templates [a b c d]
   [[[a b c] d]
    [[(bit-xor a 1) (bit-xor b 1) (bit-xor c 1)] (bit-xor d 1)]
