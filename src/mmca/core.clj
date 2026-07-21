@@ -237,6 +237,26 @@
                   (conj phenotypes next-phenotype)
                   (conj activities (changed-count phenotype next-phenotype)))))))))
 
+(defn run-braid
+  "Braid two writings by alternating them each step: writing-a on even t,
+  writing-b on odd t. Same blending dynamics as `run-propagator` otherwise.
+  Two operators that each collapse alone can braid into a sustained field when
+  they preserve different block systems (no partition survives the alternation)."
+  [writing-a writing-b seed width steps]
+  (let [r (rng/make-rng (format "prop-%d" seed))
+        g0 (random-genotype r width)
+        p0 (random-phenotype r width)]
+    (loop [t 0 genotype g0 phenotype p0 genotypes [g0] phenotypes [p0] activities []]
+      (if (= t steps)
+        (finish-run phenotypes genotypes activities)
+        (let [writing (if (even? t) writing-a writing-b)
+              next-phenotype (phenotype-step genotype phenotype)
+              next-genotype (genotype-step r genotype writing true)]
+          (recur (inc t) next-genotype next-phenotype
+                 (conj genotypes next-genotype)
+                 (conj phenotypes next-phenotype)
+                 (conj activities (changed-count phenotype next-phenotype))))))))
+
 (defn river-templates [a b c d]
   [[[a b c] d]
    [[(bit-xor a 1) (bit-xor b 1) (bit-xor c 1)] (bit-xor d 1)]

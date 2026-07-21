@@ -225,6 +225,23 @@
         (render-run (mmca/run-propagator two-4cycle-collapse 0 width steps)))
   (println "wrote two-4-cycle (opposite-fate) data"))
 
+;; Braiding: two operators that each collapse alone (dead genotype). Alternating
+;; offset+2 with offset+4 (different block systems) revives; alternating it with
+;; offset-2 (same evens/odds partition) does not.
+(def braid-off2 [2 3 4 5 6 7 0 1])   ; two 4-cycles
+(def braid-off4 [4 5 6 7 0 1 2 3])   ; four 2-cycles (complementary block system)
+(def braid-offm2 [6 7 0 1 2 3 4 5])  ; two 4-cycles, SAME evens/odds partition
+
+(defn generate-braid! []
+  (doseq [[id w] [["off2" braid-off2] ["off4" braid-off4] ["offm2" braid-offm2]]]
+    (spit (format "data/braid_%s.txt" id)
+          (render-run (mmca/run-propagator w 0 width steps))))
+  (spit "data/braid_complementary.txt"
+        (render-run (mmca/run-braid braid-off2 braid-off4 0 width steps)))
+  (spit "data/braid_samefamily.txt"
+        (render-run (mmca/run-braid braid-off2 braid-offm2 0 width steps)))
+  (println "wrote braiding data"))
+
 (defn- mean [xs]
   (/ (reduce + 0.0 xs) (count xs)))
 
@@ -263,6 +280,7 @@
   (generate-figure8!)
   (generate-figshell!)
   (generate-two-4cycle!)
+  (generate-braid!)
   (generate-stats!)
   (generate-eoc!))
 
@@ -280,6 +298,7 @@
     "fig8" (generate-figure8!)
     "figshell" (generate-figshell!)
     "two4cycle" (generate-two-4cycle!)
+    "braid" (generate-braid!)
     "stats" (generate-stats!)
     "activity-scores" (generate-activity-scores!)
     "eoc-tint" (generate-eoc-tint!)
@@ -290,6 +309,6 @@
                     {:command command
                      :expected ["all" "fig1" "fig3" "fig4" "fig5"
                                 "fig6" "river-grid" "original-river"
-                                "fig8" "figshell" "two4cycle" "stats" "activity-scores"
+                                "fig8" "figshell" "two4cycle" "braid" "stats" "activity-scores"
                                 "eoc-tint" "eoc-phase" "eoc-interface"
                                 "eoc"]}))))
