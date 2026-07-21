@@ -77,6 +77,18 @@
    [false true] (fn [r] (- (:p-change r) (:g-change r)))
    [false false] (fn [r] (- (+ (:g-change r) (:p-change r))))})
 
+(defn- cycle-type
+  "Sorted cycle lengths of the permutation (e.g. [8], [4 4], [2 2 2 2])."
+  [perm]
+  (let [n (count perm)]
+    (loop [seen #{} cs []]
+      (if (= (count seen) n)
+        (vec (sort (map count cs)))
+        (let [s (first (remove seen (range n)))
+              cyc (loop [x s acc []]
+                    (if (and (seq acc) (= x s)) acc (recur (nth perm x) (conj acc x))))]
+          (recur (into seen cyc) (conj cs cyc)))))))
+
 (defn- write-ranking!
   "Full ranked list of every operator by genotype aliveness -> a TSV data file."
   [rows]
@@ -132,7 +144,23 @@
                  (pct 0.0) (pct 0.10) (pct 0.25) (pct 0.5) (pct 0.75) (pct 0.90) (pct 0.999))
          (format "Alive genotypes (>= %.2f): %d/%d (%.1f%%).\n\n" th n-alive n
                  (* 100.0 (/ n-alive (double n))))
-         "Full ranked list of every operator: `holes/aliveness-census-ranked.tsv`.\n")))
+         "## Sustain fraction by cycle type\n\n"
+         "Does cycle structure determine aliveness? If yes, each cycle type is all-alive\n"
+         "or all-dead; a split column means the type under-determines the outcome.\n\n"
+         "| cycle type | count | genotype-alive | share | live/live | live/dead | dead/live | dead/dead |\n"
+         "|---|---:|---:|---:|---:|---:|---:|---:|\n"
+         (str/join "\n"
+           (for [[ct crows] (sort-by (fn [[_ v]] (- (count v)))
+                                     (group-by #(cycle-type (:perm %)) rows))
+                 :let [m (count crows)
+                       galive (count (filter #(>= (:g-change %) th) crows))
+                       q (fn [gv pv] (count (filter #(and (= gv (>= (:g-change %) th))
+                                                          (= pv (>= (:p-change %) th)))
+                                                    crows)))]]
+             (format "| %s | %d | %d | %.1f%% | %d | %d | %d | %d |"
+                     (pr-str ct) m galive (* 100.0 (/ galive (double m)))
+                     (q true true) (q true false) (q false true) (q false false))))
+         "\n\nFull ranked list of every operator: `holes/aliveness-census-ranked.tsv`.\n")))
 
 (defn -main [& _]
   (let [all (map vec (permutations (range 8)))
