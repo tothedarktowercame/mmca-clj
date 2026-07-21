@@ -77,15 +77,35 @@
    [false true] (fn [r] (- (:p-change r) (:g-change r)))
    [false false] (fn [r] (- (+ (:g-change r) (:p-change r))))})
 
+(defn- write-ranking!
+  "Full ranked list of every operator by genotype aliveness -> a TSV data file."
+  [rows]
+  (let [th (:alive config)
+        ranked (sort-by :g-change > rows)]
+    (spit "holes/aliveness-census-ranked.tsv"
+          (str "rank\tg_change\tp_change\tg_div\tquadrant\tperm\n"
+               (str/join "\n"
+                 (map-indexed (fn [i r]
+                                (format "%d\t%.4f\t%.4f\t%.2f\t%s\t%s"
+                                        (inc i) (:g-change r) (:p-change r) (:g-div r)
+                                        (quad-label (quadrant th r)) (pr-str (:perm r))))
+                              ranked))
+               "\n"))))
+
 (defn- report [rows]
   (let [th (:alive config)
         groups (group-by #(quadrant th %) rows)
-        n (count rows)]
+        n (count rows)
+        by-g (sort-by :g-change > rows)
+        asc (mapv :g-change (sort-by :g-change rows))
+        pct (fn [p] (nth asc (min (dec (count asc)) (int (* p (count asc))))))
+        n-alive (count (filter #(>= (:g-change %) th) rows))]
     (str "# Aliveness census -- 40320 bijective operators (result)\n\n"
          "Reproduce: `clojure -M -m mmca.experiments.aliveness-census`.\n"
          (format "Config: %s\n" (pr-str config))
          "Aliveness = late-window mean changed-cell fraction, seed-averaged; "
          (format "a field is ALIVE if its change rate >= %.2f.\n\n" th)
+         "## 2x2 quadrants\n\n"
          "| quadrant | count | share | cleanest exemplars (perm : g-change p-change g-div) |\n"
          "|---|---:|---:|---|\n"
          (str/join "\n"
@@ -98,7 +118,21 @@
                        (map #(format "%s : %.2f %.2f %.1f"
                                      (pr-str (:perm %)) (:g-change %) (:p-change %) (:g-div %))
                             ex)))))
-         "\n")))
+         "\n\n## Ranked by genotype aliveness (top 30 of " n ")\n\n"
+         "| # | perm | g-change | p-change | g-div | quadrant |\n"
+         "|---:|---|---:|---:|---:|---|\n"
+         (str/join "\n"
+           (map-indexed (fn [i r]
+                          (format "| %d | %s | %.3f | %.3f | %.1f | %s |"
+                                  (inc i) (pr-str (:perm r)) (:g-change r) (:p-change r)
+                                  (:g-div r) (quad-label (quadrant th r))))
+                        (take 30 by-g)))
+         "\n\n## Genotype-aliveness distribution\n\n"
+         (format "min=%.3f p10=%.3f p25=%.3f median=%.3f p75=%.3f p90=%.3f max=%.3f\n\n"
+                 (pct 0.0) (pct 0.10) (pct 0.25) (pct 0.5) (pct 0.75) (pct 0.90) (pct 0.999))
+         (format "Alive genotypes (>= %.2f): %d/%d (%.1f%%).\n\n" th n-alive n
+                 (* 100.0 (/ n-alive (double n))))
+         "Full ranked list of every operator: `holes/aliveness-census-ranked.tsv`.\n")))
 
 (defn -main [& _]
   (let [all (map vec (permutations (range 8)))
@@ -114,5 +148,6 @@
     (let [rows (with-open [r (io/reader checkpoint-path)]
                  (into [] (comp (remove str/blank?) (map edn/read-string)) (line-seq r)))]
       (spit results-path (report rows))
-      (println (str "COMPLETE -> " results-path " (" (count rows) " operators)"))
+      (write-ranking! rows)
+      (println (str "COMPLETE -> " results-path " + ranked.tsv (" (count rows) " operators)"))
       (flush))))
