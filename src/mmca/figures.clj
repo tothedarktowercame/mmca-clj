@@ -203,6 +203,15 @@
          true))
   (println "wrote Figure 8 data"))
 
+(defn generate-figshell! []
+  ;; Critical-shell example: sigma=[2 3 0 1 5 4 7 6] is an all-even involution
+  ;; that fixes the lambda=1/2 shell (Rule 105, LIVE). All-even => collapses:
+  ;; genotype dies onto Rule 105 while the phenotype stays complex. Native
+  ;; Wolfram ordering (no shim), so run-propagator applies it directly.
+  (spit "data/figshell.txt"
+        (render-run (mmca/run-propagator [2 3 0 1 5 4 7 6] 1 width steps)))
+  (println "wrote Figure 7 (critical-shell) data"))
+
 (defn- mean [xs]
   (/ (reduce + 0.0 xs) (count xs)))
 
@@ -239,6 +248,7 @@
   (generate-figure5!)
   (generate-figure6!)
   (generate-figure8!)
+  (generate-figshell!)
   (generate-stats!)
   (generate-eoc!))
 
@@ -254,6 +264,7 @@
     "river-grid" (generate-river-grid!)
     "original-river" (generate-original-river!)
     "fig8" (generate-figure8!)
+    "figshell" (generate-figshell!)
     "stats" (generate-stats!)
     "activity-scores" (generate-activity-scores!)
     "eoc-tint" (generate-eoc-tint!)
@@ -264,6 +275,6 @@
                     {:command command
                      :expected ["all" "fig1" "fig3" "fig4" "fig5"
                                 "fig6" "river-grid" "original-river"
-                                "fig8" "stats" "activity-scores"
+                                "fig8" "figshell" "stats" "activity-scores"
                                 "eoc-tint" "eoc-phase" "eoc-interface"
                                 "eoc"]}))))
