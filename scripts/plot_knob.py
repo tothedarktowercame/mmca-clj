@@ -20,7 +20,8 @@ ax.set_xlabel(r"fraction of steps in the mixing operator $\sigma^1$ (8-cycle)")
 ax.set_ylabel("sustained diversity\n(distinct rules)")
 ax.set_title(r"A complexity knob: braiding dead $\sigma^2$ with mixing $\sigma^1$ dials the sustained complexity",
              fontsize=11)
-ax.grid(alpha=0.25); ax.set_ylim(0, None)
+ax.grid(alpha=0.25)
+ax.set_ylim(0, float(cur[:, 1].max()) * 1.15)  # headroom so the "high" label clears the title
 marks = {"low": 0.25, "mid": 0.5, "high": 1.0}
 for name, fr in marks.items():
     yi = float(np.interp(fr, cur[:, 0], cur[:, 1]))

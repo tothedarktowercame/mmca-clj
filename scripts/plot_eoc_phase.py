@@ -88,6 +88,7 @@ def main():
     ax_b.annotate("at $q=1$: low spread\n"
                   "(domains form reproducibly)",
                   (0.60, 1.15), fontsize=7.3, ha="left", color="0.30")
+    ax_b.set_ylim(top=ax_b.get_ylim()[1] * 1.22)  # headroom so the red inset clears the (b) title
     ax_b.set_ylabel(r"run-to-run activity spread  $L\,\mathrm{Var}(a_G)$", fontsize=9)
 
     for axis in (ax_a, ax_b):
