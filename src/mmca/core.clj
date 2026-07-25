@@ -258,8 +258,8 @@
 (defn run-braid
   "Braid two writings by alternating them each step: writing-a on even t,
   writing-b on odd t. Same blending dynamics as `run-propagator` otherwise.
-  Two operators that each collapse alone can braid into a sustained field when
-  they preserve different block systems (no partition survives the alternation)."
+  Some pairs that collapse alone sustain when braided; the outcome depends on
+  the ordered pair and is not determined by common parity-block invariance."
   [writing-a writing-b seed width steps]
   (let [r (rng/make-rng (format "prop-%d" seed))
         g0 (random-genotype r width)

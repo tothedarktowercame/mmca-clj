@@ -241,11 +241,12 @@
   (println "wrote two-4-cycle (opposite-fate) data"))
 
 ;; Braiding: two operators that each collapse alone (dead genotype). Alternating
-;; offset+2 with offset+4 (different block systems) revives; alternating it with
-;; offset-2 (same evens/odds partition) does not.
+;; offset+2 with offset+4 revives; alternating it with offset-2 does not. Both
+;; pairs preserve parity, so common-block invariance alone does not explain the
+;; contrast.
 (def braid-off2 [2 3 4 5 6 7 0 1])   ; two 4-cycles
-(def braid-off4 [4 5 6 7 0 1 2 3])   ; four 2-cycles (complementary block system)
-(def braid-offm2 [6 7 0 1 2 3 4 5])  ; two 4-cycles, SAME evens/odds partition
+(def braid-off4 [4 5 6 7 0 1 2 3])   ; four 2-cycles; preserves parity
+(def braid-offm2 [6 7 0 1 2 3 4 5])  ; two 4-cycles; preserves parity
 
 (defn generate-braid! []
   (doseq [[id w] [["off2" braid-off2] ["off4" braid-off4] ["offm2" braid-offm2]]]
