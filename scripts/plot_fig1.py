@@ -31,5 +31,6 @@ for ag, ap, note in panel_notes:
     left=ag.get_position(); right=ap.get_position()
     fig.text((left.x0+right.x1)/2, min(left.y0,right.y0)-0.025, note,
              ha="center", va="top", fontsize=8.5, color="#555555")
-fig.savefig("figures/rule110_spread.png",dpi=110,bbox_inches="tight",facecolor="white")
-print(f"wrote figures/rule110_spread.png")
+fig.savefig("figures/rule110_spread.png",dpi=600,bbox_inches="tight",facecolor="white")
+fig.savefig("figures/rule110_spread.pdf",bbox_inches="tight",facecolor="white")
+print("wrote figures/rule110_spread.png and figures/rule110_spread.pdf")

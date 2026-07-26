@@ -116,8 +116,10 @@ def main():
                  fontsize=9.5)
     FIGURES.mkdir(parents=True, exist_ok=True)
     output = FIGURES / "eoc_phase.png"
-    fig.savefig(output, dpi=115, bbox_inches="tight", facecolor="white")
-    print("wrote", output)
+    fig.savefig(output, dpi=600, bbox_inches="tight", facecolor="white")
+    pdf_output = output.with_suffix(".pdf")
+    fig.savefig(pdf_output, bbox_inches="tight", facecolor="white")
+    print("wrote", output, "and", pdf_output)
 
 
 if __name__ == "__main__":

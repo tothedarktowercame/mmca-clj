@@ -33,5 +33,6 @@ for ri, (rlabel, col, a, b, braid, la, lb) in enumerate(rows):
 fig.suptitle("Temporal braid contrast: offset $+2/+4$ revives; offset $+2/-2$ remains dead\n"
              "both pairs preserve parity, so common-block invariance does not explain the split",
              fontsize=11, y=0.965)
-fig.savefig("figures/braid.png", dpi=120, bbox_inches="tight", facecolor="white")
-print("wrote figures/braid.png")
+fig.savefig("figures/braid.png", dpi=600, bbox_inches="tight", facecolor="white")
+fig.savefig("figures/braid.pdf", bbox_inches="tight", facecolor="white")
+print("wrote figures/braid.png and figures/braid.pdf")

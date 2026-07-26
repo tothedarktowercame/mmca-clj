@@ -14,8 +14,8 @@ Family of Operators on Cellular Automata*. It is the Clojure counterpart of
 - `run-original-paper-river`: the original `quad-4cand / firstMatch prop:rot2`
   coordinate with constant-zero fallback and literal Java seeds;
 - standard Wolfram ECA phenotype evaluation with fixed-zero boundaries;
-- the 2014 rule-table entry order, colour highlights, and the legacy
-  head/tail/interior evaluation order;
+- standard Wolfram rule-table order, the historical colour highlights, and the
+  legacy head/tail/interior evaluation order;
 - GNU Emacs 30/Linux's seeded `random` stream, implemented in pure Clojure.
 
 The RNG matters: the seeded stream calls `(random "prop-N")`; `mmca.rng` folds
@@ -42,13 +42,8 @@ There is no phenotype-to-genotype feedback in `run-propagator`. `run-river` is
 named separately because its template construction does read the phenotype.
 Both genotype and phenotype use fixed Rule-0/state-0 boundaries.
 
-The public `writing` vector is positional in the original 2014 neighbourhood
-order: source position `k` writes its complement to `writing[k]`. Before a run,
-`positional-writing->neighbourhood-writing` conjugates it into the current
-Wolfram order. This is the ordering-independent shim formerly called
-`positional-sigma->neighbourhood-sigma`; it preserves the semantic operator
-when the truth-table representation changes. A writing need not be bijective:
-Figure 8 deliberately uses `[0 0 1 2 3 4 5 6]`.
+A writing need not be bijective: Figure 8 deliberately uses
+`[0 0 1 2 3 4 5 6]`.
 
 ## Use
 
@@ -63,6 +58,28 @@ Generate every paper data file and the conclusion statistics:
 ```sh
 clojure -M:figures
 ```
+
+Reproduce the complete paper figure set, including the synthetic
+order--edge--chaos sweep:
+
+```sh
+python3.12 -m venv .venv
+.venv/bin/pip install -r requirements-figures.txt
+PATH="$PWD/.venv/bin:$PATH" scripts/reproduce_all.sh
+```
+
+The plotting environment is intentionally exact: CPython 3.12.3,
+NumPy 1.26.4, Matplotlib 3.11.1, Pillow 11.3.0, and SciPy 1.11.4. The script
+refuses other versions. Matplotlib 3.6.3 is specifically excluded because its
+PDF backend emits malformed one-bit indexed streams for binary phenotype
+panels whose rendered widths are not byte-aligned. The PNGs remain 600-dpi
+reference rasters; the PDFs retain vector text and annotations while embedding
+the CA panels as rasters.
+
+`scripts/check_fig2pair_pdf.py` uses Poppler's `pdfimages` to decode Figure 3's
+embedded phenotype panels and compares all cells with the generated
+standard-order data. CI additionally renders that PDF with both Poppler and
+Ghostscript.
 
 Generate one group directly:
 

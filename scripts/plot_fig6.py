@@ -15,4 +15,6 @@ for col,s in enumerate([1,2,3,4,5,6]):
     ag=fig.add_subplot(gs[0,col]); ag.imshow(G,aspect="auto",interpolation="nearest"); ag.set_xticks([]); ag.set_yticks([])
     ap=fig.add_subplot(gs[1,col]); ap.imshow(P,aspect="auto",cmap="gray",interpolation="nearest"); ap.set_xticks([]); ap.set_yticks([])
     ag.text(0.02,0.97,f"seed {s}",transform=ag.transAxes,fontsize=11,color="#c0392b",family="monospace",va="top",fontweight="bold")
-fig.savefig("figures/river.png",dpi=100,bbox_inches="tight",facecolor="white"); print("wrote figures/river.png")
+fig.savefig("figures/river.png",dpi=600,bbox_inches="tight",facecolor="white")
+fig.savefig("figures/river.pdf",bbox_inches="tight",facecolor="white")
+print("wrote figures/river.png and figures/river.pdf")

@@ -42,10 +42,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.12.3"
 
       - name: Install Python deps (pinned to the author's box)
-        run: pip install "numpy==1.26.4" "matplotlib==3.6.3"
+        run: |
+          pip install -r requirements-figures.txt
+          sudo apt-get update
+          sudo apt-get install -y ghostscript poppler-utils
 
       - name: Unit tests (RNG determinism + figure reference values)
         run: clojure -M:test
@@ -60,15 +63,36 @@ jobs:
           # the odd-cycle operators stay diverse (27,56,54). "same parity, opposite fate."
           grep -qF "diversities: [4, 12, 27, 56, 54]" repro.log \
             || { echo "::error::parity diversities drifted from [4, 12, 27, 56, 54]"; exit 1; }
-          # Every expected figure PNG was produced.
+          # Every expected figure was produced in both reference-raster and
+          # journal-delivery formats.
           missing=0
           for f in rule110_spread fig8 fig2pair survey_a survey_b lambda_analogue \
                    river critical_shell two4cycle braid knob eoc_tint eoc_interface eoc_phase; do
-            [ -s "figures/$f.png" ] || { echo "::error::missing figures/$f.png"; missing=1; }
+            for ext in png pdf; do
+              [ -s "figures/$f.$ext" ] \
+                || { echo "::error::missing figures/$f.$ext"; missing=1; }
+            done
           done
-          [ -s figures/parity-dichotomy.png ] || { echo "::error::missing parity-dichotomy.png"; missing=1; }
+          for f in parity-dichotomy eoc_patch edge_of_chaos_curve; do
+            for ext in png pdf; do
+              [ -s "figures/$f.$ext" ] \
+                || { echo "::error::missing figures/$f.$ext"; missing=1; }
+            done
+          done
           [ "$missing" -eq 0 ]
           echo "All figures reproduced; key claims intact."
+
+      - name: Render PDF canary with two independent engines
+        run: |
+          mkdir -p /tmp/mmca-pdf-render
+          pdftoppm -png -f 1 -singlefile -r 150 \
+            figures/fig2pair.pdf /tmp/mmca-pdf-render/poppler
+          gs -q -dSAFER -dBATCH -dNOPAUSE -sDEVICE=png16m -r150 \
+            -dFirstPage=1 -dLastPage=1 \
+            -sOutputFile=/tmp/mmca-pdf-render/ghostscript.png \
+            figures/fig2pair.pdf
+          test -s /tmp/mmca-pdf-render/poppler.png
+          test -s /tmp/mmca-pdf-render/ghostscript.png
 
       - name: Upload reproduced figures
         if: always()

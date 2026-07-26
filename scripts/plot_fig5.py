@@ -15,5 +15,6 @@ ax.set_xlabel("time (generations)"); ax.set_ylabel("distinct rules in the field"
 ax.set_title("The population curve as a $\\lambda$-analogue: only the 8-cycles ($\\gcd=1$) sustain", fontsize=12)
 ax.set_xlim(0,120); ax.set_ylim(0,72); ax.grid(alpha=.25)
 ax.legend(fontsize=9, loc="upper center", bbox_to_anchor=(0.5,-0.18), ncol=2)
-fig.savefig("figures/lambda_analogue.png", dpi=150, bbox_inches="tight", facecolor="white")
-print("wrote figures/lambda_analogue.png")
+fig.savefig("figures/lambda_analogue.png", dpi=600, bbox_inches="tight", facecolor="white")
+fig.savefig("figures/lambda_analogue.pdf", bbox_inches="tight", facecolor="white")
+print("wrote figures/lambda_analogue.png and figures/lambda_analogue.pdf")

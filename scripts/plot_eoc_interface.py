@@ -91,8 +91,10 @@ def main():
     fig.suptitle("Activity-domain boundaries at threshold 0.35", fontsize=12)
     FIGURES.mkdir(parents=True, exist_ok=True)
     output = FIGURES / "eoc_interface.png"
-    fig.savefig(output, dpi=150, bbox_inches="tight", facecolor="white")
-    print("wrote", output)
+    fig.savefig(output, dpi=600, bbox_inches="tight", facecolor="white")
+    pdf_output = output.with_suffix(".pdf")
+    fig.savefig(pdf_output, bbox_inches="tight", facecolor="white")
+    print("wrote", output, "and", pdf_output)
 
 
 if __name__ == "__main__":

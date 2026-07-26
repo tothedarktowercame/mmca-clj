@@ -12,5 +12,6 @@ ax[0].imshow(G,aspect="auto",interpolation="nearest"); ax[0].set_xticks([]); ax[
 ax[1].imshow(P,aspect="auto",cmap="gray",interpolation="nearest"); ax[1].set_xticks([]); ax[1].set_yticks([])
 ax[0].set_title("genotype — collapses to Rule 105 (dead)",fontsize=11)
 ax[1].set_title("phenotype — stays complex (alive)",fontsize=11)
-fig.savefig("figures/critical_shell.png",dpi=110,bbox_inches="tight",facecolor="white")
-print("wrote figures/critical_shell.png")
+fig.savefig("figures/critical_shell.png",dpi=600,bbox_inches="tight",facecolor="white")
+fig.savefig("figures/critical_shell.pdf",bbox_inches="tight",facecolor="white")
+print("wrote figures/critical_shell.png and figures/critical_shell.pdf")

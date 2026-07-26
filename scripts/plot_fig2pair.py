@@ -1,11 +1,12 @@
-"""Figure 2, two terminal-diversity solutions of the same historical operator
-under the Wolfram order. The draft3 conjugate [1 2 4 5 3 6 7 7] collapses to two
-terminal genotypes (rules 76, 77); the draft4 form [0 0 1 2 3 4 5 6] stays diverse
-(~30). Reads data/fig2pair_{draft3,draft4}.txt; writes figures/fig2pair.png."""
+"""Two terminal-diversity solutions of the same historical operator under the
+Wolfram order. The conjugate [1 2 4 5 3 6 7 7] collapses to two terminal
+genotypes (rules 76, 77); the directly applied [0 0 1 2 3 4 5 6] form stays
+diverse (~30). Reads data/fig2pair_{draft3,draft4}.txt; writes
+figures/fig2pair.*."""
 import numpy as np, matplotlib
 matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
-T76, T77 = (31, 119, 180), (255, 127, 14)  # tint the two draft3-terminal rules distinctly
+T76, T77 = (31, 119, 180), (255, 127, 14)  # tint the two terminal rules distinctly
 def load(name):
     raw = open(f"data/fig2pair_{name}.txt").read().splitlines()
     gi = raw.index("GEN") + 1; pi = raw.index("PHE")
@@ -21,9 +22,9 @@ def gimg(gen):
 pimg = lambda phe: np.array([[0 if ch == '1' else 255 for ch in row] for row in phe], dtype=np.uint8)
 fig = plt.figure(figsize=(6.0, 6.6))
 gs = fig.add_gridspec(2, 2, wspace=0.06, hspace=0.26, left=0.16, right=0.98, top=0.88, bottom=0.03)
-rows = [("draft3", r"$[1\,2\,4\,5\,3\,6\,7\,7]$ (conjugate)", "#a11111"),
-        ("draft4", r"$[0\,0\,1\,2\,3\,4\,5\,6]$ (Wolfram-direct)", "#1b5e20")]
-for ri, (name, op, col) in enumerate(rows):
+rows = [("draft3", "conjugate", r"$[1\,2\,4\,5\,3\,6\,7\,7]$", "#a11111"),
+        ("draft4", "direct", r"$[0\,0\,1\,2\,3\,4\,5\,6]$", "#1b5e20")]
+for ri, (name, display_name, op, col) in enumerate(rows):
     gen, phe = load(name)
     term = len(set(tuple(gen[-1])))
     axg = fig.add_subplot(gs[ri, 0]); axg.imshow(gimg(gen), aspect="equal", interpolation="nearest")
@@ -34,11 +35,12 @@ for ri, (name, op, col) in enumerate(rows):
         axg.legend(handles=[Patch(color=np.array(T76) / 255, label="rule 76"),
                             Patch(color=np.array(T77) / 255, label="rule 77")],
                    loc="lower center", ncol=2, fontsize=7, framealpha=0.9)
-    fig.text(0.035, 0.64 - 0.43 * ri, f"{name}\n{term} terminal\ngenotypes",
+    fig.text(0.035, 0.64 - 0.43 * ri, f"{display_name}\n{term} terminal\ngenotypes",
              rotation=90, va="center", ha="center", fontsize=11, fontweight="bold", color=col)
     axg.set_xlabel(op, fontsize=9, color=col)
 fig.suptitle("Two terminal-diversity solutions of the same operator under the Wolfram order:\n"
-             "the draft3 conjugate dies to two genotypes; the draft4 form stays diverse",
+             "the conjugate dies to two genotypes; the directly applied form stays diverse",
              fontsize=10.5, y=0.965)
-fig.savefig("figures/fig2pair.png", dpi=120, bbox_inches="tight", facecolor="white")
-print("wrote figures/fig2pair.png")
+fig.savefig("figures/fig2pair.png", dpi=600, bbox_inches="tight", facecolor="white")
+fig.savefig("figures/fig2pair.pdf", bbox_inches="tight", facecolor="white")
+print("wrote figures/fig2pair.png and figures/fig2pair.pdf")

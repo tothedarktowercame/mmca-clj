@@ -1,0 +1,9 @@
+# Exact plotting environment used for the paper figures.
+#
+# Matplotlib 3.6.3 must not be used: its PDF backend emits malformed one-bit
+# indexed image streams for the binary phenotype panels. 3.11.1 has been
+# verified with both Poppler and Ghostscript.
+numpy==1.26.4
+matplotlib==3.11.1
+pillow==11.3.0
+scipy==1.11.4

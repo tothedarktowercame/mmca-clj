@@ -33,5 +33,6 @@ for ci, (name, fr) in enumerate(marks.items()):
     axp.imshow(gimg(loadgen(name)), aspect="auto", interpolation="nearest")
     axp.set_xticks([]); axp.set_yticks([])
     axp.set_title(f"{name}: $\\sigma^1$ fraction {fr:g}", fontsize=9.5, color="#a11111")
-fig.savefig("figures/knob.png", dpi=120, bbox_inches="tight", facecolor="white")
-print("wrote figures/knob.png")
+fig.savefig("figures/knob.png", dpi=600, bbox_inches="tight", facecolor="white")
+fig.savefig("figures/knob.pdf", bbox_inches="tight", facecolor="white")
+print("wrote figures/knob.png and figures/knob.pdf")

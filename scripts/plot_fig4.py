@@ -45,7 +45,9 @@ def panel(offsets,letter,sign,fname):
                                facecolor="#e8f5e9",edgecolor="none",zorder=-1))
             fig.patches.append(plt.Rectangle((x0,y0),0.004,y1-y0,transform=fig.transFigure,
                                facecolor="#2e7d32",edgecolor="none",zorder=1))
-    fig.savefig(fname,dpi=100,bbox_inches="tight",facecolor="white")
-    print("wrote",fname)
+    fig.savefig(fname,dpi=600,bbox_inches="tight",facecolor="white")
+    pdf_name=fname.replace(".png",".pdf")
+    fig.savefig(pdf_name,bbox_inches="tight",facecolor="white")
+    print("wrote",fname,"and",pdf_name)
 panel([-4,-3,-2,-1],"a","negative","figures/survey_a.png")
 panel([1,2,3,4],"b","positive","figures/survey_b.png")

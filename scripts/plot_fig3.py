@@ -15,7 +15,7 @@ COLS=[("rot2","rot2 k→k+2","cycles (4 4)","even, fixed pt: SETTLES","even","#8
       ("reduced02","reduced rot2 {0,2}","cycles (2 1 1 1 1 1 1)","odd, no fixed pt: lives","odd","#2e7d32")]
 fig=plt.figure(figsize=(13,7.2))
 gs=fig.add_gridspec(2,5,height_ratios=[1,1],hspace=0.04,wspace=0.05,top=0.78,bottom=0.05,left=0.01,right=0.99)
-fig.suptitle("CYCLE PARITY DICHOTOMY: a Boolean fixed point exists iff every cycle is even  (Lean: bool_fixed_exists_iff_hasAlternatingColouring)",
+fig.suptitle("CYCLE PARITY DICHOTOMY: a Boolean fixed point exists iff every cycle is even",
              fontsize=11,x=0.01,ha="left",y=0.985,family="monospace")
 for col,(id,l1,l2,l3,kind,vcol) in enumerate(COLS):
     gen,phe=load(id)
@@ -30,6 +30,7 @@ for col,(id,l1,l2,l3,kind,vcol) in enumerate(COLS):
     axg.text(0.0,1.02,l3,transform=axg.transAxes,fontsize=8.5,color=vcol,family="monospace")
     div=len(set(gen[-1]))
     axp.text(0.0,-0.05,f"diversity {div}",transform=axp.transAxes,fontsize=10,color="#111111",family="monospace",va="top")
-fig.savefig("figures/parity-dichotomy.png",dpi=100,bbox_inches="tight",facecolor="white")
-print("wrote figures/parity-dichotomy.png; diversities:",
+fig.savefig("figures/parity-dichotomy.png",dpi=600,bbox_inches="tight",facecolor="white")
+fig.savefig("figures/parity-dichotomy.pdf",bbox_inches="tight",facecolor="white")
+print("wrote figures/parity-dichotomy.png and figures/parity-dichotomy.pdf; diversities:",
       [len(set(load(id)[0][-1])) for id,*_ in COLS])

@@ -27,5 +27,6 @@ for c, (name, label, verdict, col) in enumerate(specs):
     fig.text(0.03 + 0.485 * c, 0.865, verdict, fontsize=10, color=col)
 fig.suptitle("Same cycle type (two 4-cycles), opposite fate: cycle structure does not determine aliveness",
              fontsize=12, y=0.98)
-fig.savefig("figures/two4cycle.png", dpi=120, bbox_inches="tight", facecolor="white")
-print("wrote figures/two4cycle.png")
+fig.savefig("figures/two4cycle.png", dpi=600, bbox_inches="tight", facecolor="white")
+fig.savefig("figures/two4cycle.pdf", bbox_inches="tight", facecolor="white")
+print("wrote figures/two4cycle.png and figures/two4cycle.pdf")
