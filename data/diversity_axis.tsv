@@ -1,0 +1,77 @@
+diversity	damage	mechanism	label
+1.0	0.000	family	rot+6
+1.3	0.000	family	p-e
+1.3	0.000	family	rot+4
+2.7	0.000	family	rot+2
+7.0	0.190	blend	blend-strength 0.00
+8.0	0.310	blend	blend-strength 0.00
+18.7	0.854	family	p-c
+24.0	0.583	family	sigma16250374
+51.0	0.380	blend	blend-strength 0.10
+57.0	1.690	blend	blend-strength 0.10
+64.0	2.250	braid (fork-time)	braid r2/r4 t=20
+66.0	1.250	braid (fork-time)	braid r2/r4 t=10
+67.7	0.333	family	rot+1
+68.0	1.083	family	rot+7
+68.5	2.310	braid (fork-time)	braid r2/r4 t=0
+69.0	1.810	braid (fork-time)	braid r2/r4 t=30
+71.0	0.542	family	rot+3
+73.0	1.250	blend	blend-strength 0.35
+81.3	3.438	family	rot+5
+82.5	1.380	braid (fork-time)	braid r2/r4 t=5
+87.0	0.000	spatial niche	niches r1/r3 patch16
+94.0	2.250	blend	blend-strength 0.35
+99.0	0.750	async refuge	async-refuges 0.75
+100.0	1.560	async refuge	async-refuges 0.50
+101.0	2.188	family	p-a
+102.0	1.060	async refuge	async-refuges 0.25
+102.0	2.310	blend	blend-strength 0.70
+102.0	3.310	blend	blend-strength 1.00
+103.0	1.250	blend	blend-strength 1.00
+103.0	1.690	spatial niche	niches r1/r3 patch16
+103.3	2.521	family	two4cyc
+105.0	1.310	spatial niche	niches pa/two4 patch16
+106.0	4.880	blend	blend-strength 0.70
+107.0	0.000	async refuge	async-refuges 0.50
+107.5	4.810	braid (fork-time)	braid pa/t4 t=30
+107.7	3.500	mutation	p-a p=0.005
+108.0	3.880	braid (fork-time)	braid pa/t4 t=0
+109.0	1.380	async refuge	async-refuges 0.25
+109.5	0.690	braid (fork-time)	braid pa/t4 t=10
+110.0	1.880	spatial niche	niches pa/two4 patch64
+110.0	3.190	braid (fork-time)	braid pa/t4 t=5
+111.5	6.190	braid (fork-time)	braid pa/t4 t=20
+112.0	0.750	async refuge	async-refuges 0.75
+113.3	1.688	mutation	p-a p=0.020
+114.0	3.120	spatial niche	niches pa/two4 patch16
+114.5	0.000	braid (fork-time)	braid pa/t4 async0.75 t=20
+115.0	1.125	mutation	p-a p=0.010
+115.0	1.440	braid (fork-time)	phase-niches pa/t4 patch64 t=10
+115.0	2.940	braid (fork-time)	phase-niches pa/t4 patch64 t=0
+115.0	4.690	braid (fork-time)	phase-niches pa/t4 patch64 t=5
+115.3	1.083	mutation	braid pa/t4 p=0.020
+115.7	2.250	mutation	braid pa/t4 p=0.010
+116.0	0.000	braid (fork-time)	phase-niches pa/t4 patch64 t=20
+116.3	1.271	mutation	braid pa/t4 p=0.005
+117.5	0.750	braid (fork-time)	braid pa/t4 async0.75 t=0
+118.0	3.060	braid (fork-time)	braid pa/t4 blend0.70 t=5
+118.5	3.940	braid (fork-time)	braid pa/t4 async0.75 t=5
+119.3	3.250	mutation	p-a p=0.050
+119.5	2.310	braid (fork-time)	braid pa/t4 async0.75 t=10
+120.0	0.310	braid (fork-time)	braid pa/t4 async0.75 t=30
+121.0	1.560	braid (fork-time)	phase-niches pa/t4 patch64 t=30
+121.0	3.560	spatial niche	niches pa/two4 patch64
+122.0	1.500	braid (fork-time)	braid pa/t4 blend0.70 t=0
+122.0	2.690	braid (fork-time)	braid pa/t4 blend0.70 t=30
+124.5	3.880	braid (fork-time)	braid pa/t4 blend0.70 t=10
+125.0	5.940	braid (fork-time)	braid pa/t4 blend0.70 t=20
+126.7	2.375	mutation	braid pa/t4 p=0.050
+129.7	0.562	mutation	p-a p=0.100
+131.7	2.312	mutation	braid pa/t4 p=0.100
+135.0	0.000	mutation	p-a p=0.200
+143.0	0.333	mutation	braid pa/t4 p=0.200
+150.3	0.000	mutation	p-a p=0.400
+151.7	0.000	mutation	braid pa/t4 p=0.400
+160.3	0.000	mutation	p-a p=0.700
+161.3	0.000	mutation	braid pa/t4 p=0.700
+256.0	1.000	preserving limit	genotype held fixed
