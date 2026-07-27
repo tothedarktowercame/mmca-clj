@@ -9,6 +9,7 @@ import numpy as np, collections, matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
+SCALE = 6
 P = np.array([[int(c) for c in l] for l in open('/tmp/pert_phe.txt').read().split('\n') if l.strip()])
 rows = [l.split('\t') for l in open('/tmp/pert_summary.tsv').read().strip().split('\n')[1:]]
 D = collections.defaultdict(dict); mass = {}
@@ -24,13 +25,22 @@ for k, x in enumerate((20, 40, 60)):
     G = np.array([[int(v) for v in l.split()] for l in
                   open(f'/tmp/pert_grid_{x}.txt').read().split('\n') if l.strip()])
     ax = fig.add_subplot(gs[0, k])
-    ax.imshow(P, cmap="Greys", aspect="equal", interpolation="none", alpha=0.35)
-    ax.imshow(np.ma.masked_where(G == 0, G), cmap=ListedColormap(["#d40000"]),
-              aspect="equal", interpolation="none")
-    ax.axhline(T0, color="#0066cc", lw=1.0, ls="--")
-    ax.plot([x], [T0], marker="v", color="#0066cc", ms=7, clip_on=False)
+    # Composite to an explicit RGB array rather than layering a binary panel and
+    # a masked overlay. Matplotlib's PDF backend embeds a two-valued image as a
+    # one-bit indexed stream, and those streams decode to noise (verified with
+    # pdfimages against the source data). An RGB array is written as an 8-bit
+    # stream instead. See README.md on the figure pipeline.
+    rgb = np.ones(P.shape + (3,), dtype=float)
+    rgb[P == 1] = (0.72, 0.72, 0.72)
+    rgb[G == 1] = (0.83, 0.0, 0.0)
+    rgb = np.kron(rgb, np.ones((SCALE, SCALE, 1)))  # nearest-neighbour upsample
+    ax.imshow(rgb, aspect="equal", interpolation="none")
+    ax.axhline(T0 * SCALE, color="#0066cc", lw=1.0, ls="--")
+    ax.plot([x * SCALE], [T0 * SCALE], marker="v", color="#0066cc", ms=7, clip_on=False)
     ax.set_title(f"flip at site {x}  ({mass[x]} cells damaged by $dt$=59)", fontsize=9)
     ax.set_xlabel("space", fontsize=8); ax.set_ylabel("time →" if k == 0 else "", fontsize=8)
+    ax.set_xticks(np.arange(0, 81, 20) * SCALE); ax.set_xticklabels(np.arange(0, 81, 20))
+    ax.set_yticks(np.arange(0, 121, 20) * SCALE); ax.set_yticklabels(np.arange(0, 121, 20))
     ax.tick_params(labelsize=7)
 
 dts = [1, 5, 10, 20, 40, 59]
