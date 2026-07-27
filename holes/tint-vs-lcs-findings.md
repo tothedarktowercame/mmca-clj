@@ -584,13 +584,45 @@ The relationship is strong, and it is specific to the genotype layer — the
 phenotype null is the control that says this is not a generic artefact of the
 perturbation protocol.
 
-**But it is monotone, not peaked.** An edge-of-chaos order parameter has its
-interesting regime at an *intermediate* value; propagation here rises with
-diversity across the whole sampled range (highest-diversity operator p-a, 48.2
-rules, also has the highest genotype damage, 2.46). We see no turnover, and we
-have no operator above ~48 sustained rules to look for one. So this establishes
-diversity as a **dynamical coordinate that predicts causal reach**, not as a
-parameter with a critical point.
+**But it is monotone, not peaked** *over the range we sampled* — and that range
+is far narrower than it looked (Joe, 2026-07-27: "what *percentage* is 48?").
+
+At $W=80$ the top operator sustains 48.2 rules. That is 18.8% of the 256-rule
+space but **60% of the 80 lattice cells**, and the lattice is a hard ceiling.
+Diversity turns out to be lattice-limited, not intrinsically limited — it does
+not saturate:
+
+| operator | W=80 | W=160 | W=320 | W=640 |
+|---|---|---|---|---|
+| rot+1 | 35.7 | 56.0 | 67.0 | 98.7 |
+| two4cyc | 39.3 | 71.7 | 99.3 | 137.0 |
+| p-a | 47.0 | 86.0 | 118.3 | 154.7 |
+
+At $W=640$ the top operator reaches 61% of the rule space. **The correlation
+therefore sampled only the bottom fifth of the available diversity range.** A
+turnover, if there is one, would be expected in the high-diversity regime we
+never reached, so "no turnover" is not a finding — it is an artefact of lattice
+size.
+
+**Worse: the correlation is largely a two-cluster effect.** Sustained diversity
+at $W=80$ is bimodal — seven operators at $\le 4.3$, eight at $\ge 13.7$, with a
+gap of 9.4 and nothing in between. Splitting it:
+
+| subset | ρ | permutation p |
+|---|---|---|
+| all 15 | +0.918 | <0.0001 |
+| live only (n=8) | +0.714 | 0.059 |
+| collapsed only (n=7) | +0.857 | 0.045 |
+
+Mean genotype damage is 0.07 for the collapsed cluster against 1.50 for the
+live one. So ρ=0.918 is substantially "collapsed operators do not propagate,
+live ones do" — a real but much weaker statement than a graded law, and the
+within-live relationship does not reach significance at n=8.
+
+**Revised status:** diversity separates propagating from non-propagating
+operators. Whether it *grades* causal reach among live operators is unresolved,
+and the high-diversity regime is unsampled. Any rerun needs a larger lattice and
+operators spanning the gap.
 
 That is consistent with — and strengthens — the paper's existing negative:
 Langton's λ is silent here (every fixed point sits at 1/2 by the classification),
