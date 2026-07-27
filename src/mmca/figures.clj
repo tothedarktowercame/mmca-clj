@@ -106,6 +106,18 @@
   (spit path
         (str (str/join "\n" (map #(str/join " " %) (:gen run))) "\n")))
 
+(defn- write-integer-field! [path rows]
+  (spit path
+        (str (str/join "\n"
+                       (map (fn [row]
+                              (str/join " " (if (string? row) (seq row) row)))
+                            rows))
+             "\n")))
+
+(defn- write-raw-run! [prefix run]
+  (write-integer-field! (str prefix "_gen.txt") (:gen run))
+  (write-integer-field! (str prefix "_phe.txt") (:phe run)))
+
 (defn generate-activity-scores! []
   (spit "data/rule_activity_scores.txt"
         (apply str
@@ -117,10 +129,18 @@
   (doseq [[id writing] [["offset1" eoc-offset1]
                         ["two4cyc" two-4cycle-sustain]
                         ["sigma16250374" eoc-sigma16250374]]]
-    (write-genotype-field!
-     (format "data/eoc_tint_%s.txt" id)
-     (mmca/run-propagator writing 1 eoc-width eoc-steps)))
+    (let [run (mmca/run-propagator writing 1 eoc-width eoc-steps)]
+      (write-genotype-field! (format "data/eoc_tint_%s.txt" id) run)
+      (write-raw-run! (format "data/eoc_tint_%s" id) run)))
   (println "wrote EoC tint fields"))
+
+(defn generate-phenotype-transport-fields! []
+  (generate-eoc-tint!)
+  (doseq [seed (range 6)]
+    (write-raw-run!
+     (format "data/phenotype_transport_offset1_s%d" seed)
+     (mmca/run-propagator eoc-offset1 seed 64 120)))
+  (println "wrote seeded raw genotype/phenotype transport fields"))
 
 (defn generate-eoc-phase! []
   (doseq [q [0.0 0.05 0.25 1.0]]
@@ -349,6 +369,7 @@
     "stats" (generate-stats!)
     "activity-scores" (generate-activity-scores!)
     "eoc-tint" (generate-eoc-tint!)
+    "phenotype-transport-fields" (generate-phenotype-transport-fields!)
     "eoc-phase" (generate-eoc-phase!)
     "eoc-interface" (generate-eoc-interface!)
     "eoc" (generate-eoc!)
@@ -358,5 +379,6 @@
                                 "fig6" "river-grid" "original-river"
                                 "fig8" "fig2pair" "figshell" "two4cycle" "braid" "knob"
                                 "stats" "activity-scores"
-                                "eoc-tint" "eoc-phase" "eoc-interface"
+                                "eoc-tint" "phenotype-transport-fields"
+                                "eoc-phase" "eoc-interface"
                                 "eoc"]}))))
