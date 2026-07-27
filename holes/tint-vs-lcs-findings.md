@@ -563,3 +563,46 @@ instrument registers a positive where one is known to exist. The first time that
 control was run it overturned a published-in-notes conclusion of ours. Any
 remaining negative in this document should be read as provisional until the same
 control has been run for that specific measurement.
+
+### 14. Sustained diversity predicts causal propagation (the λ-analogue test)
+
+*(2026-07-27. Joe's proposed test: does diversity, as a λ-analogue, correlate
+with the empirical causal measurement?)*
+
+15 operators (7 rotations, two-4-cycle, σ=16250374, 6 arbitrary permutations),
+6 seeds each, one genotype bit flipped at $t^*=20$ **while every operator is
+still alive**, damage read at $dt=30$. Loop verified to reproduce
+`run-propagator` exactly (full genotype trace, `MATCH true`) — the earlier
+ladder was void because it applied a conjugation `run-propagator` does not.
+
+| | Spearman ρ | permutation p | n |
+|---|---|---|---|
+| sustained diversity vs **genotype** damage | **+0.918** | **<0.0001** | 15 |
+| sustained diversity vs **phenotype** damage | −0.025 | 0.93 | 15 |
+
+The relationship is strong, and it is specific to the genotype layer — the
+phenotype null is the control that says this is not a generic artefact of the
+perturbation protocol.
+
+**But it is monotone, not peaked.** An edge-of-chaos order parameter has its
+interesting regime at an *intermediate* value; propagation here rises with
+diversity across the whole sampled range (highest-diversity operator p-a, 48.2
+rules, also has the highest genotype damage, 2.46). We see no turnover, and we
+have no operator above ~48 sustained rules to look for one. So this establishes
+diversity as a **dynamical coordinate that predicts causal reach**, not as a
+parameter with a critical point.
+
+That is consistent with — and strengthens — the paper's existing negative:
+Langton's λ is silent here (every fixed point sits at 1/2 by the classification),
+the finite-size scan finds a broad drifting crossover and no critical point, and
+now the live coordinate turns out to be monotone rather than critical. Three
+independent routes, same conclusion: there is no critical point in this family.
+
+**Caveat on independence.** Diversity and damage are different measurements on
+different objects (one branch's rule variety vs two branches' divergence), so
+this is not the circularity of §3. But they are not mechanically independent
+either: a field collapsed to one rule has nothing for a perturbation to
+propagate *through*, so some of the correlation is likely substrate rather than
+regime. Distinguishing those needs a diversity-matched control.
+
+`scripts/diversity_vs_damage.clj`.
