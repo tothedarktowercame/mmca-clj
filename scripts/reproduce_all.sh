@@ -18,7 +18,7 @@ clojure -M -m mmca.experiments.eoc-sweep
 #    finite-size scan (holes/E2b-offset1-finite-size-results.md).
 for s in plot_fig1 plot_fig3 plot_fig4 plot_fig5 plot_fig6 plot_fig8 plot_fig2pair plot_figshell \
          plot_two4cycle plot_braid plot_knob plot_eoc_tint plot_eoc_interface plot_eoc_phase \
-         plot_eoc_patch plot_eoc_sweep; do
+         plot_eoc_churn plot_eoc_patch plot_eoc_sweep; do
   python3 "scripts/$s.py"
 done
 

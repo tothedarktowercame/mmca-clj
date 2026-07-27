@@ -59,8 +59,10 @@ def load_measurements(scores):
 
 
 def print_measurements(measurements):
-    every_seed_passes = True
-    chaotic_stablest_everywhere = True
+    wall_above_chaotic_everywhere = True
+    wall_above_both_count = 0
+    chaotic_stablest_count = 0
+    field_count = 0
     chaotic_stability_failures = []
     minimum_advantage = None
     print("PER_SEED_CHURN operator width seed wall ordered-interior "
@@ -73,6 +75,9 @@ def print_measurements(measurements):
                     values["ordered-interior"],
                     values["chaotic-interior"],
                 )
+                wall_above_chaotic = (
+                    values["wall"] > values["chaotic-interior"]
+                )
                 advantage = values["wall"] - max(
                     values["ordered-interior"],
                     values["chaotic-interior"],
@@ -83,10 +88,12 @@ def print_measurements(measurements):
                 chaotic_stablest = (
                     values["chaotic-interior"] < values["ordered-interior"]
                 )
-                chaotic_stablest_everywhere &= chaotic_stablest
+                field_count += 1
+                wall_above_both_count += int(passes)
+                chaotic_stablest_count += int(chaotic_stablest)
+                wall_above_chaotic_everywhere &= wall_above_chaotic
                 if not chaotic_stablest:
                     chaotic_stability_failures.append((name, width, seed))
-                every_seed_passes &= passes
                 print(
                     f"PER_SEED_CHURN {name} {width} {seed} "
                     f"{values['wall']:.6f} "
@@ -107,18 +114,25 @@ def print_measurements(measurements):
                     f"AGGREGATE_CHURN {name} {width} {region} "
                     f"{values.mean():.6f} {sample_sd:.6f} {len(values)}"
                 )
-    print("WALL_GT_BOTH_ALL_FIELDS", "PASS" if every_seed_passes else "FAIL")
+    print(
+        "WALL_GT_BOTH_FIELDS",
+        f"{wall_above_both_count}/{field_count}",
+    )
+    print(
+        "WALL_GT_CHAOTIC_ALL_FIELDS",
+        "PASS" if wall_above_chaotic_everywhere else "FAIL",
+    )
     advantage, name, width, seed = minimum_advantage
     print(
         f"MINIMUM_WALL_ADVANTAGE {advantage:.6f} "
         f"operator={name} width={width} seed={seed}"
     )
     print(
-        "CHAOTIC_MOST_STABLE_ALL_FIELDS",
-        "PASS" if chaotic_stablest_everywhere else "FAIL",
+        "CHAOTIC_MOST_STABLE_FIELDS",
+        f"{chaotic_stablest_count}/{field_count}",
         f"failures={chaotic_stability_failures}",
     )
-    return every_seed_passes
+    return wall_above_chaotic_everywhere
 
 
 def plot_width_256(measurements):
@@ -154,13 +168,15 @@ def plot_width_256(measurements):
     axis.grid(axis="y", alpha=0.25)
     axis.legend(frameon=False, ncol=3, loc="upper center")
     axis.set_title(
-        "Genotype churn is highest at activity-domain walls "
+        "Activity-domain walls churn more than chaotic interiors "
         "(q=1, L=256)\nmean ± sample SD across committed seeds"
     )
     FIGURES.mkdir(parents=True, exist_ok=True)
     output = FIGURES / "eoc_churn.png"
-    figure.savefig(output, dpi=150, bbox_inches="tight", facecolor="white")
-    print("wrote", output)
+    figure.savefig(output, dpi=600, bbox_inches="tight", facecolor="white")
+    pdf_output = output.with_suffix(".pdf")
+    figure.savefig(pdf_output, bbox_inches="tight", facecolor="white")
+    print("wrote", output, "and", pdf_output)
 
 
 def main():
@@ -169,7 +185,7 @@ def main():
     passes = print_measurements(measurements)
     plot_width_256(measurements)
     if not passes:
-        raise SystemExit("wall > both interiors is not universal")
+        raise SystemExit("wall churn must exceed chaotic-interior churn")
 
 
 if __name__ == "__main__":

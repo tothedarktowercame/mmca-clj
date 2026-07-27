@@ -73,7 +73,7 @@ jobs:
                 || { echo "::error::missing figures/$f.$ext"; missing=1; }
             done
           done
-          for f in parity-dichotomy eoc_patch edge_of_chaos_curve; do
+          for f in parity-dichotomy eoc_churn eoc_patch edge_of_chaos_curve; do
             for ext in png pdf; do
               [ -s "figures/$f.$ext" ] \
                 || { echo "::error::missing figures/$f.$ext"; missing=1; }
