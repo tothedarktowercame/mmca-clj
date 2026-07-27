@@ -88,6 +88,9 @@ clojure -M -m mmca.figures fig6
 python3 scripts/plot_fig6.py
 ```
 
+This retains the six seeded `80x120` runs supporting the river replication
+claim and displays seed 1 as a larger `240x360` genotype/phenotype plate.
+
 Reproduce the three edge-of-chaos Discussion figures from an empty `data/`
 directory:
 

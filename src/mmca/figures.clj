@@ -6,6 +6,9 @@
 
 (def width 80)
 (def steps 120)
+(def river-plate-seed 1)
+(def river-plate-width (* 3 width))
+(def river-plate-steps (* 3 steps))
 (def rotations [-4 -3 -2 -1 1 2 3 4])
 (def rotation-seeds [0 1])
 ;; The two search-found operators, expressed in standard Wolfram order (their
@@ -189,7 +192,10 @@
   (doseq [seed (range 1 7)]
     (spit (format "data/fig6_s%d.txt" seed)
           (render-run (mmca/run-river seed width steps))))
-  (println "wrote Figure 6 data"))
+  (spit (format "data/fig6_plate_s%d.txt" river-plate-seed)
+        (render-run
+         (mmca/run-river river-plate-seed river-plate-width river-plate-steps)))
+  (println "wrote Figure 6 six-seed evidence and 240x360 display plate"))
 
 (defn generate-river-grid! []
   (doseq [seed (range 1 37)]

@@ -1,20 +1,78 @@
-import numpy as np, matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
-def load(s):
-    raw=open(f"data/fig6_s{s}.txt").read().splitlines()
-    gi=raw.index("GEN")+1; pi=raw.index("PHE")
-    gen=[r.split() for r in raw[gi:pi] if r.strip()]
-    phe=[r for r in raw[pi+1:] if r.strip()]
-    return gen,phe
-hx=lambda h:[int(h.lstrip('#')[i:i+2],16) for i in (0,2,4)]
-fig=plt.figure(figsize=(15,7.4))
-gs=fig.add_gridspec(2,6,height_ratios=[1,1],hspace=0.03,wspace=0.04,top=0.96,bottom=0.01,left=0.005,right=0.995)
-for col,s in enumerate([1,2,3,4,5,6]):
-    gen,phe=load(s)
-    G=np.array([[hx(c) for c in r] for r in gen],dtype=np.uint8)
-    P=np.array([[0 if ch=='1' else 255 for ch in r] for r in phe],dtype=np.uint8)
-    ag=fig.add_subplot(gs[0,col]); ag.imshow(G,aspect="auto",interpolation="nearest"); ag.set_xticks([]); ag.set_yticks([])
-    ap=fig.add_subplot(gs[1,col]); ap.imshow(P,aspect="auto",cmap="gray",interpolation="nearest"); ap.set_xticks([]); ap.set_yticks([])
-    ag.text(0.02,0.97,f"seed {s}",transform=ag.transAxes,fontsize=11,color="#c0392b",family="monospace",va="top",fontweight="bold")
-fig.savefig("figures/river.png",dpi=600,bbox_inches="tight",facecolor="white")
-fig.savefig("figures/river.pdf",bbox_inches="tight",facecolor="white")
-print("wrote figures/river.png and figures/river.pdf")
+"""Render the river's pinned 240x360 representative spacetime plate."""
+
+import matplotlib
+import numpy as np
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+
+SEED = 1
+
+
+def load():
+    raw = open(
+        f"data/fig6_plate_s{SEED}.txt", encoding="utf-8"
+    ).read().splitlines()
+    genotype_start = raw.index("GEN") + 1
+    phenotype_start = raw.index("PHE")
+    genotype = [
+        row.split() for row in raw[genotype_start:phenotype_start] if row.strip()
+    ]
+    phenotype = [row for row in raw[phenotype_start + 1 :] if row.strip()]
+    return genotype, phenotype
+
+
+def rgb(hex_colour):
+    value = hex_colour.lstrip("#")
+    return [int(value[index : index + 2], 16) for index in (0, 2, 4)]
+
+
+genotype, phenotype = load()
+genotype_image = np.array(
+    [[rgb(colour) for colour in row] for row in genotype], dtype=np.uint8
+)
+phenotype_image = np.array(
+    [[0 if cell == "1" else 255 for cell in row] for row in phenotype],
+    dtype=np.uint8,
+)
+
+figure, axes = plt.subplots(
+    1,
+    2,
+    figsize=(10.5, 7.8),
+    gridspec_kw={
+        "wspace": 0.035,
+        "left": 0.01,
+        "right": 0.99,
+        "top": 0.94,
+        "bottom": 0.01,
+    },
+)
+axes[0].imshow(genotype_image, aspect="equal", interpolation="nearest")
+axes[1].imshow(
+    phenotype_image,
+    aspect="equal",
+    cmap="gray",
+    vmin=0,
+    vmax=255,
+    interpolation="nearest",
+)
+axes[0].set_title("genotype", fontsize=13)
+axes[1].set_title("phenotype", fontsize=13)
+for axis in axes:
+    axis.set_xticks([])
+    axis.set_yticks([])
+
+figure.suptitle(
+    r"River construction: seed 1, $L=240$, $T=360$",
+    fontsize=14,
+    y=0.995,
+)
+figure.savefig(
+    "figures/river.png", dpi=600, bbox_inches="tight", facecolor="white"
+)
+figure.savefig(
+    "figures/river.pdf", dpi=600, bbox_inches="tight", facecolor="white"
+)
+print("wrote figures/river.png and figures/river.pdf (seed 1, 240x360)")
