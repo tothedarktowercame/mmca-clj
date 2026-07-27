@@ -219,3 +219,347 @@ all three nulls and the sweep supplies no threshold-independent positive
 effect. The repair therefore succeeds as a decoupled measurement, and its
 scientific answer is plainly negative: the existing evidence does not support
 the claim that tint walls carry phenotype information.
+
+## 8. Edge-drawing ensemble — mask-dependence is real, and it is ordered
+
+*(Added 2026-07-27 in response to the objection that any choice of edge must
+influence transport, so mask-dependence cannot by itself convict the tint.)*
+
+The objection is correct and the §3b sweep did not answer it: that sweep varied
+one *threshold* inside one *algorithm*. So: four genuinely different ways of
+drawing the edge, on the same fields, with the same TE on `act(0.35)`, all masks
+size-matched to the tint wall.
+
+Six-seed W=64 fields, filament-specific transport:
+
+| drawing | shares with the measure | mean | min | max |
+|---|---|---|---|---|
+| A tint — gradient of the *thresholded* field | the exact binary field | **+0.0885** | +0.0586 | +0.1250 |
+| C gradient of the *continuous* activity field | the score, not the threshold | +0.0200 | −0.0191 | +0.0451 |
+| D local causal states | nothing | +0.0045 | −0.0228 | +0.0574 |
+| E rule-identity change | nothing | +0.0007 | −0.0056 | +0.0076 |
+
+The paper's own L=256/T=600 fields:
+
+| field | A tint | C continuous | E rule-change |
+|---|---|---|---|
+| offset1 | +0.1335 | +0.0260 | +0.0031 |
+| two4cyc | +0.2689 | +0.0916 | +0.0154 |
+| sigma16250374 | +0.1628 | +0.0629 | +0.0098 |
+
+**This is not benign scatter.** The result is ordered by how much construction
+each drawing shares with the measure: sharing the exact thresholded field gives
+the largest value, sharing the activity score but not the threshold gives
+roughly a quarter to a third of it, and sharing nothing gives near zero. Free
+algorithm-dependence would scatter; this ranks.
+
+**But C is not zero, and that matters.** On `two4cyc` — the field with the most
+visible structure — a drawing that never thresholds still recovers +0.0916,
+about a third of the tint's value. So the honest reading is not "there is
+nothing here" but "the thresholded construction inflates whatever is here by
+roughly three-fold." A residual effect may survive.
+
+**Caveat on E and D.** Both score near zero, but the *measure* is still TE on
+the thresholded activity field, so any mask not aligned to `act` structure is
+penalised by construction. E and D are therefore weak evidence about whether
+edges carry transport, and strong evidence only about circularity. Separating
+these requires changing the measure, not the mask — the phenotype test.
+
+**Consequence for reporting.** An absolute figure such as "+0.097 bits of
+filament-specific transport" is not a property of the system; it is a property
+of the system *and* the drawing rule, and it ranges roughly 40-fold across
+reasonable drawings. Either report the envelope across a family of drawings — a
+methods contribution in its own right, since this literature reports such
+numbers without one — or restrict to comparative claims under a rule held fixed
+across the comparison.
+
+## 9. q = 0.25 coexisting domains — the domains are real
+
+*(2026-07-27. Testing the objection that if filaments align with visible edges
+AND capture a genotype difference across them, concrete conclusions follow.)*
+
+Field: `data/eoc_phase_q250.txt`, the Figure 12 coexisting-domains panel
+(offset+1, interrupter q=0.25, L=240, T=300, seed 1). Figure:
+`figures/q025_edges.png`.
+
+**(a) Alignment — confirmed.** The tint wall traces the visible plume boundaries
+in the activity tint. This is a visual check, but the structure is unambiguous.
+
+**(b) Genotypic difference at matched activity — confirmed, and this is the
+real finding.** The worry about (a) is that the partition is by activity score,
+so the two sides trivially differ in activity. So: restrict to cells whose
+*individual* activity score lies in a narrow band, and ask whether the two
+domains hold different *rules*. Total-variation distance between rule
+distributions, against a noise floor from randomly halving the larger group:
+
+| activity bin | n active | n quiet | TV(active, quiet) | noise floor | ratio |
+|---|---|---|---|---|---|
+| [0.00, 0.001) | 377 | 36839 | **0.489** | 0.023 | 21× |
+| [0.20, 0.35) | 3651 | 11426 | **0.147** | 0.011 | 13× |
+| [0.45, 0.55) | 5774 | 1781 | **0.295** | 0.020 | 15× |
+| [0.55, 1.01) | 9391 | 1860 | **0.522** | 0.021 | 25× |
+
+Rule diversity differs too: at activity [0.45, 0.55) the active domain holds 24
+distinct rules per 1000 cells against the quiet domain's 38.
+
+Two cells with the *same* activity score belong to systematically different rule
+populations depending on which domain they sit in, at 13–25× the noise floor.
+The partition therefore captures genuine genotypic structure that the activity
+score does not determine. The domains are not an artifact of the tint.
+
+**What this does and does not settle.** It settles that the walls are real
+boundaries between genuinely different rule populations — a claim the paper can
+make and should make more loudly. It does not rescue the transport measurement,
+which is a claim about an estimator rather than about whether the structure
+exists (§3, §8), and which the phenotype test (§7) does not support. Real
+domains and an uninformative transport statistic are consistent: the circularity
+argument never asserted the edges were fake.
+
+## 10. What "transport" means — three distinct claims, and Figure 4 separates them
+
+*(2026-07-27. Prompted by the observation that genotypes churn on the edges in
+the general case but do not in Figure 4.)*
+
+**Hypothesis tested and REFUTED:** that "transport" is "churn" measured twice.
+It is not. Correlation between local TE and genotype churn is ~0:
+
+| field | corr(te, churn) | te given churn | te given no churn | FS-transport | FS-churn |
+|---|---|---|---|---|---|
+| offset1 | +0.008 | +0.0637 | +0.0546 | +0.1335 | +0.0202 |
+| two4cyc | +0.023 | +0.0639 | +0.0396 | +0.2689 | +0.1611 |
+| sigma16250374 | +0.019 | +0.0629 | +0.0450 | +0.1628 | +0.0858 |
+
+Conditioning on churn does not remove the wall effect either — among cells that
+are *all* churning, on-wall TE exceeds off-wall by +0.18 to +0.31. So the
+churn finding and the transport finding are **genuinely independent**, which is
+good news for the paper: they are two results, not one.
+
+The reason they decouple: the genotype churns nearly everywhere in a live field,
+whereas the *coarse thresholded activity* field changes only at domain
+boundaries. TE tracks the coarse field (corr +0.474; +0.8934 on act-change cells
+vs +0.0080 elsewhere), not the raw rewriting. The circularity of §3 is therefore
+untouched — it was never a claim about churn.
+
+**Figure 4 forces the distinction.** Measured on `data/figshell.txt`: after row
+40 the genotype is frozen (per-row change 0.000625; 3 distinct rows in 81) while
+the phenotype stays alive (per-row change 0.2906).
+
+A frozen genotype means a frozen activity field, which means **TE on the
+activity field is zero everywhere** — the paper's measure is vacuous exactly
+where the boundary is most exactly known.
+
+So three different claims travel under one word:
+
+1. **Genotype-layer transport** — rewriting propagating along the wall. Requires
+   churn. Figure 4 has none, so this claim is simply inapplicable there.
+2. **Activity-domain boundary motion** — what the paper actually measures.
+   Circular (§3), and identically zero when the genotype freezes.
+3. **Phenotype-layer transport** — signals channelled or blocked by the
+   boundary. Survives a frozen genotype, shares no construction with the mask,
+   and is the honest version. Negative so far in the general case (§7).
+
+**Figure 4 is a better instrument, not merely a cleaner one.** In the general
+case the wall moves in response to the same dynamics being measured, so the
+boundary and the signal are entangled. With the genotype frozen the wall is a
+fixed boundary condition, and anything the phenotype does across it is
+attributable to the boundary rather than to the boundary chasing the phenotype.
+Claim (3) tested on Figure 4 is the strongest form of the question the paper
+was trying to ask.
+
+## 11. Phenotype-only transport at a frozen boundary — no consistent effect
+
+*(2026-07-27. Claim (3) of §10 tested in its cleanest setting: the Figure 4
+construction, where the genotype freezes into stripes so the boundary cannot
+move, and the phenotype stays alive.)*
+
+Eight seeds of `run-propagator [2 3 0 1 5 4 7 6] seed 80 120`, analysed below
+row 60 where the genotype is frozen. Boundary = columns where the frozen rule
+changes; interior = columns ≥3 from any boundary. Measure: the paper's TE
+estimator applied to the **phenotype**.
+
+| seed | rules | b-cols | on-boundary | interior | diff |
+|---|---|---|---|---|---|
+| 0 | 5 | 13 | +0.0268 | +0.0240 | +0.003 |
+| 1 | 2 | 4 | **−0.1634** | +0.0637 | −0.227 |
+| 2 | 3 | 9 | +0.0113 | +0.0145 | −0.003 |
+| 3 | 3 | 7 | −0.0110 | +0.0172 | −0.028 |
+| 4 | 3 | 6 | +0.0898 | +0.0202 | +0.070 |
+| 5 | 2 | 8 | +0.0268 | +0.1337 | −0.107 |
+| 6 | 2 | 4 | **−0.1663** | +0.0457 | −0.212 |
+| 7 | 2 | 4 | **+0.1967** | +0.0601 | +0.137 |
+
+**The paper's own field (seed 1) shows striking blocking** — phenotype TE of
+−0.163 on the boundary against +0.064 in the interiors, z = −2.42 against a
+random-column null. Taken alone it looks like a clean result: a frozen rule
+boundary at which neighbours are actively *misinformative* about the next state,
+which is mechanistically what one would expect where two different rules abut.
+
+**It does not replicate.** Across eight seeds the difference is negative in 5/8,
+and seed 7 is strongly positive. The large effects all occur at seeds with only
+4 boundary columns, i.e. where the estimate is noise-dominated.
+
+**Beware the pooled test.** Pooling cells gives on-boundary +0.0108 (n=3300) vs
+interior +0.0487 (n=23760), Welch t = **−5.35**, which looks decisive. It is
+pseudoreplication: cells within a seed are not independent. At the honest unit
+of replication — the seed — the paired difference is −0.0460 (sd 0.1283),
+**t(7) = −1.01**, p ≈ 0.35. Nothing.
+
+**Conclusion.** In the cleanest available setting — exact boundary, independent
+measure, no confound from a wall that moves in response to what is being
+measured — there is no consistent boundary effect on phenotype information flow,
+in either direction. This is the strongest form of the question the paper was
+asking, and the answer is null.
+
+Caveats: 8 seeds; 4–13 boundary columns each; history length 1; and the "Figure
+4 construction" is not a stable object across seeds — the number of surviving
+rules varies from 2 to 5, so the seeds are not strict replicates of one another.
+
+## 12. River perturbation — the first POSITIVE causal result
+
+*(2026-07-27. Testing the proposal that the river is not about the edge but the
+contents, which propagate, and could therefore carry information across space.)*
+
+**Why this measurement is different from everything above.** §§1–11 are
+observational: draw a region, compute a statistic on it, argue about whether the
+region was drawn fairly. This one is **causal and mask-free** — flip one bit,
+see where the effect arrives. There is no threshold to share, no boundary to
+draw, and nothing for a null to fail to control.
+
+**Method.** Run the river to t*=60, fork, flip a single phenotype bit at site
+x, continue both branches to T=120, and record which cells differ. Forking is by
+re-seeding: `java.util.Random` is deterministic from its seed and the per-step
+draw count is fixed (one `nextInt` per cell), so both branches consume the exact
+same tape and any divergence is the causal effect of the flip. The matched
+control is `run-river-ablated-from` — identical seed, tape, construction and
+initial state, with only the live X→G edge cut. Figure:
+`figures/river_perturbation.{png,pdf}`.
+
+**Single-seed sweep (seed 1, all 80 sites):**
+
+| dt | river mass | ablated mass | river spread | ablated spread |
+|---|---|---|---|---|
+| 1 | 1.35 | 1.49 | 0.66 | 0.68 |
+| 10 | 3.31 | 3.23 | 4.19 | 3.46 |
+| 20 | 5.33 | 3.89 | 7.12 | 4.51 |
+| 40 | 11.74 | 4.44 | 13.00 | 6.04 |
+| 59 | **12.97** | **5.51** | **16.95** | **7.46** |
+
+The two are identical at dt ≤ 10 — as they must be, since the feedback has not
+yet acted — and diverge thereafter.
+
+**Replication (6 seeds, 20 sites each, dt=59):** river exceeds ablated in
+**6/6 seeds**; ratios 1.11–2.56; mean difference **+5.00** (sd 2.90),
+paired **t(5) = +4.23**, p ≈ 0.008.
+
+**This one replicates**, unlike §11. The live phenotype→genotype edge causally
+increases how far a single-bit perturbation travels.
+
+**Two things it does not yet show.**
+
+1. *Not ballistic.* Spread reaches ~17 cells against a light-cone bound of 59.
+   Propagation is enhanced but sub-ballistic — a more conductive medium, not
+   demonstrably a coherent particle traversing at fixed velocity. Calling the
+   river "a glider" is not yet earned; "a channel with higher conductivity than
+   its feedback-cut control" is.
+2. *Not yet localised to identifiable bands.* 22/80 sites are dead ends and they
+   are spatially **contiguous** (≈64→13 wrapping), so part of the lattice
+   conducts and part does not. Propagating sites have higher local phenotype
+   alternation (0.256 vs 0.143, corr +0.349) — suggestive but not strong enough
+   to say the damage follows the visible bands.
+
+**What would finish it.** Track the damage centroid over dt: a glider gives a
+straight line at constant velocity, a conductive medium gives a spreading blob.
+That single plot separates the two readings, and the data to make it already
+exists.
+
+### 12a. Centroid tracker — the river is a medium, not a particle
+
+*(2026-07-27. The test proposed at the end of §12: a glider translates at
+constant velocity with a packet of fixed width; a conductive medium disperses.)*
+
+4 seeds × 10 sites, damage rows recorded at every $dt$ from 1 to 59.
+Figure: `figures/river_centroid.{png,pdf}`.
+
+| dt | river \|centroid\| | river RMS | ablated \|centroid\| | ablated RMS |
+|---|---|---|---|---|
+| 10 | 2.27 | 3.91 | 1.41 | 2.52 |
+| 30 | 4.48 | 8.18 | 2.83 | 4.85 |
+| 59 | 5.39 | **11.37** | 2.92 | **5.42** |
+
+Scaling fits:
+
+| | RMS ~ dt^a | \|centroid\| ~ dt^b |
+|---|---|---|
+| river | **a = 0.64** | **b = 0.56** |
+| ablated | a = 0.43 | b = 0.43 |
+| glider would give | a ≈ 0 | b = 1 |
+| diffusion gives | a = 0.5 | b = 0.5 |
+
+**Verdict: not a glider.** A glider keeps a fixed-width packet and translates at
+constant velocity (a ≈ 0, b = 1). What we see is the opposite: the packet width
+*grows* (a = 0.64) while the centroid merely *wanders* at b = 0.56 — the
+random-walk exponent, i.e. no systematic drift at all. At dt = 59 the centroid
+has moved 5.4 cells where a constant-velocity structure would have moved ~26.
+Panel (c) shows it directly: the damage spreads symmetrically about the flip
+site while the centroid jitters in place.
+
+**What survives.** The conductivity result of §12 is unaffected and is the real
+finding: the live X→G edge roughly doubles the spread (11.37 vs 5.42) and lifts
+the exponent from sub-diffusive (0.43) to super-diffusive (0.64), replicated
+6/6 seeds. The river is a **medium whose conductivity the feedback controls**,
+not a signal carrier.
+
+**Why the distinction matters for the paper.** Gliders make CA computation work
+(Rule 110's universality) precisely because they deliver a signal *to a specific
+place at a specific time*. A superdiffusive medium spreads influence without
+addressing it. So "if we knew how to form a river we could send information
+across space" is half-supported: the river does transmit causal influence
+further than its control, but not in the targeted, addressable way that would
+make it a computational primitive.
+
+### 12b. CORRECTION to 12a — the glider criterion was uncalibrated
+
+*(2026-07-27. Prompted by the observation that a Rule-110-dominated field should
+serve as a positive control for the whole apparatus.)*
+
+§12a asserted that a glider signature is a ≈ 0 (fixed packet width) with b = 1
+(constant-velocity centroid), and concluded from the river's a = 0.64, b = 0.56
+that it "is not a glider". **That reference was reasoned, not measured, and it
+is wrong.**
+
+Same estimator, same W=80, same t*, 6 seeds × 10 sites, applied to known ECAs:
+
+| rule | RMS ~ dt^a | \|centroid\| ~ dt^b | RMS at dt=59 |
+|---|---|---|---|
+| **110** (gliders, universal) | **0.71** | **0.73** | **15.02** |
+| 30 (chaotic) | 0.87 | 0.23 | 24.14 |
+| 90 (chaotic, XOR) | 0.61 | — | 8.31 |
+| 204 (identity) | — | — | **0.00** |
+| 0 (dead) | — | — | **0.00** |
+| river (measured) | 0.64 | 0.56 | 11.37 |
+| ablated (measured) | 0.43 | 0.43 | 5.42 |
+
+Rule 110 does **not** give a ≈ 0, b = 1. Damage spreading in a glider-bearing
+medium is not a translating packet: the perturbation creates and destroys
+gliders which then collide, producing a spreading cone. The a≈0/b=1 signature
+belongs to tracking a single isolated glider, which is not what a
+random-site damage experiment measures.
+
+**Consequences.**
+
+1. The "not a glider" verdict of §12a is **withdrawn**. Against the correct
+   reference the river (0.64, 0.56) is comparable to Rule 110 (0.71, 0.73),
+   slightly weaker and slightly less directed, but the same character.
+2. **The apparatus is validated.** Identity and dead rules give exactly 0.00
+   spread — the instrument reports nothing when nothing is there — and the live
+   rules order sensibly:
+   dead 0.00 < ablated 5.42 < Rule 90 8.31 < river 11.37 < Rule 110 15.02 <
+   Rule 30 24.14. The river falls in the live-and-complex band.
+3. §12's conductivity result is untouched and remains the positive finding.
+
+**Methodological note.** This is the value of a positive control: every result in
+§§1–12 was a negative, and a battery of negatives is only informative if the
+instrument registers a positive where one is known to exist. The first time that
+control was run it overturned a published-in-notes conclusion of ours. Any
+remaining negative in this document should be read as provisional until the same
+control has been run for that specific measurement.
