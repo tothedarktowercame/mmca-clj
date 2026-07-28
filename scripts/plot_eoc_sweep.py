@@ -1,4 +1,12 @@
-"""Edge-of-chaos computation curve from the synthetic sweep.
+"""SUPERSEDED by plot_eoc_corrected.py -- kept for provenance only.
+
+This plots the RAW on-filament synergy, with no null subtracted. That statistic
+fails its own negative control (the genotypically dead offset+4 field scores the
+highest on-filament transport of any field measured), so the paper reports the
+null-corrected version instead. Output name differs so a stray run cannot
+overwrite the paper figure.
+
+Edge-of-chaos computation curve from the synthetic sweep.
 For each grid point (order q, chaos p) average the on-filament combining
 (synergy) and transport TE over 8 seeds, with SEM error bars, and plot vs a
 disorder axis: ORDER (q:0->1) -> EDGE (q=1=p=0) -> CHAOS (p:0->1).
@@ -90,6 +98,6 @@ ax.set_ylabel("filament combining: synergy (bits)", fontsize=9)
 ax.set_xlabel(r"increasing disorder $\rightarrow$", fontsize=9)
 ax.tick_params(labelsize=7.5)
 fig.suptitle("Combining peaks at a literal edge of chaos", fontsize=11, y=0.995)
-fig.savefig("figures/edge_of_chaos_curve.png", dpi=600, bbox_inches="tight", facecolor="white")
-fig.savefig("figures/edge_of_chaos_curve.pdf", bbox_inches="tight", facecolor="white")
-print("wrote figures/edge_of_chaos_curve.png and figures/edge_of_chaos_curve.pdf")
+fig.savefig("figures/edge_of_chaos_curve_uncorrected.png", dpi=600, bbox_inches="tight", facecolor="white")
+fig.savefig("figures/edge_of_chaos_curve_uncorrected.pdf", bbox_inches="tight", facecolor="white")
+print("wrote figures/edge_of_chaos_curve_uncorrected.{png,pdf}")

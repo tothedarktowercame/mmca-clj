@@ -1,4 +1,5 @@
-(require '[mmca.core :as c] '[clojure.string :as str])
+(ns scripts.river-perturbation-seeds
+  (:require [mmca.core :as c]))
 (defn- runner [mode] (if (= mode :river) c/run-river-from c/run-river-ablated-from))
 (defn two-stage [mode seed width steps t* intervene]
   (let [f (runner mode) r (java.util.Random. (long seed))
@@ -18,4 +19,4 @@
               idx (keep-indexed (fn [i v] (when (= 1 v) i)) row)
               spread (if (seq idx) (apply max (map #(min (Math/abs (- % x)) (- width (Math/abs (- % x)))) idx)) 0)]
           (.append out (format "%d\t%s\t%d\t%d\t%d\n" seed (name mode) x (reduce + row) spread))))))
-  (spit "/tmp/pert_seeds.tsv" (str out)) (println "done"))
+  (spit "data/pert_seeds.tsv" (str out)) (println "wrote data/pert_seeds.tsv"))

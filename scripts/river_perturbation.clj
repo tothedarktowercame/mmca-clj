@@ -1,4 +1,6 @@
-(require '[mmca.core :as c] '[clojure.string :as str])
+(ns scripts.river-perturbation
+  (:require [clojure.string :as str]
+            [mmca.core :as c]))
 
 (defn- runner [mode] (if (= mode :river) c/run-river-from c/run-river-ablated-from))
 
@@ -30,12 +32,12 @@
     (let [A (two-stage mode seed width steps t* nil)]
       ;; reference phenotype at t* for band classification
       (when (= mode :river)
-        (spit "/tmp/pert_phe.txt" (str/join "\n" (:phe A))))
+        (spit "data/pert_phe.txt" (str/join "\n" (:phe A))))
       (doseq [x (range width)]
         (let [B (two-stage mode seed width steps t* (flip-at x))
               D (damage A B)]
           (when (and (= mode :river) (#{20 40 60} x))
-            (spit (format "/tmp/pert_grid_%d.txt" x)
+            (spit (format "data/pert_grid_%d.txt" x)
                   (str/join "\n" (map #(str/join " " %) D))))
           (doseq [dt [1 5 10 20 40 59]]
             (let [row (nth D (+ t* dt) nil)]
@@ -46,5 +48,5 @@
                                                      (- width (Math/abs (- % x)))) idx)) 0)]
                   (.append out (format "%s\t%d\t%d\t%d\t%d\n"
                                        (name mode) x dt (reduce + row) spread))))))))))
-  (spit "/tmp/pert_summary.tsv" (str out))
-  (println "wrote /tmp/pert_summary.tsv, /tmp/pert_phe.txt, 3 grids"))
+  (spit "data/pert_summary.tsv" (str out))
+  (println "wrote data/pert_summary.tsv, data/pert_phe.txt, 3 grids"))

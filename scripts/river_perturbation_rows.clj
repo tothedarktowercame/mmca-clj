@@ -1,4 +1,5 @@
-(require '[mmca.core :as c] '[clojure.string :as str])
+(ns scripts.river-perturbation-rows
+  (:require [mmca.core :as c]))
 (defn- runner [mode] (if (= mode :river) c/run-river-from c/run-river-ablated-from))
 (defn two-stage [mode seed width steps t* intervene]
   (let [f (runner mode) r (java.util.Random. (long seed))
@@ -17,4 +18,4 @@
             (let [row (map #(if (= %1 %2) \0 \1)
                            (nth (:phe A) (+ t* dt)) (nth (:phe B) (+ t* dt)))]
               (.append out (format "%d\t%s\t%d\t%d\t%s\n" seed (name mode) x dt (apply str row)))))))))
-  (spit "/tmp/pert_rows.tsv" (str out)) (println "wrote /tmp/pert_rows.tsv"))
+  (spit "data/pert_rows.tsv" (str out)) (println "wrote data/pert_rows.tsv"))

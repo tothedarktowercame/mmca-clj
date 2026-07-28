@@ -83,6 +83,28 @@
         :past (past-cone run t i depth layer)
         :future (future-cone run t i)}))))
 
+(defn- genotype-future-cone [run t i]
+  (c/rule-bits (nth (nth (:gen run) (inc t)) i)))
+
+(defn- genotype-field-samples
+  "Build the same genotype-layer lightcones used by E5 from supplied runs.
+
+  `runs` maps integer seed IDs to maps containing a rectangular `:gen` field.
+  Keeping the seed IDs on each row is important: model selection below uses
+  the unchanged E5 seed-held-out folds."
+  [runs depth {:keys [seeds width steps burn-in]}]
+  (let [margin depth]
+    (vec
+     (for [seed seeds
+           :let [run (get runs seed)]
+           t (range (max burn-in (dec depth)) steps)
+           i (range margin (- width margin))]
+       {:seed seed
+        :t t
+        :i i
+        :past (past-cone run t i depth :genotype)
+        :future (genotype-future-cone run t i)}))))
+
 (defn- fit-naive-bayes
   "Fit independent Bernoulli targets with Bernoulli feature likelihoods."
   [rows]
@@ -211,6 +233,17 @@
     {:selected (first (sort-by (juxt :loss :depth :tolerance) candidates))
      :candidates candidates}))
 
+(defn- select-genotype-field-model [runs config]
+  (let [candidates
+        (vec
+         (mapcat (fn [depth]
+                   (let [rows (genotype-field-samples runs depth config)]
+                     (mapv #(candidate-score rows depth % config)
+                           (:tolerances config))))
+                 (:depths config)))]
+    {:selected (first (sort-by (juxt :loss :depth :tolerance) candidates))
+     :candidates candidates}))
+
 (defn- background-states [classified background-mass]
   (let [frequencies (frequencies (map :state classified))
         target (* background-mass (count classified))]
@@ -257,6 +290,57 @@
 
 (defn- mean [xs]
   (if (seq xs) (/ (reduce + xs) (double (count xs))) 0.0))
+
+(defn reconstruct-genotype-fields
+  "Run E5's held-out model selection and coherent-candidate reconstruction on
+  supplied genotype spacetime fields.
+
+  The input is a map from seed to `{:gen rows}`. Depth, quantisation tolerance,
+  background mass, component adjacency, and minimum component size all use the
+  same implementations as the river experiment. The returned `:coherent-points`
+  map contains `[t i]` coordinates after the small-component filter and is
+  suitable for constructing a mask on each original field."
+  [runs config]
+  (let [selection (select-genotype-field-model runs config)
+        {:keys [depth tolerance] :as selected} (:selected selection)
+        rows (genotype-field-samples runs depth config)
+        model (fit-naive-bayes rows)
+        states (fit-states model rows tolerance (:alpha config))
+        classified (mapv (fn [row]
+                           (assoc row :state
+                                  (signature (predict model (:past row)
+                                                      (:alpha config))
+                                             tolerance)))
+                         rows)
+        background (background-states classified (:background-mass config))
+        candidate-rows (remove #(contains? background (:state %)) classified)
+        per-seed
+        (into {}
+              (for [seed (:seeds config)
+                    :let [candidate-points
+                          (->> candidate-rows
+                               (filter #(= seed (:seed %)))
+                               (map (juxt :seed :t :i)))
+                          retained-components
+                          (->> (components candidate-points)
+                               (filter #(>= (count %)
+                                            (:minimum-structure-size config)))
+                               vec)
+                          coherent-points
+                          (set (map (fn [[_ t i]] [t i])
+                                    (mapcat seq retained-components)))]]
+                [seed {:candidate-point-count (count candidate-points)
+                       :structure-count (count retained-components)
+                       :coherent-point-count (count coherent-points)
+                       :coherent-points coherent-points}]))]
+    {:config (select-keys config [:seeds :width :steps :burn-in :folds
+                                  :depths :tolerances :alpha :background-mass
+                                  :minimum-structure-size])
+     :selected selected
+     :candidates (:candidates selection)
+     :state-count (count states)
+     :background-state-count (count background)
+     :per-seed per-seed}))
 
 (defn- reconstruction
   [engine layer {:keys [depth tolerance]} config]

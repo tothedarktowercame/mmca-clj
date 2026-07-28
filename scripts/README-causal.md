@@ -6,9 +6,9 @@ Reproduces Figures 16 and 17 and Empirical findings `find:causal` / `find:ladder
 — the system Matplotlib 3.6.3 pipeline is defective for these panels. See the
 figure-pipeline note in `README.md`.
 
-    clojure -M -i scripts/river_perturbation.clj        # single-seed sweep, all 80 sites -> /tmp/pert_summary.tsv
-    clojure -M -i scripts/river_perturbation_seeds.clj  # 6 seeds x 20 sites          -> /tmp/pert_seeds.tsv
-    clojure -M -i scripts/river_perturbation_rows.clj   # 4 seeds x 10 sites, all dt  -> /tmp/pert_rows.tsv
+    clojure -M -i scripts/river_perturbation.clj        # single-seed sweep, all 80 sites -> data/pert_summary.tsv
+    clojure -M -i scripts/river_perturbation_seeds.clj  # 6 seeds x 20 sites          -> data/pert_seeds.tsv
+    clojure -M -i scripts/river_perturbation_rows.clj   # 4 seeds x 10 sites, all dt  -> data/pert_rows.tsv
     .venv/bin/python scripts/plot_river_perturbation.py   # figures/river_perturbation.{png,pdf}
     .venv/bin/python scripts/plot_river_centroid.py       # figures/river_centroid.{png,pdf}
 

@@ -164,6 +164,13 @@
       (write-genotype-field!
        (format "data/eoc_interface_top_%s.txt" (name kind))
        (run-interface kind writing 1 eoc-width eoc-steps)))
+    ;; offset+4 is genotypically dead: it is the negative control for the
+    ;; transport measures (scripts/controls_corrected.py), where it shows that
+    ;; local transfer entropy inflates without bound on a near-empty field.
+    ;; It needs the representative panel only, not the box-counting fields.
+    (write-genotype-field!
+     "data/eoc_interface_top_offset4.txt"
+     (run-interface :offset4 eoc-offset4 1 eoc-width eoc-steps))
     ;; Square late-time fields for finite-size box counting.
     (doseq [width [128 256 512 768]
             [kind writing seeds] operators
@@ -255,8 +262,9 @@
   ;; that fixes the lambda=1/2 shell (Rule 105, LIVE). All-even => collapses:
   ;; genotype dies onto Rule 105 while the phenotype stays complex. Native
   ;; Wolfram ordering (no shim), so run-propagator applies it directly.
-  (spit "data/figshell.txt"
-        (render-run (mmca/run-propagator [2 3 0 1 5 4 7 6] 1 width steps)))
+  (let [run (mmca/run-propagator [2 3 0 1 5 4 7 6] 1 width steps)]
+    (spit "data/figshell.txt" (render-run run))
+    (write-raw-run! "data/figshell" run))
   (println "wrote Figure 7 (critical-shell) data"))
 
 (defn generate-two-4cycle! []

@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
 SCALE = 6
-P = np.array([[int(c) for c in l] for l in open('/tmp/pert_phe.txt').read().split('\n') if l.strip()])
-rows = [l.split('\t') for l in open('/tmp/pert_summary.tsv').read().strip().split('\n')[1:]]
+P = np.array([[int(c) for c in l] for l in open('data/pert_phe.txt').read().split('\n') if l.strip()])
+rows = [l.split('\t') for l in open('data/pert_summary.tsv').read().strip().split('\n')[1:]]
 D = collections.defaultdict(dict); mass = {}
 for mode, site, dt, m, s in rows:
     D[(mode, int(dt))].setdefault('m', []).append(int(m))
@@ -23,7 +23,7 @@ fig = plt.figure(figsize=(13, 9.2))
 gs = fig.add_gridspec(2, 3, hspace=0.30, wspace=0.28, height_ratios=[1.25, 1])
 for k, x in enumerate((20, 40, 60)):
     G = np.array([[int(v) for v in l.split()] for l in
-                  open(f'/tmp/pert_grid_{x}.txt').read().split('\n') if l.strip()])
+                  open(f'data/pert_grid_{x}.txt').read().split('\n') if l.strip()])
     ax = fig.add_subplot(gs[0, k])
     # Composite to an explicit RGB array rather than layering a binary panel and
     # a masked overlay. Matplotlib's PDF backend embeds a two-valued image as a

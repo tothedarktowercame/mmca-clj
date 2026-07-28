@@ -11,7 +11,7 @@ from matplotlib.colors import ListedColormap
 W, T0 = 80, 60
 acc = collections.defaultdict(lambda: collections.defaultdict(list))
 cone = {}
-for line in open('/tmp/pert_rows.tsv'):
+for line in open('data/pert_rows.tsv'):
     seed, mode, x, dt, row = line.rstrip('\n').split('\t')
     a = np.frombuffer(row.encode(), dtype=np.uint8) - 48
     i = np.nonzero(a)[0]
