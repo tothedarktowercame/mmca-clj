@@ -27,7 +27,8 @@ consequence of the intervention. The control is `run-river-ablated-from`:
 identical seed, tape, construction and initial state, with only the live
 phenotype-to-genotype edge cut.
 
-ECA calibration ladder (rules 0, 204, 90, 54, 110, 30) is in
-`scripts/eca_damage_ladder.py`, same protocol, 6 seeds x 10 sites.
+ECA calibration ladder (rules 0, 204, 90, 54, 110, 30) is computed inline by
+`scripts/regime_placement.clj`, which emits it as the `eca` rows of its TSV
+(4 seeds per rule, same protocol). There is no `eca_damage_ladder.py`.
 
 Evidence trail and retracted intermediate conclusions: `holes/tint-vs-lcs-findings.md`.
