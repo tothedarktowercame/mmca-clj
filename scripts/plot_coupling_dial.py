@@ -1,11 +1,8 @@
-"""Figure: the order parameter is the strength of the phenotype-to-genotype coupling.
+"""Figure: every construction placed on the elementary-rule damage-spreading scale.
 
-Panel (a) places every construction on the elementary-rule damage-spreading
-scale, split by whether the genotype update reads the phenotype. Panel (b) turns
-the coupling into a dial: conservative transport whose swap probability is gated
-on the local phenotype interface, against an ungated control at matched mean
-swap probability. Both are bijective and leave the rule histogram invariant, so
-the two curves differ only in whether the genotype can see the phenotype.
+Constructions are split by whether the genotype update reads the phenotype. The
+coupling dials themselves are plotted separately (plot_gain_curves.py); this
+figure places every construction on one axis.
 """
 from pathlib import Path
 import matplotlib; matplotlib.use("Agg")
@@ -27,7 +24,7 @@ FB = [("river construction", 12.97), ("transport $0.50$", S["transport $0.50$"][
       ("transport $1.00$", S["transport $1.00$"][0])]
 RATES = [0.0, 0.05, 0.10, 0.20, 0.35, 0.50, 0.75, 1.00]
 
-fig, (ax, bx) = plt.subplots(1, 2, figsize=(13.6, 4.3), gridspec_kw=dict(width_ratios=[1.42, 1], wspace=0.22))
+fig, ax = plt.subplots(figsize=(12.4, 3.9))
 
 for a in (ax,):
     a.axvspan(.02, 8, color="#dce8f5", alpha=.75, zorder=0)
@@ -68,31 +65,11 @@ ax.set_yticklabels(["genotype reads $X$", "genotype never reads $X$", "elementar
 ax.set_xticks([.1, .3, 1, 3, 10, 30]); ax.set_xticklabels([".1", ".3", "1", "3", "10", "30"])
 ax.set_xlabel("causal reach (damaged phenotype cells at $dt=59$)", fontsize=9)
 ax.grid(axis="x", alpha=.3); ax.set_axisbelow(True)
-ax.set_title("(a) every construction on one scale", fontsize=9.8, pad=17)
 
-bx.axhspan(0, 8, color="#dce8f5", alpha=.75, zorder=0)
-bx.axhspan(8, 22, color="#e6f2e0", alpha=.85, zorder=0)
-bx.axhspan(22, 40, color="#f9e0dc", alpha=.75, zorder=0)
-g = np.array([S[f"transport ${r:.2f}$"] for r in RATES])
-bx.errorbar(RATES, g[:, 0], yerr=g[:, 1], marker="o", ms=6, lw=2, c="#c44e52",
-            capsize=3, label="gated: swap probability reads $X$", zorder=4)
-ur = [0.0] + [0.20, 0.35, 0.50, 0.75, 1.00]
-u = np.array([S["transport $0.00$"]] + [S[f"ungated ${r:.2f}$"] for r in ur[1:]])
-bx.errorbar(ur, u[:, 0], yerr=u[:, 1], marker="s", ms=5.5, lw=2, c="#4c72b0", ls="--",
-            capsize=3, label="ungated control: blind to $X$", zorder=4)
-for y, n in ((8.0, "rule 90"), (18.30, "rule 54"), (1.0, "rule 204")):
-    bx.axhline(y, color="k", lw=.8, ls=":", alpha=.6)
-    bx.text(1.02, y, n, fontsize=7.4, va="center", ha="left")
-bx.set_xlim(-.04, 1.16); bx.set_ylim(0, 32)
-bx.set_xlabel("coupling strength (phenotype-gated transport rate)", fontsize=9)
-bx.set_ylabel("causal reach", fontsize=9)
-bx.legend(fontsize=8, loc="upper left", framealpha=.92)
-bx.set_title("(b) the coupling is the dial", fontsize=9.8, pad=17)
-bx.grid(alpha=.25); bx.set_axisbelow(True)
-for sp in ("top", "right"): bx.spines[sp].set_visible(False)
+
 for sp in ("top", "right", "left"): ax.spines[sp].set_visible(False)
-fig.suptitle("Causal reach is set by the strength of the phenotype-to-genotype coupling, not by any parameter of the update",
-             fontsize=11.2, y=1.0)
+fig.suptitle("Every construction on one scale: nothing blind to the phenotype clears the complex band",
+             fontsize=11.2)
 for ext in ("png", "pdf"):
     fig.savefig(ROOT / f"figures/regime_placement.{ext}", dpi=150, bbox_inches="tight")
 print("wrote figures/regime_placement.{png,pdf}")
