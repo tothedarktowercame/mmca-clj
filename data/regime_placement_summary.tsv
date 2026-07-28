@@ -1,0 +1,36 @@
+class	name	mean	sem	n
+eca	rule 0	0.0000	0.0000	40
+family	$P_a$ (bare)	0.0250	0.0250	40
+dial	blend $1.00$	0.0250	0.0250	40
+family	braid $P_a$/two-4	0.1250	0.0891	40
+dial	mutation $0.10$	0.2250	0.1581	40
+dial	braid + blend $0.70$	0.3750	0.2624	40
+dial	async update $0.25$	0.4750	0.2087	40
+dial	niches $P_a$/two-4 (8)	0.5000	0.2931	40
+dial	blend $0.70$	0.5500	0.3507	40
+dial	niches $P_a$/two-4 (16)	0.7250	0.3339	40
+dial	async update $0.75$	0.7500	0.4079	40
+dial	mutation $0.40$	0.8500	0.3331	40
+eca	rule 204	1.0000	0.0000	40
+dial	transport $0.00$	1.1000	0.2019	40
+dial	preserving limit	1.1000	0.2019	40
+dial	ungated $0.20$	1.6500	0.4731	40
+dial	ungated $0.35$	1.6750	0.4632	40
+dial	ungated $0.50$	1.7750	0.6309	40
+family	rot$+1$	2.0500	0.6650	40
+dial	transport $0.05$	2.1750	0.5381	40
+dial	ungated $0.75$	2.7750	0.6165	40
+dial	blend $0.35$	3.3750	0.9300	40
+dial	ungated $1.00$	4.0500	1.0603	40
+dial	transport $0.10$	4.2500	0.8695	40
+family	braid rot$+2$/rot$+4$	5.2000	1.1181	40
+eca	rule 90	8.0000	0.0000	40
+dial	blend $0.00$	8.1500	1.0325	40
+dial	transport $0.20$	9.4250	1.0506	40
+dial	transport $0.35$	14.4500	1.3368	40
+eca	rule 110	16.6750	1.5302	40
+eca	rule 54	18.3000	1.7469	40
+dial	transport $0.50$	19.2750	1.6184	40
+dial	transport $1.00$	25.3750	1.8091	40
+dial	transport $0.75$	26.0500	1.5856	40
+eca	rule 30	36.4500	1.1580	40

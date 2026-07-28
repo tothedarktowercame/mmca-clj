@@ -31,7 +31,7 @@
                           li (Character/digit (nth phenotype i) 2)
                           lj (Character/digit (nth phenotype j) 2)
                           pr* (min 1.0 (* u (if (= li lj) 0.5 1.5)))]
-                      (if (< (rng/rand-double mr) pr*)
+                      (if (< (rng/rand-double mr) (if (:ungated cfg) (min 1.0 u) pr*))
                         (assoc gg i (nth gg j) j (nth gg i)) gg)))
                   g (range start (dec W) 2)))
         (let [ord (concat [0 (dec W)] (range 1 (dec W)))]
@@ -103,8 +103,19 @@
            ["dial" "niches $P_a$/two-4 (8)"  {:kind :baseline :wa PA :wb T4 :patch 8}]
            ["dial" "mutation $0.10$"         {:kind :baseline :wa PA :noise 0.10}]
            ["dial" "mutation $0.40$"         {:kind :baseline :wa PA :noise 0.40}]
+           ["dial" "transport $0.00$"        {:kind :transport :u 0.0}]
+           ["dial" "transport $0.05$"        {:kind :transport :u 0.05}]
+           ["dial" "transport $0.10$"        {:kind :transport :u 0.10}]
+           ["dial" "transport $0.20$"        {:kind :transport :u 0.20}]
+           ["dial" "transport $0.35$"        {:kind :transport :u 0.35}]
            ["dial" "transport $0.50$"        {:kind :transport :u 0.5}]
+           ["dial" "transport $0.75$"        {:kind :transport :u 0.75}]
            ["dial" "transport $1.00$"        {:kind :transport :u 1.0}]
+           ["dial" "ungated $0.20$"          {:kind :transport :u 0.20 :ungated true}]
+           ["dial" "ungated $0.35$"          {:kind :transport :u 0.35 :ungated true}]
+           ["dial" "ungated $0.50$"          {:kind :transport :u 0.5 :ungated true}]
+           ["dial" "ungated $0.75$"          {:kind :transport :u 0.75 :ungated true}]
+           ["dial" "ungated $1.00$"          {:kind :transport :u 1.0 :ungated true}]
            ["dial" "preserving limit"        {:kind :preserve}]]
           seed (range 4)]
     (doseq [d (run-mech cfg seed)]
