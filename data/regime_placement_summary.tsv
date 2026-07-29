@@ -28,13 +28,18 @@ exotype	switch transport $1.00$/hold	3.5063	0.3156	160
 dial	ungated $1.00$	4.0500	1.0603	40
 dial	transport $0.10$	4.2500	0.8695	40
 family	braid rot$+2$/rot$+4$	5.2000	1.1181	40
+gain-sweep	switch agree $4/5$, transport $1.00$/hold	6.6813	0.4847	160
 eca	rule 90	8.0000	0.0000	40
 dial	blend $0.00$	8.1500	1.0325	40
 dial	transport $0.20$	9.4250	1.0506	40
 dial	transport $0.35$	14.4500	1.3368	40
 eca	rule 110	16.6750	1.5302	40
 eca	rule 54	18.3000	1.7469	40
+gain-sweep	switch agree $5/7$, transport $1.00$/hold	18.4937	0.8332	160
 dial	transport $0.50$	19.2750	1.6184	40
 dial	transport $1.00$	25.3750	1.8091	40
 dial	transport $0.75$	26.0500	1.5856	40
+gain-sweep	switch agree $2/5$, transport $1.00$/hold	30.3813	0.9246	160
+gain-sweep	switch agree $3/5$, transport $1.00$/hold	33.1562	0.6712	160
 eca	rule 30	36.4500	1.1580	40
+gain-sweep	switch agree $4/7$, transport $1.00$/hold	36.7812	0.5109	160

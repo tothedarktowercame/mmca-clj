@@ -19,10 +19,21 @@
 (def W 80) (def TSTAR 60) (def DT 59)
 (def exotype-explore-writing
   (c/positional-writing->neighbourhood-writing [2 3 4 5 6 7 0 1]))
-(defn boring? [phenotype i]
+(defn agreement-gate?
+  "True when at least k cells in the centred circular m-cell neighbourhood
+  (including the centre) agree with the centre phenotype bit. Odd m keeps the
+  neighbourhood symmetric; m=3, k=3 is the original boring? predicate."
+  [phenotype i m k]
+  {:pre [(odd? m) (<= 1 k m)]}
   (let [width (count phenotype)
-        bit-at #(nth phenotype (mod % width))]
-    (= (bit-at (dec i)) (bit-at i) (bit-at (inc i)))))
+        radius (quot m 2)
+        centre (nth phenotype i)]
+    (<= k
+        (count
+          (filter #(= centre (nth phenotype (mod % width)))
+                  (range (- i radius) (inc (+ i radius))))))))
+(defn boring? [phenotype i]
+  (agreement-gate? phenotype i 3 3))
 (defn exotype-step [pr genotype phenotype policy activity]
   (let [fires (volatile! 0)
         result
@@ -56,7 +67,7 @@
             r (Character/digit (nth p (mod (inc i) n)) 2)]
         (bit-and (bit-shift-right rule (+ (* 4 l) (* 2 ce) r)) 1))))))
 (defn mech-step [pr mr g cfg t phenotype activity]
-  (let [{:keys [kind policy wa wb b u patch]} cfg]
+  (let [{:keys [kind policy wa wb b u patch m k]} cfg]
     (cond
       (= kind :preserve) g
       (= kind :exotype) (exotype-step pr g phenotype policy activity)
@@ -64,7 +75,8 @@
       (let [start (mod t 2)
             indices (range start (dec W) 2)
             switch? (= kind :transport-switch)
-            step-fired (if switch? (count (filter #(boring? phenotype %) indices)) 0)]
+            gate? #(agreement-gate? phenotype % (or m 3) (or k 3))
+            step-fired (if switch? (count (filter gate? indices)) 0)]
         (when switch?
           (swap! activity (fn [{total-fired :fired opportunities :opportunities}]
                             {:fired (+ total-fired step-fired)
@@ -76,7 +88,7 @@
                         pr* (min 1.0 (* u (if (= li lj) 0.5 1.5)))]
                     ;; draw BEFORE gating; `and` would short-circuit and skip it
                     (if (let [coin (rng/rand-double mr)]
-                          (and (or (not switch?) (boring? phenotype i))
+                          (and (or (not switch?) (gate? i))
                                (< coin (if (:ungated cfg) (min 1.0 u) pr*))))
                       (assoc gg i (nth gg j) j (nth gg i)) gg)))
                 g indices))
@@ -173,8 +185,18 @@
            ["exotype" "hold"                  {:kind :exotype :policy :hold}]
            ["exotype" "exotype"               {:kind :exotype :policy :exotype}]
            ["exotype" "switch transport $1.00$/hold"
-            {:kind :transport-switch :u 1.0}]]
-          seed (range (if (= cls "exotype") 16 4))]
+            {:kind :transport-switch :u 1.0 :m 3 :k 3}]
+           ["gain-sweep" "switch agree $4/5$, transport $1.00$/hold"
+            {:kind :transport-switch :u 1.0 :m 5 :k 4}]
+           ["gain-sweep" "switch agree $3/5$, transport $1.00$/hold"
+            {:kind :transport-switch :u 1.0 :m 5 :k 3}]
+           ["gain-sweep" "switch agree $5/7$, transport $1.00$/hold"
+            {:kind :transport-switch :u 1.0 :m 7 :k 5}]
+           ["gain-sweep" "switch agree $4/7$, transport $1.00$/hold"
+            {:kind :transport-switch :u 1.0 :m 7 :k 4}]
+           ["gain-sweep" "switch agree $2/5$, transport $1.00$/hold"
+            {:kind :transport-switch :u 1.0 :m 5 :k 2}]]
+          seed (range (if (#{"exotype" "gain-sweep"} cls) 16 4))]
     (let [{:keys [damages fired opportunities]} (run-mech cfg seed)]
       (doseq [d damages]
         (println (format "%s\t%s\t%d\t%d\t%d\t%d"
