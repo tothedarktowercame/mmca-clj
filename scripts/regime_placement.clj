@@ -53,16 +53,25 @@
     (cond
       (= kind :preserve) g
       (= kind :exotype) (exotype-step pr g phenotype policy activity)
-      (= kind :transport)
-      (let [start (mod t 2)]
+      (or (= kind :transport) (= kind :transport-switch))
+      (let [start (mod t 2)
+            indices (range start (dec W) 2)
+            switch? (= kind :transport-switch)
+            step-fired (if switch? (count (filter #(boring? phenotype %) indices)) 0)]
+        (when switch?
+          (swap! activity (fn [{total-fired :fired opportunities :opportunities}]
+                            {:fired (+ total-fired step-fired)
+                             :opportunities (+ opportunities (count indices))})))
         (reduce (fn [gg i]
                   (let [j (inc i)
                         li (Character/digit (nth phenotype i) 2)
                         lj (Character/digit (nth phenotype j) 2)
                         pr* (min 1.0 (* u (if (= li lj) 0.5 1.5)))]
-                    (if (< (rng/rand-double mr) (if (:ungated cfg) (min 1.0 u) pr*))
+                    (if (and (or (not switch?) (boring? phenotype i))
+                             (< (rng/rand-double mr)
+                                (if (:ungated cfg) (min 1.0 u) pr*)))
                       (assoc gg i (nth gg j) j (nth gg i)) gg)))
-                g (range start (dec W) 2)))
+                g indices))
       :else
       (let [ord (concat [0 (dec W)] (range 1 (dec W)))]
         (reduce (fn [out i]
@@ -154,7 +163,9 @@
            ["dial" "preserving limit"        {:kind :preserve}]
            ["exotype" "explore"               {:kind :exotype :policy :explore}]
            ["exotype" "hold"                  {:kind :exotype :policy :hold}]
-           ["exotype" "exotype"               {:kind :exotype :policy :exotype}]]
+           ["exotype" "exotype"               {:kind :exotype :policy :exotype}]
+           ["exotype" "switch transport $1.00$/hold"
+            {:kind :transport-switch :u 1.0}]]
           seed (range (if (= cls "exotype") 16 4))]
     (let [{:keys [damages fired opportunities]} (run-mech cfg seed)]
       (doseq [d damages]

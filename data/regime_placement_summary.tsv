@@ -30,6 +30,7 @@ exotype	exotype	6.7875	0.3715	160
 eca	rule 90	8.0000	0.0000	40
 dial	blend $0.00$	8.1500	1.0325	40
 dial	transport $0.20$	9.4250	1.0506	40
+exotype	switch transport $1.00$/hold	10.4625	0.5834	160
 dial	transport $0.35$	14.4500	1.3368	40
 eca	rule 110	16.6750	1.5302	40
 eca	rule 54	18.3000	1.7469	40
