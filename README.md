@@ -63,10 +63,14 @@ Reproduce the complete paper figure set, including the synthetic
 order--edge--chaos sweep:
 
 ```sh
+sudo apt-get install poppler-utils     # pdfimages, for the Figure 3 raster check
 python3.12 -m venv .venv
 .venv/bin/pip install -r requirements-figures.txt
 PATH="$PWD/.venv/bin:$PATH" scripts/reproduce_all.sh
 ```
+
+Pass `--full` to also rerun the two long resumable enumerations (the 8!
+permutation census and the offset+1 finite-size scan).
 
 The plotting environment is intentionally exact: CPython 3.12.3,
 NumPy 1.26.4, Matplotlib 3.11.1, Pillow 11.3.0, and SciPy 1.11.4. The script

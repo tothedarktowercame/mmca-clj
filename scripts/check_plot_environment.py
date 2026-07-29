@@ -37,11 +37,25 @@ if errors:
         + "\nInstall with: python3.12 -m pip install -r requirements-figures.txt"
     )
 
+# check_fig2pair_pdf.py shells out to pdfimages to decode the embedded phenotype
+# rasters. It runs near the END of reproduce_all.sh, so a missing binary used to
+# surface only after the whole pipeline had already been computed -- 41 minutes
+# in, on a clean box. Fail here instead.
+import shutil
+
+missing = [b for b in ("pdfimages",) if shutil.which(b) is None]
+if missing:
+    raise SystemExit(
+        "Missing system binaries: " + ", ".join(missing)
+        + "\nInstall with: sudo apt-get install poppler-utils"
+    )
+
 print(
     "plot environment:"
     f" Python {ACTUAL['python']},"
     f" NumPy {ACTUAL['numpy']},"
         f" Matplotlib {ACTUAL['matplotlib']},"
         f" Pillow {ACTUAL['pillow']},"
-        f" SciPy {ACTUAL['scipy']}"
+        f" SciPy {ACTUAL['scipy']},"
+        " poppler-utils present"
 )
