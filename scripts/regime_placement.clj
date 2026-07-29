@@ -32,9 +32,16 @@
                               :hold false
                               :exotype (boring? phenotype i))]
                   (when fire? (vswap! fires inc))
-                  (if fire?
-                    (c/propagate pr rule exotype-explore-writing true)
-                    rule)))
+                  ;; Draw unconditionally and use it only when firing. Otherwise
+                  ;; the two damage branches consume different numbers of draws
+                  ;; (the gate reads the phenotype, which the perturbation
+                  ;; changes), their tapes desynchronise, and the divergence that
+                  ;; follows is RNG artefact rather than causal effect. This is
+                  ;; the discipline river_gain.clj states explicitly.
+                  (let [source (rng/rand-int pr c/bit-count)]
+                    (if fire?
+                      (c/propagate-at rule exotype-explore-writing source true)
+                      rule))))
               (range (count genotype))
               genotype)]
     (swap! activity (fn [{:keys [fired opportunities]}]
@@ -67,9 +74,10 @@
                         li (Character/digit (nth phenotype i) 2)
                         lj (Character/digit (nth phenotype j) 2)
                         pr* (min 1.0 (* u (if (= li lj) 0.5 1.5)))]
-                    (if (and (or (not switch?) (boring? phenotype i))
-                             (< (rng/rand-double mr)
-                                (if (:ungated cfg) (min 1.0 u) pr*)))
+                    ;; draw BEFORE gating; `and` would short-circuit and skip it
+                    (if (let [coin (rng/rand-double mr)]
+                          (and (or (not switch?) (boring? phenotype i))
+                               (< coin (if (:ungated cfg) (min 1.0 u) pr*))))
                       (assoc gg i (nth gg j) j (nth gg i)) gg)))
                 g indices))
       :else
