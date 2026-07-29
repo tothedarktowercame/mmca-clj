@@ -1,1881 +1,1881 @@
-class	name	seed	damage
-eca	rule 0	0	0
-eca	rule 0	0	0
-eca	rule 0	0	0
-eca	rule 0	0	0
-eca	rule 0	0	0
-eca	rule 0	0	0
-eca	rule 0	0	0
-eca	rule 0	0	0
-eca	rule 0	0	0
-eca	rule 0	0	0
-eca	rule 0	1	0
-eca	rule 0	1	0
-eca	rule 0	1	0
-eca	rule 0	1	0
-eca	rule 0	1	0
-eca	rule 0	1	0
-eca	rule 0	1	0
-eca	rule 0	1	0
-eca	rule 0	1	0
-eca	rule 0	1	0
-eca	rule 0	2	0
-eca	rule 0	2	0
-eca	rule 0	2	0
-eca	rule 0	2	0
-eca	rule 0	2	0
-eca	rule 0	2	0
-eca	rule 0	2	0
-eca	rule 0	2	0
-eca	rule 0	2	0
-eca	rule 0	2	0
-eca	rule 0	3	0
-eca	rule 0	3	0
-eca	rule 0	3	0
-eca	rule 0	3	0
-eca	rule 0	3	0
-eca	rule 0	3	0
-eca	rule 0	3	0
-eca	rule 0	3	0
-eca	rule 0	3	0
-eca	rule 0	3	0
-eca	rule 204	0	1
-eca	rule 204	0	1
-eca	rule 204	0	1
-eca	rule 204	0	1
-eca	rule 204	0	1
-eca	rule 204	0	1
-eca	rule 204	0	1
-eca	rule 204	0	1
-eca	rule 204	0	1
-eca	rule 204	0	1
-eca	rule 204	1	1
-eca	rule 204	1	1
-eca	rule 204	1	1
-eca	rule 204	1	1
-eca	rule 204	1	1
-eca	rule 204	1	1
-eca	rule 204	1	1
-eca	rule 204	1	1
-eca	rule 204	1	1
-eca	rule 204	1	1
-eca	rule 204	2	1
-eca	rule 204	2	1
-eca	rule 204	2	1
-eca	rule 204	2	1
-eca	rule 204	2	1
-eca	rule 204	2	1
-eca	rule 204	2	1
-eca	rule 204	2	1
-eca	rule 204	2	1
-eca	rule 204	2	1
-eca	rule 204	3	1
-eca	rule 204	3	1
-eca	rule 204	3	1
-eca	rule 204	3	1
-eca	rule 204	3	1
-eca	rule 204	3	1
-eca	rule 204	3	1
-eca	rule 204	3	1
-eca	rule 204	3	1
-eca	rule 204	3	1
-eca	rule 90	0	8
-eca	rule 90	0	8
-eca	rule 90	0	8
-eca	rule 90	0	8
-eca	rule 90	0	8
-eca	rule 90	0	8
-eca	rule 90	0	8
-eca	rule 90	0	8
-eca	rule 90	0	8
-eca	rule 90	0	8
-eca	rule 90	1	8
-eca	rule 90	1	8
-eca	rule 90	1	8
-eca	rule 90	1	8
-eca	rule 90	1	8
-eca	rule 90	1	8
-eca	rule 90	1	8
-eca	rule 90	1	8
-eca	rule 90	1	8
-eca	rule 90	1	8
-eca	rule 90	2	8
-eca	rule 90	2	8
-eca	rule 90	2	8
-eca	rule 90	2	8
-eca	rule 90	2	8
-eca	rule 90	2	8
-eca	rule 90	2	8
-eca	rule 90	2	8
-eca	rule 90	2	8
-eca	rule 90	2	8
-eca	rule 90	3	8
-eca	rule 90	3	8
-eca	rule 90	3	8
-eca	rule 90	3	8
-eca	rule 90	3	8
-eca	rule 90	3	8
-eca	rule 90	3	8
-eca	rule 90	3	8
-eca	rule 90	3	8
-eca	rule 90	3	8
-eca	rule 54	0	22
-eca	rule 54	0	29
-eca	rule 54	0	1
-eca	rule 54	0	34
-eca	rule 54	0	24
-eca	rule 54	0	32
-eca	rule 54	0	21
-eca	rule 54	0	2
-eca	rule 54	0	18
-eca	rule 54	0	18
-eca	rule 54	1	10
-eca	rule 54	1	17
-eca	rule 54	1	36
-eca	rule 54	1	24
-eca	rule 54	1	10
-eca	rule 54	1	11
-eca	rule 54	1	15
-eca	rule 54	1	22
-eca	rule 54	1	14
-eca	rule 54	1	27
-eca	rule 54	2	18
-eca	rule 54	2	42
-eca	rule 54	2	6
-eca	rule 54	2	27
-eca	rule 54	2	0
-eca	rule 54	2	9
-eca	rule 54	2	18
-eca	rule 54	2	17
-eca	rule 54	2	4
-eca	rule 54	2	34
-eca	rule 54	3	14
-eca	rule 54	3	0
-eca	rule 54	3	13
-eca	rule 54	3	18
-eca	rule 54	3	31
-eca	rule 54	3	18
-eca	rule 54	3	37
-eca	rule 54	3	27
-eca	rule 54	3	7
-eca	rule 54	3	5
-eca	rule 110	0	0
-eca	rule 110	0	16
-eca	rule 110	0	0
-eca	rule 110	0	20
-eca	rule 110	0	0
-eca	rule 110	0	18
-eca	rule 110	0	21
-eca	rule 110	0	14
-eca	rule 110	0	21
-eca	rule 110	0	25
-eca	rule 110	1	22
-eca	rule 110	1	16
-eca	rule 110	1	28
-eca	rule 110	1	23
-eca	rule 110	1	28
-eca	rule 110	1	12
-eca	rule 110	1	12
-eca	rule 110	1	33
-eca	rule 110	1	3
-eca	rule 110	1	25
-eca	rule 110	2	24
-eca	rule 110	2	6
-eca	rule 110	2	6
-eca	rule 110	2	22
-eca	rule 110	2	27
-eca	rule 110	2	28
-eca	rule 110	2	16
-eca	rule 110	2	14
-eca	rule 110	2	24
-eca	rule 110	2	0
-eca	rule 110	3	27
-eca	rule 110	3	23
-eca	rule 110	3	20
-eca	rule 110	3	23
-eca	rule 110	3	3
-eca	rule 110	3	3
-eca	rule 110	3	11
-eca	rule 110	3	32
-eca	rule 110	3	10
-eca	rule 110	3	11
-eca	rule 30	0	44
-eca	rule 30	0	34
-eca	rule 30	0	39
-eca	rule 30	0	30
-eca	rule 30	0	43
-eca	rule 30	0	38
-eca	rule 30	0	42
-eca	rule 30	0	33
-eca	rule 30	0	49
-eca	rule 30	0	39
-eca	rule 30	1	41
-eca	rule 30	1	45
-eca	rule 30	1	53
-eca	rule 30	1	44
-eca	rule 30	1	39
-eca	rule 30	1	40
-eca	rule 30	1	40
-eca	rule 30	1	31
-eca	rule 30	1	27
-eca	rule 30	1	23
-eca	rule 30	2	36
-eca	rule 30	2	27
-eca	rule 30	2	38
-eca	rule 30	2	34
-eca	rule 30	2	38
-eca	rule 30	2	35
-eca	rule 30	2	25
-eca	rule 30	2	33
-eca	rule 30	2	29
-eca	rule 30	2	33
-eca	rule 30	3	38
-eca	rule 30	3	39
-eca	rule 30	3	39
-eca	rule 30	3	45
-eca	rule 30	3	44
-eca	rule 30	3	37
-eca	rule 30	3	26
-eca	rule 30	3	17
-eca	rule 30	3	32
-eca	rule 30	3	39
-family	$P_a$ (bare)	0	0
-family	$P_a$ (bare)	0	0
-family	$P_a$ (bare)	0	0
-family	$P_a$ (bare)	0	0
-family	$P_a$ (bare)	0	0
-family	$P_a$ (bare)	0	0
-family	$P_a$ (bare)	0	0
-family	$P_a$ (bare)	0	0
-family	$P_a$ (bare)	0	0
-family	$P_a$ (bare)	0	0
-family	$P_a$ (bare)	1	0
-family	$P_a$ (bare)	1	0
-family	$P_a$ (bare)	1	0
-family	$P_a$ (bare)	1	0
-family	$P_a$ (bare)	1	0
-family	$P_a$ (bare)	1	0
-family	$P_a$ (bare)	1	0
-family	$P_a$ (bare)	1	0
-family	$P_a$ (bare)	1	0
-family	$P_a$ (bare)	1	1
-family	$P_a$ (bare)	2	0
-family	$P_a$ (bare)	2	0
-family	$P_a$ (bare)	2	0
-family	$P_a$ (bare)	2	0
-family	$P_a$ (bare)	2	0
-family	$P_a$ (bare)	2	0
-family	$P_a$ (bare)	2	0
-family	$P_a$ (bare)	2	0
-family	$P_a$ (bare)	2	0
-family	$P_a$ (bare)	2	0
-family	$P_a$ (bare)	3	0
-family	$P_a$ (bare)	3	0
-family	$P_a$ (bare)	3	0
-family	$P_a$ (bare)	3	0
-family	$P_a$ (bare)	3	0
-family	$P_a$ (bare)	3	0
-family	$P_a$ (bare)	3	0
-family	$P_a$ (bare)	3	0
-family	$P_a$ (bare)	3	0
-family	$P_a$ (bare)	3	0
-family	rot$+1$	0	0
-family	rot$+1$	0	5
-family	rot$+1$	0	5
-family	rot$+1$	0	0
-family	rot$+1$	0	9
-family	rot$+1$	0	10
-family	rot$+1$	0	8
-family	rot$+1$	0	0
-family	rot$+1$	0	11
-family	rot$+1$	0	0
-family	rot$+1$	1	0
-family	rot$+1$	1	0
-family	rot$+1$	1	0
-family	rot$+1$	1	0
-family	rot$+1$	1	0
-family	rot$+1$	1	0
-family	rot$+1$	1	0
-family	rot$+1$	1	1
-family	rot$+1$	1	0
-family	rot$+1$	1	0
-family	rot$+1$	2	0
-family	rot$+1$	2	0
-family	rot$+1$	2	0
-family	rot$+1$	2	0
-family	rot$+1$	2	0
-family	rot$+1$	2	0
-family	rot$+1$	2	0
-family	rot$+1$	2	0
-family	rot$+1$	2	0
-family	rot$+1$	2	9
-family	rot$+1$	3	0
-family	rot$+1$	3	0
-family	rot$+1$	3	0
-family	rot$+1$	3	6
-family	rot$+1$	3	0
-family	rot$+1$	3	0
-family	rot$+1$	3	18
-family	rot$+1$	3	0
-family	rot$+1$	3	0
-family	rot$+1$	3	0
-family	braid $P_a$/two-4	0	0
-family	braid $P_a$/two-4	0	0
-family	braid $P_a$/two-4	0	0
-family	braid $P_a$/two-4	0	0
-family	braid $P_a$/two-4	0	0
-family	braid $P_a$/two-4	0	0
-family	braid $P_a$/two-4	0	0
-family	braid $P_a$/two-4	0	0
-family	braid $P_a$/two-4	0	3
-family	braid $P_a$/two-4	0	0
-family	braid $P_a$/two-4	1	0
-family	braid $P_a$/two-4	1	0
-family	braid $P_a$/two-4	1	0
-family	braid $P_a$/two-4	1	0
-family	braid $P_a$/two-4	1	0
-family	braid $P_a$/two-4	1	0
-family	braid $P_a$/two-4	1	0
-family	braid $P_a$/two-4	1	0
-family	braid $P_a$/two-4	1	0
-family	braid $P_a$/two-4	1	0
-family	braid $P_a$/two-4	2	0
-family	braid $P_a$/two-4	2	0
-family	braid $P_a$/two-4	2	0
-family	braid $P_a$/two-4	2	0
-family	braid $P_a$/two-4	2	0
-family	braid $P_a$/two-4	2	0
-family	braid $P_a$/two-4	2	0
-family	braid $P_a$/two-4	2	0
-family	braid $P_a$/two-4	2	0
-family	braid $P_a$/two-4	2	0
-family	braid $P_a$/two-4	3	0
-family	braid $P_a$/two-4	3	0
-family	braid $P_a$/two-4	3	0
-family	braid $P_a$/two-4	3	0
-family	braid $P_a$/two-4	3	0
-family	braid $P_a$/two-4	3	2
-family	braid $P_a$/two-4	3	0
-family	braid $P_a$/two-4	3	0
-family	braid $P_a$/two-4	3	0
-family	braid $P_a$/two-4	3	0
-family	braid rot$+2$/rot$+4$	0	0
-family	braid rot$+2$/rot$+4$	0	4
-family	braid rot$+2$/rot$+4$	0	0
-family	braid rot$+2$/rot$+4$	0	0
-family	braid rot$+2$/rot$+4$	0	0
-family	braid rot$+2$/rot$+4$	0	0
-family	braid rot$+2$/rot$+4$	0	0
-family	braid rot$+2$/rot$+4$	0	0
-family	braid rot$+2$/rot$+4$	0	7
-family	braid rot$+2$/rot$+4$	0	7
-family	braid rot$+2$/rot$+4$	1	0
-family	braid rot$+2$/rot$+4$	1	0
-family	braid rot$+2$/rot$+4$	1	0
-family	braid rot$+2$/rot$+4$	1	18
-family	braid rot$+2$/rot$+4$	1	15
-family	braid rot$+2$/rot$+4$	1	22
-family	braid rot$+2$/rot$+4$	1	16
-family	braid rot$+2$/rot$+4$	1	18
-family	braid rot$+2$/rot$+4$	1	18
-family	braid rot$+2$/rot$+4$	1	10
-family	braid rot$+2$/rot$+4$	2	4
-family	braid rot$+2$/rot$+4$	2	15
-family	braid rot$+2$/rot$+4$	2	0
-family	braid rot$+2$/rot$+4$	2	7
-family	braid rot$+2$/rot$+4$	2	7
-family	braid rot$+2$/rot$+4$	2	0
-family	braid rot$+2$/rot$+4$	2	0
-family	braid rot$+2$/rot$+4$	2	0
-family	braid rot$+2$/rot$+4$	2	11
-family	braid rot$+2$/rot$+4$	2	14
-family	braid rot$+2$/rot$+4$	3	0
-family	braid rot$+2$/rot$+4$	3	0
-family	braid rot$+2$/rot$+4$	3	0
-family	braid rot$+2$/rot$+4$	3	0
-family	braid rot$+2$/rot$+4$	3	0
-family	braid rot$+2$/rot$+4$	3	0
-family	braid rot$+2$/rot$+4$	3	15
-family	braid rot$+2$/rot$+4$	3	0
-family	braid rot$+2$/rot$+4$	3	0
-family	braid rot$+2$/rot$+4$	3	0
-dial	blend $0.00$	0	1
-dial	blend $0.00$	0	1
-dial	blend $0.00$	0	3
-dial	blend $0.00$	0	5
-dial	blend $0.00$	0	14
-dial	blend $0.00$	0	16
-dial	blend $0.00$	0	5
-dial	blend $0.00$	0	7
-dial	blend $0.00$	0	18
-dial	blend $0.00$	0	16
-dial	blend $0.00$	1	0
-dial	blend $0.00$	1	5
-dial	blend $0.00$	1	4
-dial	blend $0.00$	1	3
-dial	blend $0.00$	1	4
-dial	blend $0.00$	1	0
-dial	blend $0.00$	1	24
-dial	blend $0.00$	1	0
-dial	blend $0.00$	1	20
-dial	blend $0.00$	1	17
-dial	blend $0.00$	2	2
-dial	blend $0.00$	2	2
-dial	blend $0.00$	2	4
-dial	blend $0.00$	2	2
-dial	blend $0.00$	2	5
-dial	blend $0.00$	2	10
-dial	blend $0.00$	2	14
-dial	blend $0.00$	2	15
-dial	blend $0.00$	2	10
-dial	blend $0.00$	2	18
-dial	blend $0.00$	3	0
-dial	blend $0.00$	3	0
-dial	blend $0.00$	3	7
-dial	blend $0.00$	3	8
-dial	blend $0.00$	3	9
-dial	blend $0.00$	3	12
-dial	blend $0.00$	3	11
-dial	blend $0.00$	3	11
-dial	blend $0.00$	3	10
-dial	blend $0.00$	3	13
-dial	blend $0.35$	0	0
-dial	blend $0.35$	0	4
-dial	blend $0.35$	0	4
-dial	blend $0.35$	0	4
-dial	blend $0.35$	0	19
-dial	blend $0.35$	0	17
-dial	blend $0.35$	0	20
-dial	blend $0.35$	0	12
-dial	blend $0.35$	0	0
-dial	blend $0.35$	0	0
-dial	blend $0.35$	1	0
-dial	blend $0.35$	1	0
-dial	blend $0.35$	1	9
-dial	blend $0.35$	1	9
-dial	blend $0.35$	1	0
-dial	blend $0.35$	1	0
-dial	blend $0.35$	1	0
-dial	blend $0.35$	1	0
-dial	blend $0.35$	1	12
-dial	blend $0.35$	1	6
-dial	blend $0.35$	2	0
-dial	blend $0.35$	2	0
-dial	blend $0.35$	2	0
-dial	blend $0.35$	2	0
-dial	blend $0.35$	2	0
-dial	blend $0.35$	2	0
-dial	blend $0.35$	2	0
-dial	blend $0.35$	2	14
-dial	blend $0.35$	2	0
-dial	blend $0.35$	2	0
-dial	blend $0.35$	3	0
-dial	blend $0.35$	3	0
-dial	blend $0.35$	3	0
-dial	blend $0.35$	3	0
-dial	blend $0.35$	3	0
-dial	blend $0.35$	3	0
-dial	blend $0.35$	3	5
-dial	blend $0.35$	3	0
-dial	blend $0.35$	3	0
-dial	blend $0.35$	3	0
-dial	blend $0.70$	0	0
-dial	blend $0.70$	0	0
-dial	blend $0.70$	0	0
-dial	blend $0.70$	0	0
-dial	blend $0.70$	0	0
-dial	blend $0.70$	0	0
-dial	blend $0.70$	0	0
-dial	blend $0.70$	0	0
-dial	blend $0.70$	0	0
-dial	blend $0.70$	0	0
-dial	blend $0.70$	1	0
-dial	blend $0.70$	1	0
-dial	blend $0.70$	1	1
-dial	blend $0.70$	1	9
-dial	blend $0.70$	1	0
-dial	blend $0.70$	1	0
-dial	blend $0.70$	1	0
-dial	blend $0.70$	1	0
-dial	blend $0.70$	1	0
-dial	blend $0.70$	1	0
-dial	blend $0.70$	2	0
-dial	blend $0.70$	2	0
-dial	blend $0.70$	2	0
-dial	blend $0.70$	2	0
-dial	blend $0.70$	2	0
-dial	blend $0.70$	2	11
-dial	blend $0.70$	2	0
-dial	blend $0.70$	2	0
-dial	blend $0.70$	2	1
-dial	blend $0.70$	2	0
-dial	blend $0.70$	3	0
-dial	blend $0.70$	3	0
-dial	blend $0.70$	3	0
-dial	blend $0.70$	3	0
-dial	blend $0.70$	3	0
-dial	blend $0.70$	3	0
-dial	blend $0.70$	3	0
-dial	blend $0.70$	3	0
-dial	blend $0.70$	3	0
-dial	blend $0.70$	3	0
-dial	blend $1.00$	0	0
-dial	blend $1.00$	0	0
-dial	blend $1.00$	0	0
-dial	blend $1.00$	0	0
-dial	blend $1.00$	0	0
-dial	blend $1.00$	0	0
-dial	blend $1.00$	0	0
-dial	blend $1.00$	0	0
-dial	blend $1.00$	0	0
-dial	blend $1.00$	0	0
-dial	blend $1.00$	1	0
-dial	blend $1.00$	1	0
-dial	blend $1.00$	1	0
-dial	blend $1.00$	1	0
-dial	blend $1.00$	1	0
-dial	blend $1.00$	1	0
-dial	blend $1.00$	1	0
-dial	blend $1.00$	1	0
-dial	blend $1.00$	1	0
-dial	blend $1.00$	1	1
-dial	blend $1.00$	2	0
-dial	blend $1.00$	2	0
-dial	blend $1.00$	2	0
-dial	blend $1.00$	2	0
-dial	blend $1.00$	2	0
-dial	blend $1.00$	2	0
-dial	blend $1.00$	2	0
-dial	blend $1.00$	2	0
-dial	blend $1.00$	2	0
-dial	blend $1.00$	2	0
-dial	blend $1.00$	3	0
-dial	blend $1.00$	3	0
-dial	blend $1.00$	3	0
-dial	blend $1.00$	3	0
-dial	blend $1.00$	3	0
-dial	blend $1.00$	3	0
-dial	blend $1.00$	3	0
-dial	blend $1.00$	3	0
-dial	blend $1.00$	3	0
-dial	blend $1.00$	3	0
-dial	braid + blend $0.70$	0	0
-dial	braid + blend $0.70$	0	0
-dial	braid + blend $0.70$	0	0
-dial	braid + blend $0.70$	0	0
-dial	braid + blend $0.70$	0	0
-dial	braid + blend $0.70$	0	0
-dial	braid + blend $0.70$	0	0
-dial	braid + blend $0.70$	0	0
-dial	braid + blend $0.70$	0	0
-dial	braid + blend $0.70$	0	0
-dial	braid + blend $0.70$	1	0
-dial	braid + blend $0.70$	1	0
-dial	braid + blend $0.70$	1	0
-dial	braid + blend $0.70$	1	2
-dial	braid + blend $0.70$	1	0
-dial	braid + blend $0.70$	1	0
-dial	braid + blend $0.70$	1	0
-dial	braid + blend $0.70$	1	0
-dial	braid + blend $0.70$	1	0
-dial	braid + blend $0.70$	1	0
-dial	braid + blend $0.70$	2	0
-dial	braid + blend $0.70$	2	0
-dial	braid + blend $0.70$	2	0
-dial	braid + blend $0.70$	2	0
-dial	braid + blend $0.70$	2	0
-dial	braid + blend $0.70$	2	0
-dial	braid + blend $0.70$	2	0
-dial	braid + blend $0.70$	2	0
-dial	braid + blend $0.70$	2	0
-dial	braid + blend $0.70$	2	0
-dial	braid + blend $0.70$	3	0
-dial	braid + blend $0.70$	3	3
-dial	braid + blend $0.70$	3	0
-dial	braid + blend $0.70$	3	0
-dial	braid + blend $0.70$	3	0
-dial	braid + blend $0.70$	3	10
-dial	braid + blend $0.70$	3	0
-dial	braid + blend $0.70$	3	0
-dial	braid + blend $0.70$	3	0
-dial	braid + blend $0.70$	3	0
-dial	async update $0.25$	0	0
-dial	async update $0.25$	0	0
-dial	async update $0.25$	0	3
-dial	async update $0.25$	0	0
-dial	async update $0.25$	0	5
-dial	async update $0.25$	0	0
-dial	async update $0.25$	0	0
-dial	async update $0.25$	0	0
-dial	async update $0.25$	0	0
-dial	async update $0.25$	0	0
-dial	async update $0.25$	1	0
-dial	async update $0.25$	1	0
-dial	async update $0.25$	1	0
-dial	async update $0.25$	1	0
-dial	async update $0.25$	1	0
-dial	async update $0.25$	1	3
-dial	async update $0.25$	1	0
-dial	async update $0.25$	1	0
-dial	async update $0.25$	1	0
-dial	async update $0.25$	1	0
-dial	async update $0.25$	2	0
-dial	async update $0.25$	2	0
-dial	async update $0.25$	2	0
-dial	async update $0.25$	2	0
-dial	async update $0.25$	2	3
-dial	async update $0.25$	2	5
-dial	async update $0.25$	2	0
-dial	async update $0.25$	2	0
-dial	async update $0.25$	2	0
-dial	async update $0.25$	2	0
-dial	async update $0.25$	3	0
-dial	async update $0.25$	3	0
-dial	async update $0.25$	3	0
-dial	async update $0.25$	3	0
-dial	async update $0.25$	3	0
-dial	async update $0.25$	3	0
-dial	async update $0.25$	3	0
-dial	async update $0.25$	3	0
-dial	async update $0.25$	3	0
-dial	async update $0.25$	3	0
-dial	async update $0.75$	0	0
-dial	async update $0.75$	0	0
-dial	async update $0.75$	0	0
-dial	async update $0.75$	0	0
-dial	async update $0.75$	0	0
-dial	async update $0.75$	0	0
-dial	async update $0.75$	0	10
-dial	async update $0.75$	0	0
-dial	async update $0.75$	0	0
-dial	async update $0.75$	0	0
-dial	async update $0.75$	1	0
-dial	async update $0.75$	1	0
-dial	async update $0.75$	1	0
-dial	async update $0.75$	1	0
-dial	async update $0.75$	1	0
-dial	async update $0.75$	1	9
-dial	async update $0.75$	1	0
-dial	async update $0.75$	1	0
-dial	async update $0.75$	1	0
-dial	async update $0.75$	1	0
-dial	async update $0.75$	2	0
-dial	async update $0.75$	2	0
-dial	async update $0.75$	2	0
-dial	async update $0.75$	2	0
-dial	async update $0.75$	2	1
-dial	async update $0.75$	2	0
-dial	async update $0.75$	2	0
-dial	async update $0.75$	2	0
-dial	async update $0.75$	2	10
-dial	async update $0.75$	2	0
-dial	async update $0.75$	3	0
-dial	async update $0.75$	3	0
-dial	async update $0.75$	3	0
-dial	async update $0.75$	3	0
-dial	async update $0.75$	3	0
-dial	async update $0.75$	3	0
-dial	async update $0.75$	3	0
-dial	async update $0.75$	3	0
-dial	async update $0.75$	3	0
-dial	async update $0.75$	3	0
-dial	niches $P_a$/two-4 (16)	0	0
-dial	niches $P_a$/two-4 (16)	0	0
-dial	niches $P_a$/two-4 (16)	0	0
-dial	niches $P_a$/two-4 (16)	0	5
-dial	niches $P_a$/two-4 (16)	0	0
-dial	niches $P_a$/two-4 (16)	0	0
-dial	niches $P_a$/two-4 (16)	0	0
-dial	niches $P_a$/two-4 (16)	0	0
-dial	niches $P_a$/two-4 (16)	0	1
-dial	niches $P_a$/two-4 (16)	0	0
-dial	niches $P_a$/two-4 (16)	1	0
-dial	niches $P_a$/two-4 (16)	1	2
-dial	niches $P_a$/two-4 (16)	1	0
-dial	niches $P_a$/two-4 (16)	1	0
-dial	niches $P_a$/two-4 (16)	1	0
-dial	niches $P_a$/two-4 (16)	1	0
-dial	niches $P_a$/two-4 (16)	1	0
-dial	niches $P_a$/two-4 (16)	1	7
-dial	niches $P_a$/two-4 (16)	1	0
-dial	niches $P_a$/two-4 (16)	1	0
-dial	niches $P_a$/two-4 (16)	2	0
-dial	niches $P_a$/two-4 (16)	2	0
-dial	niches $P_a$/two-4 (16)	2	0
-dial	niches $P_a$/two-4 (16)	2	0
-dial	niches $P_a$/two-4 (16)	2	0
-dial	niches $P_a$/two-4 (16)	2	10
-dial	niches $P_a$/two-4 (16)	2	0
-dial	niches $P_a$/two-4 (16)	2	0
-dial	niches $P_a$/two-4 (16)	2	0
-dial	niches $P_a$/two-4 (16)	2	0
-dial	niches $P_a$/two-4 (16)	3	0
-dial	niches $P_a$/two-4 (16)	3	0
-dial	niches $P_a$/two-4 (16)	3	0
-dial	niches $P_a$/two-4 (16)	3	4
-dial	niches $P_a$/two-4 (16)	3	0
-dial	niches $P_a$/two-4 (16)	3	0
-dial	niches $P_a$/two-4 (16)	3	0
-dial	niches $P_a$/two-4 (16)	3	0
-dial	niches $P_a$/two-4 (16)	3	0
-dial	niches $P_a$/two-4 (16)	3	0
-dial	niches $P_a$/two-4 (8)	0	0
-dial	niches $P_a$/two-4 (8)	0	0
-dial	niches $P_a$/two-4 (8)	0	4
-dial	niches $P_a$/two-4 (8)	0	0
-dial	niches $P_a$/two-4 (8)	0	0
-dial	niches $P_a$/two-4 (8)	0	0
-dial	niches $P_a$/two-4 (8)	0	0
-dial	niches $P_a$/two-4 (8)	0	0
-dial	niches $P_a$/two-4 (8)	0	0
-dial	niches $P_a$/two-4 (8)	0	0
-dial	niches $P_a$/two-4 (8)	1	0
-dial	niches $P_a$/two-4 (8)	1	0
-dial	niches $P_a$/two-4 (8)	1	0
-dial	niches $P_a$/two-4 (8)	1	0
-dial	niches $P_a$/two-4 (8)	1	0
-dial	niches $P_a$/two-4 (8)	1	0
-dial	niches $P_a$/two-4 (8)	1	0
-dial	niches $P_a$/two-4 (8)	1	0
-dial	niches $P_a$/two-4 (8)	1	0
-dial	niches $P_a$/two-4 (8)	1	0
-dial	niches $P_a$/two-4 (8)	2	0
-dial	niches $P_a$/two-4 (8)	2	0
-dial	niches $P_a$/two-4 (8)	2	0
-dial	niches $P_a$/two-4 (8)	2	0
-dial	niches $P_a$/two-4 (8)	2	0
-dial	niches $P_a$/two-4 (8)	2	0
-dial	niches $P_a$/two-4 (8)	2	0
-dial	niches $P_a$/two-4 (8)	2	0
-dial	niches $P_a$/two-4 (8)	2	0
-dial	niches $P_a$/two-4 (8)	2	0
-dial	niches $P_a$/two-4 (8)	3	0
-dial	niches $P_a$/two-4 (8)	3	0
-dial	niches $P_a$/two-4 (8)	3	0
-dial	niches $P_a$/two-4 (8)	3	0
-dial	niches $P_a$/two-4 (8)	3	0
-dial	niches $P_a$/two-4 (8)	3	0
-dial	niches $P_a$/two-4 (8)	3	0
-dial	niches $P_a$/two-4 (8)	3	0
-dial	niches $P_a$/two-4 (8)	3	8
-dial	niches $P_a$/two-4 (8)	3	8
-dial	mutation $0.10$	0	0
-dial	mutation $0.10$	0	0
-dial	mutation $0.10$	0	0
-dial	mutation $0.10$	0	0
-dial	mutation $0.10$	0	0
-dial	mutation $0.10$	0	0
-dial	mutation $0.10$	0	0
-dial	mutation $0.10$	0	0
-dial	mutation $0.10$	0	0
-dial	mutation $0.10$	0	0
-dial	mutation $0.10$	1	0
-dial	mutation $0.10$	1	0
-dial	mutation $0.10$	1	0
-dial	mutation $0.10$	1	0
-dial	mutation $0.10$	1	0
-dial	mutation $0.10$	1	0
-dial	mutation $0.10$	1	0
-dial	mutation $0.10$	1	0
-dial	mutation $0.10$	1	0
-dial	mutation $0.10$	1	0
-dial	mutation $0.10$	2	0
-dial	mutation $0.10$	2	0
-dial	mutation $0.10$	2	0
-dial	mutation $0.10$	2	0
-dial	mutation $0.10$	2	2
-dial	mutation $0.10$	2	0
-dial	mutation $0.10$	2	0
-dial	mutation $0.10$	2	0
-dial	mutation $0.10$	2	6
-dial	mutation $0.10$	2	0
-dial	mutation $0.10$	3	0
-dial	mutation $0.10$	3	0
-dial	mutation $0.10$	3	0
-dial	mutation $0.10$	3	0
-dial	mutation $0.10$	3	1
-dial	mutation $0.10$	3	0
-dial	mutation $0.10$	3	0
-dial	mutation $0.10$	3	0
-dial	mutation $0.10$	3	0
-dial	mutation $0.10$	3	0
-dial	mutation $0.40$	0	0
-dial	mutation $0.40$	0	0
-dial	mutation $0.40$	0	0
-dial	mutation $0.40$	0	0
-dial	mutation $0.40$	0	0
-dial	mutation $0.40$	0	0
-dial	mutation $0.40$	0	0
-dial	mutation $0.40$	0	0
-dial	mutation $0.40$	0	0
-dial	mutation $0.40$	0	0
-dial	mutation $0.40$	1	0
-dial	mutation $0.40$	1	0
-dial	mutation $0.40$	1	0
-dial	mutation $0.40$	1	0
-dial	mutation $0.40$	1	0
-dial	mutation $0.40$	1	0
-dial	mutation $0.40$	1	0
-dial	mutation $0.40$	1	0
-dial	mutation $0.40$	1	0
-dial	mutation $0.40$	1	0
-dial	mutation $0.40$	2	0
-dial	mutation $0.40$	2	0
-dial	mutation $0.40$	2	0
-dial	mutation $0.40$	2	0
-dial	mutation $0.40$	2	4
-dial	mutation $0.40$	2	4
-dial	mutation $0.40$	2	0
-dial	mutation $0.40$	2	8
-dial	mutation $0.40$	2	8
-dial	mutation $0.40$	2	0
-dial	mutation $0.40$	3	0
-dial	mutation $0.40$	3	0
-dial	mutation $0.40$	3	2
-dial	mutation $0.40$	3	1
-dial	mutation $0.40$	3	1
-dial	mutation $0.40$	3	0
-dial	mutation $0.40$	3	0
-dial	mutation $0.40$	3	0
-dial	mutation $0.40$	3	6
-dial	mutation $0.40$	3	0
-dial	transport $0.00$	0	1
-dial	transport $0.00$	0	3
-dial	transport $0.00$	0	0
-dial	transport $0.00$	0	2
-dial	transport $0.00$	0	2
-dial	transport $0.00$	0	0
-dial	transport $0.00$	0	1
-dial	transport $0.00$	0	0
-dial	transport $0.00$	0	0
-dial	transport $0.00$	0	1
-dial	transport $0.00$	1	0
-dial	transport $0.00$	1	2
-dial	transport $0.00$	1	5
-dial	transport $0.00$	1	0
-dial	transport $0.00$	1	1
-dial	transport $0.00$	1	0
-dial	transport $0.00$	1	0
-dial	transport $0.00$	1	0
-dial	transport $0.00$	1	0
-dial	transport $0.00$	1	0
-dial	transport $0.00$	2	2
-dial	transport $0.00$	2	0
-dial	transport $0.00$	2	1
-dial	transport $0.00$	2	3
-dial	transport $0.00$	2	4
-dial	transport $0.00$	2	0
-dial	transport $0.00$	2	0
-dial	transport $0.00$	2	1
-dial	transport $0.00$	2	1
-dial	transport $0.00$	2	0
-dial	transport $0.00$	3	2
-dial	transport $0.00$	3	1
-dial	transport $0.00$	3	0
-dial	transport $0.00$	3	3
-dial	transport $0.00$	3	1
-dial	transport $0.00$	3	1
-dial	transport $0.00$	3	0
-dial	transport $0.00$	3	2
-dial	transport $0.00$	3	1
-dial	transport $0.00$	3	3
-dial	transport $0.05$	0	4
-dial	transport $0.05$	0	8
-dial	transport $0.05$	0	12
-dial	transport $0.05$	0	0
-dial	transport $0.05$	0	6
-dial	transport $0.05$	0	0
-dial	transport $0.05$	0	0
-dial	transport $0.05$	0	0
-dial	transport $0.05$	0	0
-dial	transport $0.05$	0	1
-dial	transport $0.05$	1	0
-dial	transport $0.05$	1	3
-dial	transport $0.05$	1	0
-dial	transport $0.05$	1	4
-dial	transport $0.05$	1	4
-dial	transport $0.05$	1	0
-dial	transport $0.05$	1	2
-dial	transport $0.05$	1	0
-dial	transport $0.05$	1	12
-dial	transport $0.05$	1	0
-dial	transport $0.05$	2	0
-dial	transport $0.05$	2	0
-dial	transport $0.05$	2	0
-dial	transport $0.05$	2	0
-dial	transport $0.05$	2	8
-dial	transport $0.05$	2	0
-dial	transport $0.05$	2	0
-dial	transport $0.05$	2	0
-dial	transport $0.05$	2	5
-dial	transport $0.05$	2	0
-dial	transport $0.05$	3	0
-dial	transport $0.05$	3	0
-dial	transport $0.05$	3	0
-dial	transport $0.05$	3	2
-dial	transport $0.05$	3	0
-dial	transport $0.05$	3	9
-dial	transport $0.05$	3	0
-dial	transport $0.05$	3	2
-dial	transport $0.05$	3	3
-dial	transport $0.05$	3	2
-dial	transport $0.10$	0	4
-dial	transport $0.10$	0	7
-dial	transport $0.10$	0	13
-dial	transport $0.10$	0	0
-dial	transport $0.10$	0	3
-dial	transport $0.10$	0	9
-dial	transport $0.10$	0	0
-dial	transport $0.10$	0	0
-dial	transport $0.10$	0	0
-dial	transport $0.10$	0	0
-dial	transport $0.10$	1	0
-dial	transport $0.10$	1	3
-dial	transport $0.10$	1	14
-dial	transport $0.10$	1	19
-dial	transport $0.10$	1	0
-dial	transport $0.10$	1	0
-dial	transport $0.10$	1	0
-dial	transport $0.10$	1	0
-dial	transport $0.10$	1	0
-dial	transport $0.10$	1	0
-dial	transport $0.10$	2	7
-dial	transport $0.10$	2	0
-dial	transport $0.10$	2	0
-dial	transport $0.10$	2	11
-dial	transport $0.10$	2	0
-dial	transport $0.10$	2	14
-dial	transport $0.10$	2	0
-dial	transport $0.10$	2	0
-dial	transport $0.10$	2	9
-dial	transport $0.10$	2	0
-dial	transport $0.10$	3	5
-dial	transport $0.10$	3	5
-dial	transport $0.10$	3	0
-dial	transport $0.10$	3	9
-dial	transport $0.10$	3	17
-dial	transport $0.10$	3	0
-dial	transport $0.10$	3	10
-dial	transport $0.10$	3	2
-dial	transport $0.10$	3	4
-dial	transport $0.10$	3	5
-dial	transport $0.20$	0	0
-dial	transport $0.20$	0	7
-dial	transport $0.20$	0	0
-dial	transport $0.20$	0	9
-dial	transport $0.20$	0	9
-dial	transport $0.20$	0	0
-dial	transport $0.20$	0	0
-dial	transport $0.20$	0	0
-dial	transport $0.20$	0	9
-dial	transport $0.20$	0	7
-dial	transport $0.20$	1	2
-dial	transport $0.20$	1	11
-dial	transport $0.20$	1	17
-dial	transport $0.20$	1	19
-dial	transport $0.20$	1	20
-dial	transport $0.20$	1	17
-dial	transport $0.20$	1	18
-dial	transport $0.20$	1	6
-dial	transport $0.20$	1	20
-dial	transport $0.20$	1	9
-dial	transport $0.20$	2	3
-dial	transport $0.20$	2	5
-dial	transport $0.20$	2	17
-dial	transport $0.20$	2	12
-dial	transport $0.20$	2	14
-dial	transport $0.20$	2	0
-dial	transport $0.20$	2	0
-dial	transport $0.20$	2	18
-dial	transport $0.20$	2	11
-dial	transport $0.20$	2	12
-dial	transport $0.20$	3	3
-dial	transport $0.20$	3	12
-dial	transport $0.20$	3	9
-dial	transport $0.20$	3	16
-dial	transport $0.20$	3	0
-dial	transport $0.20$	3	12
-dial	transport $0.20$	3	18
-dial	transport $0.20$	3	9
-dial	transport $0.20$	3	13
-dial	transport $0.20$	3	13
-dial	transport $0.35$	0	13
-dial	transport $0.35$	0	17
-dial	transport $0.35$	0	20
-dial	transport $0.35$	0	20
-dial	transport $0.35$	0	0
-dial	transport $0.35$	0	14
-dial	transport $0.35$	0	13
-dial	transport $0.35$	0	23
-dial	transport $0.35$	0	18
-dial	transport $0.35$	0	15
-dial	transport $0.35$	1	0
-dial	transport $0.35$	1	15
-dial	transport $0.35$	1	24
-dial	transport $0.35$	1	20
-dial	transport $0.35$	1	24
-dial	transport $0.35$	1	23
-dial	transport $0.35$	1	21
-dial	transport $0.35$	1	12
-dial	transport $0.35$	1	19
-dial	transport $0.35$	1	17
-dial	transport $0.35$	2	0
-dial	transport $0.35$	2	9
-dial	transport $0.35$	2	0
-dial	transport $0.35$	2	17
-dial	transport $0.35$	2	10
-dial	transport $0.35$	2	25
-dial	transport $0.35$	2	21
-dial	transport $0.35$	2	20
-dial	transport $0.35$	2	11
-dial	transport $0.35$	2	13
-dial	transport $0.35$	3	0
-dial	transport $0.35$	3	19
-dial	transport $0.35$	3	0
-dial	transport $0.35$	3	19
-dial	transport $0.35$	3	26
-dial	transport $0.35$	3	27
-dial	transport $0.35$	3	0
-dial	transport $0.35$	3	0
-dial	transport $0.35$	3	16
-dial	transport $0.35$	3	17
-dial	transport $0.50$	0	10
-dial	transport $0.50$	0	14
-dial	transport $0.50$	0	21
-dial	transport $0.50$	0	25
-dial	transport $0.50$	0	30
-dial	transport $0.50$	0	26
-dial	transport $0.50$	0	23
-dial	transport $0.50$	0	30
-dial	transport $0.50$	0	17
-dial	transport $0.50$	0	17
-dial	transport $0.50$	1	12
-dial	transport $0.50$	1	13
-dial	transport $0.50$	1	0
-dial	transport $0.50$	1	20
-dial	transport $0.50$	1	33
-dial	transport $0.50$	1	32
-dial	transport $0.50$	1	28
-dial	transport $0.50$	1	32
-dial	transport $0.50$	1	19
-dial	transport $0.50$	1	20
-dial	transport $0.50$	2	0
-dial	transport $0.50$	2	20
-dial	transport $0.50$	2	26
-dial	transport $0.50$	2	0
-dial	transport $0.50$	2	22
-dial	transport $0.50$	2	0
-dial	transport $0.50$	2	30
-dial	transport $0.50$	2	27
-dial	transport $0.50$	2	22
-dial	transport $0.50$	2	13
-dial	transport $0.50$	3	0
-dial	transport $0.50$	3	0
-dial	transport $0.50$	3	20
-dial	transport $0.50$	3	29
-dial	transport $0.50$	3	29
-dial	transport $0.50$	3	25
-dial	transport $0.50$	3	32
-dial	transport $0.50$	3	24
-dial	transport $0.50$	3	17
-dial	transport $0.50$	3	13
-dial	transport $0.75$	0	0
-dial	transport $0.75$	0	20
-dial	transport $0.75$	0	31
-dial	transport $0.75$	0	33
-dial	transport $0.75$	0	36
-dial	transport $0.75$	0	27
-dial	transport $0.75$	0	28
-dial	transport $0.75$	0	24
-dial	transport $0.75$	0	15
-dial	transport $0.75$	0	19
-dial	transport $0.75$	1	20
-dial	transport $0.75$	1	23
-dial	transport $0.75$	1	28
-dial	transport $0.75$	1	26
-dial	transport $0.75$	1	31
-dial	transport $0.75$	1	37
-dial	transport $0.75$	1	36
-dial	transport $0.75$	1	35
-dial	transport $0.75$	1	28
-dial	transport $0.75$	1	21
-dial	transport $0.75$	2	16
-dial	transport $0.75$	2	0
-dial	transport $0.75$	2	27
-dial	transport $0.75$	2	30
-dial	transport $0.75$	2	47
-dial	transport $0.75$	2	31
-dial	transport $0.75$	2	35
-dial	transport $0.75$	2	29
-dial	transport $0.75$	2	19
-dial	transport $0.75$	2	19
-dial	transport $0.75$	3	0
-dial	transport $0.75$	3	23
-dial	transport $0.75$	3	33
-dial	transport $0.75$	3	36
-dial	transport $0.75$	3	29
-dial	transport $0.75$	3	29
-dial	transport $0.75$	3	34
-dial	transport $0.75$	3	30
-dial	transport $0.75$	3	34
-dial	transport $0.75$	3	23
-dial	transport $1.00$	0	0
-dial	transport $1.00$	0	17
-dial	transport $1.00$	0	0
-dial	transport $1.00$	0	24
-dial	transport $1.00$	0	28
-dial	transport $1.00$	0	32
-dial	transport $1.00$	0	32
-dial	transport $1.00$	0	26
-dial	transport $1.00$	0	0
-dial	transport $1.00$	0	22
-dial	transport $1.00$	1	21
-dial	transport $1.00$	1	27
-dial	transport $1.00$	1	37
-dial	transport $1.00$	1	0
-dial	transport $1.00$	1	36
-dial	transport $1.00$	1	36
-dial	transport $1.00$	1	25
-dial	transport $1.00$	1	25
-dial	transport $1.00$	1	28
-dial	transport $1.00$	1	31
-dial	transport $1.00$	2	19
-dial	transport $1.00$	2	21
-dial	transport $1.00$	2	26
-dial	transport $1.00$	2	25
-dial	transport $1.00$	2	41
-dial	transport $1.00$	2	41
-dial	transport $1.00$	2	34
-dial	transport $1.00$	2	32
-dial	transport $1.00$	2	25
-dial	transport $1.00$	2	26
-dial	transport $1.00$	3	22
-dial	transport $1.00$	3	0
-dial	transport $1.00$	3	26
-dial	transport $1.00$	3	34
-dial	transport $1.00$	3	43
-dial	transport $1.00$	3	33
-dial	transport $1.00$	3	37
-dial	transport $1.00$	3	30
-dial	transport $1.00$	3	28
-dial	transport $1.00$	3	25
-dial	ungated $0.20$	0	0
-dial	ungated $0.20$	0	0
-dial	ungated $0.20$	0	0
-dial	ungated $0.20$	0	0
-dial	ungated $0.20$	0	0
-dial	ungated $0.20$	0	5
-dial	ungated $0.20$	0	4
-dial	ungated $0.20$	0	0
-dial	ungated $0.20$	0	0
-dial	ungated $0.20$	0	0
-dial	ungated $0.20$	1	0
-dial	ungated $0.20$	1	0
-dial	ungated $0.20$	1	7
-dial	ungated $0.20$	1	10
-dial	ungated $0.20$	1	11
-dial	ungated $0.20$	1	7
-dial	ungated $0.20$	1	5
-dial	ungated $0.20$	1	5
-dial	ungated $0.20$	1	0
-dial	ungated $0.20$	1	0
-dial	ungated $0.20$	2	2
-dial	ungated $0.20$	2	0
-dial	ungated $0.20$	2	0
-dial	ungated $0.20$	2	0
-dial	ungated $0.20$	2	0
-dial	ungated $0.20$	2	0
-dial	ungated $0.20$	2	0
-dial	ungated $0.20$	2	0
-dial	ungated $0.20$	2	6
-dial	ungated $0.20$	2	0
-dial	ungated $0.20$	3	0
-dial	ungated $0.20$	3	0
-dial	ungated $0.20$	3	0
-dial	ungated $0.20$	3	0
-dial	ungated $0.20$	3	0
-dial	ungated $0.20$	3	0
-dial	ungated $0.20$	3	2
-dial	ungated $0.20$	3	0
-dial	ungated $0.20$	3	2
-dial	ungated $0.20$	3	0
-dial	ungated $0.35$	0	2
-dial	ungated $0.35$	0	2
-dial	ungated $0.35$	0	0
-dial	ungated $0.35$	0	0
-dial	ungated $0.35$	0	0
-dial	ungated $0.35$	0	0
-dial	ungated $0.35$	0	4
-dial	ungated $0.35$	0	0
-dial	ungated $0.35$	0	4
-dial	ungated $0.35$	0	0
-dial	ungated $0.35$	1	0
-dial	ungated $0.35$	1	0
-dial	ungated $0.35$	1	0
-dial	ungated $0.35$	1	0
-dial	ungated $0.35$	1	4
-dial	ungated $0.35$	1	0
-dial	ungated $0.35$	1	0
-dial	ungated $0.35$	1	0
-dial	ungated $0.35$	1	0
-dial	ungated $0.35$	1	0
-dial	ungated $0.35$	2	0
-dial	ungated $0.35$	2	0
-dial	ungated $0.35$	2	0
-dial	ungated $0.35$	2	0
-dial	ungated $0.35$	2	11
-dial	ungated $0.35$	2	0
-dial	ungated $0.35$	2	7
-dial	ungated $0.35$	2	6
-dial	ungated $0.35$	2	7
-dial	ungated $0.35$	2	0
-dial	ungated $0.35$	3	0
-dial	ungated $0.35$	3	0
-dial	ungated $0.35$	3	6
-dial	ungated $0.35$	3	0
-dial	ungated $0.35$	3	0
-dial	ungated $0.35$	3	8
-dial	ungated $0.35$	3	0
-dial	ungated $0.35$	3	0
-dial	ungated $0.35$	3	0
-dial	ungated $0.35$	3	6
-dial	ungated $0.50$	0	0
-dial	ungated $0.50$	0	0
-dial	ungated $0.50$	0	0
-dial	ungated $0.50$	0	0
-dial	ungated $0.50$	0	0
-dial	ungated $0.50$	0	0
-dial	ungated $0.50$	0	0
-dial	ungated $0.50$	0	1
-dial	ungated $0.50$	0	0
-dial	ungated $0.50$	0	0
-dial	ungated $0.50$	1	0
-dial	ungated $0.50$	1	0
-dial	ungated $0.50$	1	0
-dial	ungated $0.50$	1	6
-dial	ungated $0.50$	1	0
-dial	ungated $0.50$	1	0
-dial	ungated $0.50$	1	0
-dial	ungated $0.50$	1	13
-dial	ungated $0.50$	1	3
-dial	ungated $0.50$	1	0
-dial	ungated $0.50$	2	0
-dial	ungated $0.50$	2	0
-dial	ungated $0.50$	2	0
-dial	ungated $0.50$	2	0
-dial	ungated $0.50$	2	0
-dial	ungated $0.50$	2	0
-dial	ungated $0.50$	2	0
-dial	ungated $0.50$	2	0
-dial	ungated $0.50$	2	8
-dial	ungated $0.50$	2	0
-dial	ungated $0.50$	3	0
-dial	ungated $0.50$	3	0
-dial	ungated $0.50$	3	7
-dial	ungated $0.50$	3	7
-dial	ungated $0.50$	3	9
-dial	ungated $0.50$	3	0
-dial	ungated $0.50$	3	0
-dial	ungated $0.50$	3	17
-dial	ungated $0.50$	3	0
-dial	ungated $0.50$	3	0
-dial	ungated $0.75$	0	2
-dial	ungated $0.75$	0	5
-dial	ungated $0.75$	0	11
-dial	ungated $0.75$	0	8
-dial	ungated $0.75$	0	8
-dial	ungated $0.75$	0	0
-dial	ungated $0.75$	0	3
-dial	ungated $0.75$	0	3
-dial	ungated $0.75$	0	3
-dial	ungated $0.75$	0	3
-dial	ungated $0.75$	1	0
-dial	ungated $0.75$	1	0
-dial	ungated $0.75$	1	0
-dial	ungated $0.75$	1	8
-dial	ungated $0.75$	1	12
-dial	ungated $0.75$	1	0
-dial	ungated $0.75$	1	6
-dial	ungated $0.75$	1	6
-dial	ungated $0.75$	1	0
-dial	ungated $0.75$	1	0
-dial	ungated $0.75$	2	0
-dial	ungated $0.75$	2	0
-dial	ungated $0.75$	2	0
-dial	ungated $0.75$	2	0
-dial	ungated $0.75$	2	0
-dial	ungated $0.75$	2	0
-dial	ungated $0.75$	2	0
-dial	ungated $0.75$	2	8
-dial	ungated $0.75$	2	7
-dial	ungated $0.75$	2	0
-dial	ungated $0.75$	3	5
-dial	ungated $0.75$	3	0
-dial	ungated $0.75$	3	0
-dial	ungated $0.75$	3	0
-dial	ungated $0.75$	3	13
-dial	ungated $0.75$	3	0
-dial	ungated $0.75$	3	0
-dial	ungated $0.75$	3	0
-dial	ungated $0.75$	3	0
-dial	ungated $0.75$	3	0
-dial	ungated $1.00$	0	0
-dial	ungated $1.00$	0	0
-dial	ungated $1.00$	0	0
-dial	ungated $1.00$	0	0
-dial	ungated $1.00$	0	0
-dial	ungated $1.00$	0	0
-dial	ungated $1.00$	0	11
-dial	ungated $1.00$	0	11
-dial	ungated $1.00$	0	5
-dial	ungated $1.00$	0	0
-dial	ungated $1.00$	1	0
-dial	ungated $1.00$	1	0
-dial	ungated $1.00$	1	0
-dial	ungated $1.00$	1	0
-dial	ungated $1.00$	1	0
-dial	ungated $1.00$	1	20
-dial	ungated $1.00$	1	0
-dial	ungated $1.00$	1	0
-dial	ungated $1.00$	1	0
-dial	ungated $1.00$	1	0
-dial	ungated $1.00$	2	0
-dial	ungated $1.00$	2	16
-dial	ungated $1.00$	2	0
-dial	ungated $1.00$	2	15
-dial	ungated $1.00$	2	6
-dial	ungated $1.00$	2	0
-dial	ungated $1.00$	2	0
-dial	ungated $1.00$	2	6
-dial	ungated $1.00$	2	17
-dial	ungated $1.00$	2	20
-dial	ungated $1.00$	3	0
-dial	ungated $1.00$	3	0
-dial	ungated $1.00$	3	0
-dial	ungated $1.00$	3	0
-dial	ungated $1.00$	3	0
-dial	ungated $1.00$	3	14
-dial	ungated $1.00$	3	17
-dial	ungated $1.00$	3	0
-dial	ungated $1.00$	3	0
-dial	ungated $1.00$	3	4
-dial	preserving limit	0	1
-dial	preserving limit	0	3
-dial	preserving limit	0	0
-dial	preserving limit	0	2
-dial	preserving limit	0	2
-dial	preserving limit	0	0
-dial	preserving limit	0	1
-dial	preserving limit	0	0
-dial	preserving limit	0	0
-dial	preserving limit	0	1
-dial	preserving limit	1	0
-dial	preserving limit	1	2
-dial	preserving limit	1	5
-dial	preserving limit	1	0
-dial	preserving limit	1	1
-dial	preserving limit	1	0
-dial	preserving limit	1	0
-dial	preserving limit	1	0
-dial	preserving limit	1	0
-dial	preserving limit	1	0
-dial	preserving limit	2	2
-dial	preserving limit	2	0
-dial	preserving limit	2	1
-dial	preserving limit	2	3
-dial	preserving limit	2	4
-dial	preserving limit	2	0
-dial	preserving limit	2	0
-dial	preserving limit	2	1
-dial	preserving limit	2	1
-dial	preserving limit	2	0
-dial	preserving limit	3	2
-dial	preserving limit	3	1
-dial	preserving limit	3	0
-dial	preserving limit	3	3
-dial	preserving limit	3	1
-dial	preserving limit	3	1
-dial	preserving limit	3	0
-dial	preserving limit	3	2
-dial	preserving limit	3	1
-dial	preserving limit	3	3
-exotype	explore	0	1
-exotype	explore	0	2
-exotype	explore	0	5
-exotype	explore	0	9
-exotype	explore	0	1
-exotype	explore	0	2
-exotype	explore	0	4
-exotype	explore	0	0
-exotype	explore	0	2
-exotype	explore	0	4
-exotype	explore	1	1
-exotype	explore	1	7
-exotype	explore	1	2
-exotype	explore	1	3
-exotype	explore	1	1
-exotype	explore	1	6
-exotype	explore	1	0
-exotype	explore	1	3
-exotype	explore	1	2
-exotype	explore	1	9
-exotype	explore	2	0
-exotype	explore	2	1
-exotype	explore	2	0
-exotype	explore	2	4
-exotype	explore	2	1
-exotype	explore	2	7
-exotype	explore	2	10
-exotype	explore	2	1
-exotype	explore	2	0
-exotype	explore	2	6
-exotype	explore	3	1
-exotype	explore	3	1
-exotype	explore	3	0
-exotype	explore	3	0
-exotype	explore	3	9
-exotype	explore	3	11
-exotype	explore	3	0
-exotype	explore	3	8
-exotype	explore	3	3
-exotype	explore	3	2
-exotype	explore	4	1
-exotype	explore	4	3
-exotype	explore	4	2
-exotype	explore	4	0
-exotype	explore	4	2
-exotype	explore	4	1
-exotype	explore	4	9
-exotype	explore	4	1
-exotype	explore	4	7
-exotype	explore	4	12
-exotype	explore	5	1
-exotype	explore	5	0
-exotype	explore	5	2
-exotype	explore	5	6
-exotype	explore	5	1
-exotype	explore	5	2
-exotype	explore	5	0
-exotype	explore	5	0
-exotype	explore	5	6
-exotype	explore	5	2
-exotype	explore	6	0
-exotype	explore	6	6
-exotype	explore	6	0
-exotype	explore	6	1
-exotype	explore	6	0
-exotype	explore	6	2
-exotype	explore	6	8
-exotype	explore	6	10
-exotype	explore	6	2
-exotype	explore	6	7
-exotype	explore	7	1
-exotype	explore	7	3
-exotype	explore	7	4
-exotype	explore	7	7
-exotype	explore	7	13
-exotype	explore	7	4
-exotype	explore	7	7
-exotype	explore	7	1
-exotype	explore	7	1
-exotype	explore	7	2
-exotype	explore	8	1
-exotype	explore	8	3
-exotype	explore	8	1
-exotype	explore	8	3
-exotype	explore	8	3
-exotype	explore	8	0
-exotype	explore	8	6
-exotype	explore	8	5
-exotype	explore	8	0
-exotype	explore	8	4
-exotype	explore	9	0
-exotype	explore	9	1
-exotype	explore	9	1
-exotype	explore	9	4
-exotype	explore	9	0
-exotype	explore	9	2
-exotype	explore	9	0
-exotype	explore	9	5
-exotype	explore	9	9
-exotype	explore	9	5
-exotype	explore	10	1
-exotype	explore	10	6
-exotype	explore	10	5
-exotype	explore	10	0
-exotype	explore	10	1
-exotype	explore	10	1
-exotype	explore	10	4
-exotype	explore	10	6
-exotype	explore	10	5
-exotype	explore	10	1
-exotype	explore	11	1
-exotype	explore	11	1
-exotype	explore	11	3
-exotype	explore	11	0
-exotype	explore	11	3
-exotype	explore	11	6
-exotype	explore	11	6
-exotype	explore	11	3
-exotype	explore	11	5
-exotype	explore	11	2
-exotype	explore	12	0
-exotype	explore	12	3
-exotype	explore	12	7
-exotype	explore	12	4
-exotype	explore	12	4
-exotype	explore	12	15
-exotype	explore	12	12
-exotype	explore	12	23
-exotype	explore	12	7
-exotype	explore	12	4
-exotype	explore	13	1
-exotype	explore	13	4
-exotype	explore	13	0
-exotype	explore	13	3
-exotype	explore	13	5
-exotype	explore	13	1
-exotype	explore	13	6
-exotype	explore	13	0
-exotype	explore	13	6
-exotype	explore	13	3
-exotype	explore	14	0
-exotype	explore	14	6
-exotype	explore	14	0
-exotype	explore	14	4
-exotype	explore	14	0
-exotype	explore	14	3
-exotype	explore	14	4
-exotype	explore	14	2
-exotype	explore	14	4
-exotype	explore	14	5
-exotype	explore	15	0
-exotype	explore	15	0
-exotype	explore	15	2
-exotype	explore	15	6
-exotype	explore	15	8
-exotype	explore	15	4
-exotype	explore	15	1
-exotype	explore	15	0
-exotype	explore	15	4
-exotype	explore	15	1
-exotype	hold	0	1
-exotype	hold	0	3
-exotype	hold	0	0
-exotype	hold	0	2
-exotype	hold	0	2
-exotype	hold	0	0
-exotype	hold	0	1
-exotype	hold	0	0
-exotype	hold	0	0
-exotype	hold	0	1
-exotype	hold	1	0
-exotype	hold	1	2
-exotype	hold	1	5
-exotype	hold	1	0
-exotype	hold	1	1
-exotype	hold	1	0
-exotype	hold	1	0
-exotype	hold	1	0
-exotype	hold	1	0
-exotype	hold	1	0
-exotype	hold	2	2
-exotype	hold	2	0
-exotype	hold	2	1
-exotype	hold	2	3
-exotype	hold	2	4
-exotype	hold	2	0
-exotype	hold	2	0
-exotype	hold	2	1
-exotype	hold	2	1
-exotype	hold	2	0
-exotype	hold	3	2
-exotype	hold	3	1
-exotype	hold	3	0
-exotype	hold	3	3
-exotype	hold	3	1
-exotype	hold	3	1
-exotype	hold	3	0
-exotype	hold	3	2
-exotype	hold	3	1
-exotype	hold	3	3
-exotype	hold	4	1
-exotype	hold	4	2
-exotype	hold	4	0
-exotype	hold	4	0
-exotype	hold	4	0
-exotype	hold	4	2
-exotype	hold	4	1
-exotype	hold	4	1
-exotype	hold	4	1
-exotype	hold	4	0
-exotype	hold	5	0
-exotype	hold	5	6
-exotype	hold	5	0
-exotype	hold	5	0
-exotype	hold	5	2
-exotype	hold	5	0
-exotype	hold	5	0
-exotype	hold	5	0
-exotype	hold	5	5
-exotype	hold	5	0
-exotype	hold	6	1
-exotype	hold	6	1
-exotype	hold	6	0
-exotype	hold	6	2
-exotype	hold	6	0
-exotype	hold	6	1
-exotype	hold	6	1
-exotype	hold	6	1
-exotype	hold	6	2
-exotype	hold	6	2
-exotype	hold	7	1
-exotype	hold	7	0
-exotype	hold	7	0
-exotype	hold	7	0
-exotype	hold	7	2
-exotype	hold	7	0
-exotype	hold	7	0
-exotype	hold	7	0
-exotype	hold	7	3
-exotype	hold	7	1
-exotype	hold	8	2
-exotype	hold	8	1
-exotype	hold	8	0
-exotype	hold	8	0
-exotype	hold	8	2
-exotype	hold	8	0
-exotype	hold	8	1
-exotype	hold	8	0
-exotype	hold	8	0
-exotype	hold	8	2
-exotype	hold	9	0
-exotype	hold	9	1
-exotype	hold	9	0
-exotype	hold	9	0
-exotype	hold	9	0
-exotype	hold	9	3
-exotype	hold	9	1
-exotype	hold	9	4
-exotype	hold	9	1
-exotype	hold	9	0
-exotype	hold	10	0
-exotype	hold	10	0
-exotype	hold	10	1
-exotype	hold	10	3
-exotype	hold	10	1
-exotype	hold	10	2
-exotype	hold	10	4
-exotype	hold	10	4
-exotype	hold	10	2
-exotype	hold	10	5
-exotype	hold	11	2
-exotype	hold	11	2
-exotype	hold	11	2
-exotype	hold	11	3
-exotype	hold	11	0
-exotype	hold	11	0
-exotype	hold	11	1
-exotype	hold	11	0
-exotype	hold	11	1
-exotype	hold	11	3
-exotype	hold	12	0
-exotype	hold	12	2
-exotype	hold	12	2
-exotype	hold	12	2
-exotype	hold	12	0
-exotype	hold	12	3
-exotype	hold	12	0
-exotype	hold	12	0
-exotype	hold	12	3
-exotype	hold	12	7
-exotype	hold	13	0
-exotype	hold	13	1
-exotype	hold	13	2
-exotype	hold	13	0
-exotype	hold	13	0
-exotype	hold	13	2
-exotype	hold	13	0
-exotype	hold	13	0
-exotype	hold	13	0
-exotype	hold	13	1
-exotype	hold	14	6
-exotype	hold	14	2
-exotype	hold	14	2
-exotype	hold	14	2
-exotype	hold	14	1
-exotype	hold	14	1
-exotype	hold	14	0
-exotype	hold	14	2
-exotype	hold	14	4
-exotype	hold	14	0
-exotype	hold	15	1
-exotype	hold	15	1
-exotype	hold	15	2
-exotype	hold	15	1
-exotype	hold	15	0
-exotype	hold	15	5
-exotype	hold	15	0
-exotype	hold	15	1
-exotype	hold	15	0
-exotype	hold	15	0
-exotype	exotype	0	1
-exotype	exotype	0	0
-exotype	exotype	0	4
-exotype	exotype	0	5
-exotype	exotype	0	4
-exotype	exotype	0	3
-exotype	exotype	0	4
-exotype	exotype	0	5
-exotype	exotype	0	3
-exotype	exotype	0	4
-exotype	exotype	1	4
-exotype	exotype	1	6
-exotype	exotype	1	5
-exotype	exotype	1	2
-exotype	exotype	1	2
-exotype	exotype	1	2
-exotype	exotype	1	3
-exotype	exotype	1	0
-exotype	exotype	1	1
-exotype	exotype	1	4
-exotype	exotype	2	5
-exotype	exotype	2	9
-exotype	exotype	2	6
-exotype	exotype	2	5
-exotype	exotype	2	10
-exotype	exotype	2	3
-exotype	exotype	2	1
-exotype	exotype	2	5
-exotype	exotype	2	7
-exotype	exotype	2	6
-exotype	exotype	3	5
-exotype	exotype	3	8
-exotype	exotype	3	4
-exotype	exotype	3	12
-exotype	exotype	3	8
-exotype	exotype	3	9
-exotype	exotype	3	11
-exotype	exotype	3	3
-exotype	exotype	3	7
-exotype	exotype	3	2
-exotype	exotype	4	4
-exotype	exotype	4	8
-exotype	exotype	4	12
-exotype	exotype	4	5
-exotype	exotype	4	5
-exotype	exotype	4	3
-exotype	exotype	4	7
-exotype	exotype	4	3
-exotype	exotype	4	5
-exotype	exotype	4	3
-exotype	exotype	5	6
-exotype	exotype	5	14
-exotype	exotype	5	3
-exotype	exotype	5	2
-exotype	exotype	5	10
-exotype	exotype	5	0
-exotype	exotype	5	4
-exotype	exotype	5	6
-exotype	exotype	5	0
-exotype	exotype	5	4
-exotype	exotype	6	0
-exotype	exotype	6	10
-exotype	exotype	6	13
-exotype	exotype	6	11
-exotype	exotype	6	12
-exotype	exotype	6	9
-exotype	exotype	6	9
-exotype	exotype	6	17
-exotype	exotype	6	17
-exotype	exotype	6	15
-exotype	exotype	7	1
-exotype	exotype	7	2
-exotype	exotype	7	1
-exotype	exotype	7	4
-exotype	exotype	7	1
-exotype	exotype	7	1
-exotype	exotype	7	0
-exotype	exotype	7	5
-exotype	exotype	7	0
-exotype	exotype	7	2
-exotype	exotype	8	9
-exotype	exotype	8	16
-exotype	exotype	8	14
-exotype	exotype	8	20
-exotype	exotype	8	18
-exotype	exotype	8	15
-exotype	exotype	8	13
-exotype	exotype	8	17
-exotype	exotype	8	12
-exotype	exotype	8	11
-exotype	exotype	9	6
-exotype	exotype	9	7
-exotype	exotype	9	7
-exotype	exotype	9	10
-exotype	exotype	9	3
-exotype	exotype	9	6
-exotype	exotype	9	9
-exotype	exotype	9	0
-exotype	exotype	9	9
-exotype	exotype	9	6
-exotype	exotype	10	4
-exotype	exotype	10	10
-exotype	exotype	10	16
-exotype	exotype	10	11
-exotype	exotype	10	8
-exotype	exotype	10	8
-exotype	exotype	10	11
-exotype	exotype	10	10
-exotype	exotype	10	10
-exotype	exotype	10	16
-exotype	exotype	11	5
-exotype	exotype	11	7
-exotype	exotype	11	5
-exotype	exotype	11	5
-exotype	exotype	11	5
-exotype	exotype	11	10
-exotype	exotype	11	8
-exotype	exotype	11	0
-exotype	exotype	11	8
-exotype	exotype	11	9
-exotype	exotype	12	5
-exotype	exotype	12	5
-exotype	exotype	12	4
-exotype	exotype	12	13
-exotype	exotype	12	5
-exotype	exotype	12	9
-exotype	exotype	12	9
-exotype	exotype	12	2
-exotype	exotype	12	9
-exotype	exotype	12	9
-exotype	exotype	13	14
-exotype	exotype	13	16
-exotype	exotype	13	12
-exotype	exotype	13	17
-exotype	exotype	13	11
-exotype	exotype	13	9
-exotype	exotype	13	16
-exotype	exotype	13	13
-exotype	exotype	13	13
-exotype	exotype	13	17
-exotype	exotype	14	2
-exotype	exotype	14	1
-exotype	exotype	14	4
-exotype	exotype	14	3
-exotype	exotype	14	5
-exotype	exotype	14	1
-exotype	exotype	14	2
-exotype	exotype	14	7
-exotype	exotype	14	1
-exotype	exotype	14	3
-exotype	exotype	15	6
-exotype	exotype	15	5
-exotype	exotype	15	4
-exotype	exotype	15	8
-exotype	exotype	15	3
-exotype	exotype	15	5
-exotype	exotype	15	5
-exotype	exotype	15	3
-exotype	exotype	15	9
-exotype	exotype	15	5
+class	name	seed	damage	fired	opportunities
+eca	rule 0	0	0	0	0
+eca	rule 0	0	0	0	0
+eca	rule 0	0	0	0	0
+eca	rule 0	0	0	0	0
+eca	rule 0	0	0	0	0
+eca	rule 0	0	0	0	0
+eca	rule 0	0	0	0	0
+eca	rule 0	0	0	0	0
+eca	rule 0	0	0	0	0
+eca	rule 0	0	0	0	0
+eca	rule 0	1	0	0	0
+eca	rule 0	1	0	0	0
+eca	rule 0	1	0	0	0
+eca	rule 0	1	0	0	0
+eca	rule 0	1	0	0	0
+eca	rule 0	1	0	0	0
+eca	rule 0	1	0	0	0
+eca	rule 0	1	0	0	0
+eca	rule 0	1	0	0	0
+eca	rule 0	1	0	0	0
+eca	rule 0	2	0	0	0
+eca	rule 0	2	0	0	0
+eca	rule 0	2	0	0	0
+eca	rule 0	2	0	0	0
+eca	rule 0	2	0	0	0
+eca	rule 0	2	0	0	0
+eca	rule 0	2	0	0	0
+eca	rule 0	2	0	0	0
+eca	rule 0	2	0	0	0
+eca	rule 0	2	0	0	0
+eca	rule 0	3	0	0	0
+eca	rule 0	3	0	0	0
+eca	rule 0	3	0	0	0
+eca	rule 0	3	0	0	0
+eca	rule 0	3	0	0	0
+eca	rule 0	3	0	0	0
+eca	rule 0	3	0	0	0
+eca	rule 0	3	0	0	0
+eca	rule 0	3	0	0	0
+eca	rule 0	3	0	0	0
+eca	rule 204	0	1	0	0
+eca	rule 204	0	1	0	0
+eca	rule 204	0	1	0	0
+eca	rule 204	0	1	0	0
+eca	rule 204	0	1	0	0
+eca	rule 204	0	1	0	0
+eca	rule 204	0	1	0	0
+eca	rule 204	0	1	0	0
+eca	rule 204	0	1	0	0
+eca	rule 204	0	1	0	0
+eca	rule 204	1	1	0	0
+eca	rule 204	1	1	0	0
+eca	rule 204	1	1	0	0
+eca	rule 204	1	1	0	0
+eca	rule 204	1	1	0	0
+eca	rule 204	1	1	0	0
+eca	rule 204	1	1	0	0
+eca	rule 204	1	1	0	0
+eca	rule 204	1	1	0	0
+eca	rule 204	1	1	0	0
+eca	rule 204	2	1	0	0
+eca	rule 204	2	1	0	0
+eca	rule 204	2	1	0	0
+eca	rule 204	2	1	0	0
+eca	rule 204	2	1	0	0
+eca	rule 204	2	1	0	0
+eca	rule 204	2	1	0	0
+eca	rule 204	2	1	0	0
+eca	rule 204	2	1	0	0
+eca	rule 204	2	1	0	0
+eca	rule 204	3	1	0	0
+eca	rule 204	3	1	0	0
+eca	rule 204	3	1	0	0
+eca	rule 204	3	1	0	0
+eca	rule 204	3	1	0	0
+eca	rule 204	3	1	0	0
+eca	rule 204	3	1	0	0
+eca	rule 204	3	1	0	0
+eca	rule 204	3	1	0	0
+eca	rule 204	3	1	0	0
+eca	rule 90	0	8	0	0
+eca	rule 90	0	8	0	0
+eca	rule 90	0	8	0	0
+eca	rule 90	0	8	0	0
+eca	rule 90	0	8	0	0
+eca	rule 90	0	8	0	0
+eca	rule 90	0	8	0	0
+eca	rule 90	0	8	0	0
+eca	rule 90	0	8	0	0
+eca	rule 90	0	8	0	0
+eca	rule 90	1	8	0	0
+eca	rule 90	1	8	0	0
+eca	rule 90	1	8	0	0
+eca	rule 90	1	8	0	0
+eca	rule 90	1	8	0	0
+eca	rule 90	1	8	0	0
+eca	rule 90	1	8	0	0
+eca	rule 90	1	8	0	0
+eca	rule 90	1	8	0	0
+eca	rule 90	1	8	0	0
+eca	rule 90	2	8	0	0
+eca	rule 90	2	8	0	0
+eca	rule 90	2	8	0	0
+eca	rule 90	2	8	0	0
+eca	rule 90	2	8	0	0
+eca	rule 90	2	8	0	0
+eca	rule 90	2	8	0	0
+eca	rule 90	2	8	0	0
+eca	rule 90	2	8	0	0
+eca	rule 90	2	8	0	0
+eca	rule 90	3	8	0	0
+eca	rule 90	3	8	0	0
+eca	rule 90	3	8	0	0
+eca	rule 90	3	8	0	0
+eca	rule 90	3	8	0	0
+eca	rule 90	3	8	0	0
+eca	rule 90	3	8	0	0
+eca	rule 90	3	8	0	0
+eca	rule 90	3	8	0	0
+eca	rule 90	3	8	0	0
+eca	rule 54	0	22	0	0
+eca	rule 54	0	29	0	0
+eca	rule 54	0	1	0	0
+eca	rule 54	0	34	0	0
+eca	rule 54	0	24	0	0
+eca	rule 54	0	32	0	0
+eca	rule 54	0	21	0	0
+eca	rule 54	0	2	0	0
+eca	rule 54	0	18	0	0
+eca	rule 54	0	18	0	0
+eca	rule 54	1	10	0	0
+eca	rule 54	1	17	0	0
+eca	rule 54	1	36	0	0
+eca	rule 54	1	24	0	0
+eca	rule 54	1	10	0	0
+eca	rule 54	1	11	0	0
+eca	rule 54	1	15	0	0
+eca	rule 54	1	22	0	0
+eca	rule 54	1	14	0	0
+eca	rule 54	1	27	0	0
+eca	rule 54	2	18	0	0
+eca	rule 54	2	42	0	0
+eca	rule 54	2	6	0	0
+eca	rule 54	2	27	0	0
+eca	rule 54	2	0	0	0
+eca	rule 54	2	9	0	0
+eca	rule 54	2	18	0	0
+eca	rule 54	2	17	0	0
+eca	rule 54	2	4	0	0
+eca	rule 54	2	34	0	0
+eca	rule 54	3	14	0	0
+eca	rule 54	3	0	0	0
+eca	rule 54	3	13	0	0
+eca	rule 54	3	18	0	0
+eca	rule 54	3	31	0	0
+eca	rule 54	3	18	0	0
+eca	rule 54	3	37	0	0
+eca	rule 54	3	27	0	0
+eca	rule 54	3	7	0	0
+eca	rule 54	3	5	0	0
+eca	rule 110	0	0	0	0
+eca	rule 110	0	16	0	0
+eca	rule 110	0	0	0	0
+eca	rule 110	0	20	0	0
+eca	rule 110	0	0	0	0
+eca	rule 110	0	18	0	0
+eca	rule 110	0	21	0	0
+eca	rule 110	0	14	0	0
+eca	rule 110	0	21	0	0
+eca	rule 110	0	25	0	0
+eca	rule 110	1	22	0	0
+eca	rule 110	1	16	0	0
+eca	rule 110	1	28	0	0
+eca	rule 110	1	23	0	0
+eca	rule 110	1	28	0	0
+eca	rule 110	1	12	0	0
+eca	rule 110	1	12	0	0
+eca	rule 110	1	33	0	0
+eca	rule 110	1	3	0	0
+eca	rule 110	1	25	0	0
+eca	rule 110	2	24	0	0
+eca	rule 110	2	6	0	0
+eca	rule 110	2	6	0	0
+eca	rule 110	2	22	0	0
+eca	rule 110	2	27	0	0
+eca	rule 110	2	28	0	0
+eca	rule 110	2	16	0	0
+eca	rule 110	2	14	0	0
+eca	rule 110	2	24	0	0
+eca	rule 110	2	0	0	0
+eca	rule 110	3	27	0	0
+eca	rule 110	3	23	0	0
+eca	rule 110	3	20	0	0
+eca	rule 110	3	23	0	0
+eca	rule 110	3	3	0	0
+eca	rule 110	3	3	0	0
+eca	rule 110	3	11	0	0
+eca	rule 110	3	32	0	0
+eca	rule 110	3	10	0	0
+eca	rule 110	3	11	0	0
+eca	rule 30	0	44	0	0
+eca	rule 30	0	34	0	0
+eca	rule 30	0	39	0	0
+eca	rule 30	0	30	0	0
+eca	rule 30	0	43	0	0
+eca	rule 30	0	38	0	0
+eca	rule 30	0	42	0	0
+eca	rule 30	0	33	0	0
+eca	rule 30	0	49	0	0
+eca	rule 30	0	39	0	0
+eca	rule 30	1	41	0	0
+eca	rule 30	1	45	0	0
+eca	rule 30	1	53	0	0
+eca	rule 30	1	44	0	0
+eca	rule 30	1	39	0	0
+eca	rule 30	1	40	0	0
+eca	rule 30	1	40	0	0
+eca	rule 30	1	31	0	0
+eca	rule 30	1	27	0	0
+eca	rule 30	1	23	0	0
+eca	rule 30	2	36	0	0
+eca	rule 30	2	27	0	0
+eca	rule 30	2	38	0	0
+eca	rule 30	2	34	0	0
+eca	rule 30	2	38	0	0
+eca	rule 30	2	35	0	0
+eca	rule 30	2	25	0	0
+eca	rule 30	2	33	0	0
+eca	rule 30	2	29	0	0
+eca	rule 30	2	33	0	0
+eca	rule 30	3	38	0	0
+eca	rule 30	3	39	0	0
+eca	rule 30	3	39	0	0
+eca	rule 30	3	45	0	0
+eca	rule 30	3	44	0	0
+eca	rule 30	3	37	0	0
+eca	rule 30	3	26	0	0
+eca	rule 30	3	17	0	0
+eca	rule 30	3	32	0	0
+eca	rule 30	3	39	0	0
+family	$P_a$ (bare)	0	0	0	0
+family	$P_a$ (bare)	0	0	0	0
+family	$P_a$ (bare)	0	0	0	0
+family	$P_a$ (bare)	0	0	0	0
+family	$P_a$ (bare)	0	0	0	0
+family	$P_a$ (bare)	0	0	0	0
+family	$P_a$ (bare)	0	0	0	0
+family	$P_a$ (bare)	0	0	0	0
+family	$P_a$ (bare)	0	0	0	0
+family	$P_a$ (bare)	0	0	0	0
+family	$P_a$ (bare)	1	0	0	0
+family	$P_a$ (bare)	1	0	0	0
+family	$P_a$ (bare)	1	0	0	0
+family	$P_a$ (bare)	1	0	0	0
+family	$P_a$ (bare)	1	0	0	0
+family	$P_a$ (bare)	1	0	0	0
+family	$P_a$ (bare)	1	0	0	0
+family	$P_a$ (bare)	1	0	0	0
+family	$P_a$ (bare)	1	0	0	0
+family	$P_a$ (bare)	1	1	0	0
+family	$P_a$ (bare)	2	0	0	0
+family	$P_a$ (bare)	2	0	0	0
+family	$P_a$ (bare)	2	0	0	0
+family	$P_a$ (bare)	2	0	0	0
+family	$P_a$ (bare)	2	0	0	0
+family	$P_a$ (bare)	2	0	0	0
+family	$P_a$ (bare)	2	0	0	0
+family	$P_a$ (bare)	2	0	0	0
+family	$P_a$ (bare)	2	0	0	0
+family	$P_a$ (bare)	2	0	0	0
+family	$P_a$ (bare)	3	0	0	0
+family	$P_a$ (bare)	3	0	0	0
+family	$P_a$ (bare)	3	0	0	0
+family	$P_a$ (bare)	3	0	0	0
+family	$P_a$ (bare)	3	0	0	0
+family	$P_a$ (bare)	3	0	0	0
+family	$P_a$ (bare)	3	0	0	0
+family	$P_a$ (bare)	3	0	0	0
+family	$P_a$ (bare)	3	0	0	0
+family	$P_a$ (bare)	3	0	0	0
+family	rot$+1$	0	0	0	0
+family	rot$+1$	0	5	0	0
+family	rot$+1$	0	5	0	0
+family	rot$+1$	0	0	0	0
+family	rot$+1$	0	9	0	0
+family	rot$+1$	0	10	0	0
+family	rot$+1$	0	8	0	0
+family	rot$+1$	0	0	0	0
+family	rot$+1$	0	11	0	0
+family	rot$+1$	0	0	0	0
+family	rot$+1$	1	0	0	0
+family	rot$+1$	1	0	0	0
+family	rot$+1$	1	0	0	0
+family	rot$+1$	1	0	0	0
+family	rot$+1$	1	0	0	0
+family	rot$+1$	1	0	0	0
+family	rot$+1$	1	0	0	0
+family	rot$+1$	1	1	0	0
+family	rot$+1$	1	0	0	0
+family	rot$+1$	1	0	0	0
+family	rot$+1$	2	0	0	0
+family	rot$+1$	2	0	0	0
+family	rot$+1$	2	0	0	0
+family	rot$+1$	2	0	0	0
+family	rot$+1$	2	0	0	0
+family	rot$+1$	2	0	0	0
+family	rot$+1$	2	0	0	0
+family	rot$+1$	2	0	0	0
+family	rot$+1$	2	0	0	0
+family	rot$+1$	2	9	0	0
+family	rot$+1$	3	0	0	0
+family	rot$+1$	3	0	0	0
+family	rot$+1$	3	0	0	0
+family	rot$+1$	3	6	0	0
+family	rot$+1$	3	0	0	0
+family	rot$+1$	3	0	0	0
+family	rot$+1$	3	18	0	0
+family	rot$+1$	3	0	0	0
+family	rot$+1$	3	0	0	0
+family	rot$+1$	3	0	0	0
+family	braid $P_a$/two-4	0	0	0	0
+family	braid $P_a$/two-4	0	0	0	0
+family	braid $P_a$/two-4	0	0	0	0
+family	braid $P_a$/two-4	0	0	0	0
+family	braid $P_a$/two-4	0	0	0	0
+family	braid $P_a$/two-4	0	0	0	0
+family	braid $P_a$/two-4	0	0	0	0
+family	braid $P_a$/two-4	0	0	0	0
+family	braid $P_a$/two-4	0	3	0	0
+family	braid $P_a$/two-4	0	0	0	0
+family	braid $P_a$/two-4	1	0	0	0
+family	braid $P_a$/two-4	1	0	0	0
+family	braid $P_a$/two-4	1	0	0	0
+family	braid $P_a$/two-4	1	0	0	0
+family	braid $P_a$/two-4	1	0	0	0
+family	braid $P_a$/two-4	1	0	0	0
+family	braid $P_a$/two-4	1	0	0	0
+family	braid $P_a$/two-4	1	0	0	0
+family	braid $P_a$/two-4	1	0	0	0
+family	braid $P_a$/two-4	1	0	0	0
+family	braid $P_a$/two-4	2	0	0	0
+family	braid $P_a$/two-4	2	0	0	0
+family	braid $P_a$/two-4	2	0	0	0
+family	braid $P_a$/two-4	2	0	0	0
+family	braid $P_a$/two-4	2	0	0	0
+family	braid $P_a$/two-4	2	0	0	0
+family	braid $P_a$/two-4	2	0	0	0
+family	braid $P_a$/two-4	2	0	0	0
+family	braid $P_a$/two-4	2	0	0	0
+family	braid $P_a$/two-4	2	0	0	0
+family	braid $P_a$/two-4	3	0	0	0
+family	braid $P_a$/two-4	3	0	0	0
+family	braid $P_a$/two-4	3	0	0	0
+family	braid $P_a$/two-4	3	0	0	0
+family	braid $P_a$/two-4	3	0	0	0
+family	braid $P_a$/two-4	3	2	0	0
+family	braid $P_a$/two-4	3	0	0	0
+family	braid $P_a$/two-4	3	0	0	0
+family	braid $P_a$/two-4	3	0	0	0
+family	braid $P_a$/two-4	3	0	0	0
+family	braid rot$+2$/rot$+4$	0	0	0	0
+family	braid rot$+2$/rot$+4$	0	4	0	0
+family	braid rot$+2$/rot$+4$	0	0	0	0
+family	braid rot$+2$/rot$+4$	0	0	0	0
+family	braid rot$+2$/rot$+4$	0	0	0	0
+family	braid rot$+2$/rot$+4$	0	0	0	0
+family	braid rot$+2$/rot$+4$	0	0	0	0
+family	braid rot$+2$/rot$+4$	0	0	0	0
+family	braid rot$+2$/rot$+4$	0	7	0	0
+family	braid rot$+2$/rot$+4$	0	7	0	0
+family	braid rot$+2$/rot$+4$	1	0	0	0
+family	braid rot$+2$/rot$+4$	1	0	0	0
+family	braid rot$+2$/rot$+4$	1	0	0	0
+family	braid rot$+2$/rot$+4$	1	18	0	0
+family	braid rot$+2$/rot$+4$	1	15	0	0
+family	braid rot$+2$/rot$+4$	1	22	0	0
+family	braid rot$+2$/rot$+4$	1	16	0	0
+family	braid rot$+2$/rot$+4$	1	18	0	0
+family	braid rot$+2$/rot$+4$	1	18	0	0
+family	braid rot$+2$/rot$+4$	1	10	0	0
+family	braid rot$+2$/rot$+4$	2	4	0	0
+family	braid rot$+2$/rot$+4$	2	15	0	0
+family	braid rot$+2$/rot$+4$	2	0	0	0
+family	braid rot$+2$/rot$+4$	2	7	0	0
+family	braid rot$+2$/rot$+4$	2	7	0	0
+family	braid rot$+2$/rot$+4$	2	0	0	0
+family	braid rot$+2$/rot$+4$	2	0	0	0
+family	braid rot$+2$/rot$+4$	2	0	0	0
+family	braid rot$+2$/rot$+4$	2	11	0	0
+family	braid rot$+2$/rot$+4$	2	14	0	0
+family	braid rot$+2$/rot$+4$	3	0	0	0
+family	braid rot$+2$/rot$+4$	3	0	0	0
+family	braid rot$+2$/rot$+4$	3	0	0	0
+family	braid rot$+2$/rot$+4$	3	0	0	0
+family	braid rot$+2$/rot$+4$	3	0	0	0
+family	braid rot$+2$/rot$+4$	3	0	0	0
+family	braid rot$+2$/rot$+4$	3	15	0	0
+family	braid rot$+2$/rot$+4$	3	0	0	0
+family	braid rot$+2$/rot$+4$	3	0	0	0
+family	braid rot$+2$/rot$+4$	3	0	0	0
+dial	blend $0.00$	0	1	0	0
+dial	blend $0.00$	0	1	0	0
+dial	blend $0.00$	0	3	0	0
+dial	blend $0.00$	0	5	0	0
+dial	blend $0.00$	0	14	0	0
+dial	blend $0.00$	0	16	0	0
+dial	blend $0.00$	0	5	0	0
+dial	blend $0.00$	0	7	0	0
+dial	blend $0.00$	0	18	0	0
+dial	blend $0.00$	0	16	0	0
+dial	blend $0.00$	1	0	0	0
+dial	blend $0.00$	1	5	0	0
+dial	blend $0.00$	1	4	0	0
+dial	blend $0.00$	1	3	0	0
+dial	blend $0.00$	1	4	0	0
+dial	blend $0.00$	1	0	0	0
+dial	blend $0.00$	1	24	0	0
+dial	blend $0.00$	1	0	0	0
+dial	blend $0.00$	1	20	0	0
+dial	blend $0.00$	1	17	0	0
+dial	blend $0.00$	2	2	0	0
+dial	blend $0.00$	2	2	0	0
+dial	blend $0.00$	2	4	0	0
+dial	blend $0.00$	2	2	0	0
+dial	blend $0.00$	2	5	0	0
+dial	blend $0.00$	2	10	0	0
+dial	blend $0.00$	2	14	0	0
+dial	blend $0.00$	2	15	0	0
+dial	blend $0.00$	2	10	0	0
+dial	blend $0.00$	2	18	0	0
+dial	blend $0.00$	3	0	0	0
+dial	blend $0.00$	3	0	0	0
+dial	blend $0.00$	3	7	0	0
+dial	blend $0.00$	3	8	0	0
+dial	blend $0.00$	3	9	0	0
+dial	blend $0.00$	3	12	0	0
+dial	blend $0.00$	3	11	0	0
+dial	blend $0.00$	3	11	0	0
+dial	blend $0.00$	3	10	0	0
+dial	blend $0.00$	3	13	0	0
+dial	blend $0.35$	0	0	0	0
+dial	blend $0.35$	0	4	0	0
+dial	blend $0.35$	0	4	0	0
+dial	blend $0.35$	0	4	0	0
+dial	blend $0.35$	0	19	0	0
+dial	blend $0.35$	0	17	0	0
+dial	blend $0.35$	0	20	0	0
+dial	blend $0.35$	0	12	0	0
+dial	blend $0.35$	0	0	0	0
+dial	blend $0.35$	0	0	0	0
+dial	blend $0.35$	1	0	0	0
+dial	blend $0.35$	1	0	0	0
+dial	blend $0.35$	1	9	0	0
+dial	blend $0.35$	1	9	0	0
+dial	blend $0.35$	1	0	0	0
+dial	blend $0.35$	1	0	0	0
+dial	blend $0.35$	1	0	0	0
+dial	blend $0.35$	1	0	0	0
+dial	blend $0.35$	1	12	0	0
+dial	blend $0.35$	1	6	0	0
+dial	blend $0.35$	2	0	0	0
+dial	blend $0.35$	2	0	0	0
+dial	blend $0.35$	2	0	0	0
+dial	blend $0.35$	2	0	0	0
+dial	blend $0.35$	2	0	0	0
+dial	blend $0.35$	2	0	0	0
+dial	blend $0.35$	2	0	0	0
+dial	blend $0.35$	2	14	0	0
+dial	blend $0.35$	2	0	0	0
+dial	blend $0.35$	2	0	0	0
+dial	blend $0.35$	3	0	0	0
+dial	blend $0.35$	3	0	0	0
+dial	blend $0.35$	3	0	0	0
+dial	blend $0.35$	3	0	0	0
+dial	blend $0.35$	3	0	0	0
+dial	blend $0.35$	3	0	0	0
+dial	blend $0.35$	3	5	0	0
+dial	blend $0.35$	3	0	0	0
+dial	blend $0.35$	3	0	0	0
+dial	blend $0.35$	3	0	0	0
+dial	blend $0.70$	0	0	0	0
+dial	blend $0.70$	0	0	0	0
+dial	blend $0.70$	0	0	0	0
+dial	blend $0.70$	0	0	0	0
+dial	blend $0.70$	0	0	0	0
+dial	blend $0.70$	0	0	0	0
+dial	blend $0.70$	0	0	0	0
+dial	blend $0.70$	0	0	0	0
+dial	blend $0.70$	0	0	0	0
+dial	blend $0.70$	0	0	0	0
+dial	blend $0.70$	1	0	0	0
+dial	blend $0.70$	1	0	0	0
+dial	blend $0.70$	1	1	0	0
+dial	blend $0.70$	1	9	0	0
+dial	blend $0.70$	1	0	0	0
+dial	blend $0.70$	1	0	0	0
+dial	blend $0.70$	1	0	0	0
+dial	blend $0.70$	1	0	0	0
+dial	blend $0.70$	1	0	0	0
+dial	blend $0.70$	1	0	0	0
+dial	blend $0.70$	2	0	0	0
+dial	blend $0.70$	2	0	0	0
+dial	blend $0.70$	2	0	0	0
+dial	blend $0.70$	2	0	0	0
+dial	blend $0.70$	2	0	0	0
+dial	blend $0.70$	2	11	0	0
+dial	blend $0.70$	2	0	0	0
+dial	blend $0.70$	2	0	0	0
+dial	blend $0.70$	2	1	0	0
+dial	blend $0.70$	2	0	0	0
+dial	blend $0.70$	3	0	0	0
+dial	blend $0.70$	3	0	0	0
+dial	blend $0.70$	3	0	0	0
+dial	blend $0.70$	3	0	0	0
+dial	blend $0.70$	3	0	0	0
+dial	blend $0.70$	3	0	0	0
+dial	blend $0.70$	3	0	0	0
+dial	blend $0.70$	3	0	0	0
+dial	blend $0.70$	3	0	0	0
+dial	blend $0.70$	3	0	0	0
+dial	blend $1.00$	0	0	0	0
+dial	blend $1.00$	0	0	0	0
+dial	blend $1.00$	0	0	0	0
+dial	blend $1.00$	0	0	0	0
+dial	blend $1.00$	0	0	0	0
+dial	blend $1.00$	0	0	0	0
+dial	blend $1.00$	0	0	0	0
+dial	blend $1.00$	0	0	0	0
+dial	blend $1.00$	0	0	0	0
+dial	blend $1.00$	0	0	0	0
+dial	blend $1.00$	1	0	0	0
+dial	blend $1.00$	1	0	0	0
+dial	blend $1.00$	1	0	0	0
+dial	blend $1.00$	1	0	0	0
+dial	blend $1.00$	1	0	0	0
+dial	blend $1.00$	1	0	0	0
+dial	blend $1.00$	1	0	0	0
+dial	blend $1.00$	1	0	0	0
+dial	blend $1.00$	1	0	0	0
+dial	blend $1.00$	1	1	0	0
+dial	blend $1.00$	2	0	0	0
+dial	blend $1.00$	2	0	0	0
+dial	blend $1.00$	2	0	0	0
+dial	blend $1.00$	2	0	0	0
+dial	blend $1.00$	2	0	0	0
+dial	blend $1.00$	2	0	0	0
+dial	blend $1.00$	2	0	0	0
+dial	blend $1.00$	2	0	0	0
+dial	blend $1.00$	2	0	0	0
+dial	blend $1.00$	2	0	0	0
+dial	blend $1.00$	3	0	0	0
+dial	blend $1.00$	3	0	0	0
+dial	blend $1.00$	3	0	0	0
+dial	blend $1.00$	3	0	0	0
+dial	blend $1.00$	3	0	0	0
+dial	blend $1.00$	3	0	0	0
+dial	blend $1.00$	3	0	0	0
+dial	blend $1.00$	3	0	0	0
+dial	blend $1.00$	3	0	0	0
+dial	blend $1.00$	3	0	0	0
+dial	braid + blend $0.70$	0	0	0	0
+dial	braid + blend $0.70$	0	0	0	0
+dial	braid + blend $0.70$	0	0	0	0
+dial	braid + blend $0.70$	0	0	0	0
+dial	braid + blend $0.70$	0	0	0	0
+dial	braid + blend $0.70$	0	0	0	0
+dial	braid + blend $0.70$	0	0	0	0
+dial	braid + blend $0.70$	0	0	0	0
+dial	braid + blend $0.70$	0	0	0	0
+dial	braid + blend $0.70$	0	0	0	0
+dial	braid + blend $0.70$	1	0	0	0
+dial	braid + blend $0.70$	1	0	0	0
+dial	braid + blend $0.70$	1	0	0	0
+dial	braid + blend $0.70$	1	2	0	0
+dial	braid + blend $0.70$	1	0	0	0
+dial	braid + blend $0.70$	1	0	0	0
+dial	braid + blend $0.70$	1	0	0	0
+dial	braid + blend $0.70$	1	0	0	0
+dial	braid + blend $0.70$	1	0	0	0
+dial	braid + blend $0.70$	1	0	0	0
+dial	braid + blend $0.70$	2	0	0	0
+dial	braid + blend $0.70$	2	0	0	0
+dial	braid + blend $0.70$	2	0	0	0
+dial	braid + blend $0.70$	2	0	0	0
+dial	braid + blend $0.70$	2	0	0	0
+dial	braid + blend $0.70$	2	0	0	0
+dial	braid + blend $0.70$	2	0	0	0
+dial	braid + blend $0.70$	2	0	0	0
+dial	braid + blend $0.70$	2	0	0	0
+dial	braid + blend $0.70$	2	0	0	0
+dial	braid + blend $0.70$	3	0	0	0
+dial	braid + blend $0.70$	3	3	0	0
+dial	braid + blend $0.70$	3	0	0	0
+dial	braid + blend $0.70$	3	0	0	0
+dial	braid + blend $0.70$	3	0	0	0
+dial	braid + blend $0.70$	3	10	0	0
+dial	braid + blend $0.70$	3	0	0	0
+dial	braid + blend $0.70$	3	0	0	0
+dial	braid + blend $0.70$	3	0	0	0
+dial	braid + blend $0.70$	3	0	0	0
+dial	async update $0.25$	0	0	0	0
+dial	async update $0.25$	0	0	0	0
+dial	async update $0.25$	0	3	0	0
+dial	async update $0.25$	0	0	0	0
+dial	async update $0.25$	0	5	0	0
+dial	async update $0.25$	0	0	0	0
+dial	async update $0.25$	0	0	0	0
+dial	async update $0.25$	0	0	0	0
+dial	async update $0.25$	0	0	0	0
+dial	async update $0.25$	0	0	0	0
+dial	async update $0.25$	1	0	0	0
+dial	async update $0.25$	1	0	0	0
+dial	async update $0.25$	1	0	0	0
+dial	async update $0.25$	1	0	0	0
+dial	async update $0.25$	1	0	0	0
+dial	async update $0.25$	1	3	0	0
+dial	async update $0.25$	1	0	0	0
+dial	async update $0.25$	1	0	0	0
+dial	async update $0.25$	1	0	0	0
+dial	async update $0.25$	1	0	0	0
+dial	async update $0.25$	2	0	0	0
+dial	async update $0.25$	2	0	0	0
+dial	async update $0.25$	2	0	0	0
+dial	async update $0.25$	2	0	0	0
+dial	async update $0.25$	2	3	0	0
+dial	async update $0.25$	2	5	0	0
+dial	async update $0.25$	2	0	0	0
+dial	async update $0.25$	2	0	0	0
+dial	async update $0.25$	2	0	0	0
+dial	async update $0.25$	2	0	0	0
+dial	async update $0.25$	3	0	0	0
+dial	async update $0.25$	3	0	0	0
+dial	async update $0.25$	3	0	0	0
+dial	async update $0.25$	3	0	0	0
+dial	async update $0.25$	3	0	0	0
+dial	async update $0.25$	3	0	0	0
+dial	async update $0.25$	3	0	0	0
+dial	async update $0.25$	3	0	0	0
+dial	async update $0.25$	3	0	0	0
+dial	async update $0.25$	3	0	0	0
+dial	async update $0.75$	0	0	0	0
+dial	async update $0.75$	0	0	0	0
+dial	async update $0.75$	0	0	0	0
+dial	async update $0.75$	0	0	0	0
+dial	async update $0.75$	0	0	0	0
+dial	async update $0.75$	0	0	0	0
+dial	async update $0.75$	0	10	0	0
+dial	async update $0.75$	0	0	0	0
+dial	async update $0.75$	0	0	0	0
+dial	async update $0.75$	0	0	0	0
+dial	async update $0.75$	1	0	0	0
+dial	async update $0.75$	1	0	0	0
+dial	async update $0.75$	1	0	0	0
+dial	async update $0.75$	1	0	0	0
+dial	async update $0.75$	1	0	0	0
+dial	async update $0.75$	1	9	0	0
+dial	async update $0.75$	1	0	0	0
+dial	async update $0.75$	1	0	0	0
+dial	async update $0.75$	1	0	0	0
+dial	async update $0.75$	1	0	0	0
+dial	async update $0.75$	2	0	0	0
+dial	async update $0.75$	2	0	0	0
+dial	async update $0.75$	2	0	0	0
+dial	async update $0.75$	2	0	0	0
+dial	async update $0.75$	2	1	0	0
+dial	async update $0.75$	2	0	0	0
+dial	async update $0.75$	2	0	0	0
+dial	async update $0.75$	2	0	0	0
+dial	async update $0.75$	2	10	0	0
+dial	async update $0.75$	2	0	0	0
+dial	async update $0.75$	3	0	0	0
+dial	async update $0.75$	3	0	0	0
+dial	async update $0.75$	3	0	0	0
+dial	async update $0.75$	3	0	0	0
+dial	async update $0.75$	3	0	0	0
+dial	async update $0.75$	3	0	0	0
+dial	async update $0.75$	3	0	0	0
+dial	async update $0.75$	3	0	0	0
+dial	async update $0.75$	3	0	0	0
+dial	async update $0.75$	3	0	0	0
+dial	niches $P_a$/two-4 (16)	0	0	0	0
+dial	niches $P_a$/two-4 (16)	0	0	0	0
+dial	niches $P_a$/two-4 (16)	0	0	0	0
+dial	niches $P_a$/two-4 (16)	0	5	0	0
+dial	niches $P_a$/two-4 (16)	0	0	0	0
+dial	niches $P_a$/two-4 (16)	0	0	0	0
+dial	niches $P_a$/two-4 (16)	0	0	0	0
+dial	niches $P_a$/two-4 (16)	0	0	0	0
+dial	niches $P_a$/two-4 (16)	0	1	0	0
+dial	niches $P_a$/two-4 (16)	0	0	0	0
+dial	niches $P_a$/two-4 (16)	1	0	0	0
+dial	niches $P_a$/two-4 (16)	1	2	0	0
+dial	niches $P_a$/two-4 (16)	1	0	0	0
+dial	niches $P_a$/two-4 (16)	1	0	0	0
+dial	niches $P_a$/two-4 (16)	1	0	0	0
+dial	niches $P_a$/two-4 (16)	1	0	0	0
+dial	niches $P_a$/two-4 (16)	1	0	0	0
+dial	niches $P_a$/two-4 (16)	1	7	0	0
+dial	niches $P_a$/two-4 (16)	1	0	0	0
+dial	niches $P_a$/two-4 (16)	1	0	0	0
+dial	niches $P_a$/two-4 (16)	2	0	0	0
+dial	niches $P_a$/two-4 (16)	2	0	0	0
+dial	niches $P_a$/two-4 (16)	2	0	0	0
+dial	niches $P_a$/two-4 (16)	2	0	0	0
+dial	niches $P_a$/two-4 (16)	2	0	0	0
+dial	niches $P_a$/two-4 (16)	2	10	0	0
+dial	niches $P_a$/two-4 (16)	2	0	0	0
+dial	niches $P_a$/two-4 (16)	2	0	0	0
+dial	niches $P_a$/two-4 (16)	2	0	0	0
+dial	niches $P_a$/two-4 (16)	2	0	0	0
+dial	niches $P_a$/two-4 (16)	3	0	0	0
+dial	niches $P_a$/two-4 (16)	3	0	0	0
+dial	niches $P_a$/two-4 (16)	3	0	0	0
+dial	niches $P_a$/two-4 (16)	3	4	0	0
+dial	niches $P_a$/two-4 (16)	3	0	0	0
+dial	niches $P_a$/two-4 (16)	3	0	0	0
+dial	niches $P_a$/two-4 (16)	3	0	0	0
+dial	niches $P_a$/two-4 (16)	3	0	0	0
+dial	niches $P_a$/two-4 (16)	3	0	0	0
+dial	niches $P_a$/two-4 (16)	3	0	0	0
+dial	niches $P_a$/two-4 (8)	0	0	0	0
+dial	niches $P_a$/two-4 (8)	0	0	0	0
+dial	niches $P_a$/two-4 (8)	0	4	0	0
+dial	niches $P_a$/two-4 (8)	0	0	0	0
+dial	niches $P_a$/two-4 (8)	0	0	0	0
+dial	niches $P_a$/two-4 (8)	0	0	0	0
+dial	niches $P_a$/two-4 (8)	0	0	0	0
+dial	niches $P_a$/two-4 (8)	0	0	0	0
+dial	niches $P_a$/two-4 (8)	0	0	0	0
+dial	niches $P_a$/two-4 (8)	0	0	0	0
+dial	niches $P_a$/two-4 (8)	1	0	0	0
+dial	niches $P_a$/two-4 (8)	1	0	0	0
+dial	niches $P_a$/two-4 (8)	1	0	0	0
+dial	niches $P_a$/two-4 (8)	1	0	0	0
+dial	niches $P_a$/two-4 (8)	1	0	0	0
+dial	niches $P_a$/two-4 (8)	1	0	0	0
+dial	niches $P_a$/two-4 (8)	1	0	0	0
+dial	niches $P_a$/two-4 (8)	1	0	0	0
+dial	niches $P_a$/two-4 (8)	1	0	0	0
+dial	niches $P_a$/two-4 (8)	1	0	0	0
+dial	niches $P_a$/two-4 (8)	2	0	0	0
+dial	niches $P_a$/two-4 (8)	2	0	0	0
+dial	niches $P_a$/two-4 (8)	2	0	0	0
+dial	niches $P_a$/two-4 (8)	2	0	0	0
+dial	niches $P_a$/two-4 (8)	2	0	0	0
+dial	niches $P_a$/two-4 (8)	2	0	0	0
+dial	niches $P_a$/two-4 (8)	2	0	0	0
+dial	niches $P_a$/two-4 (8)	2	0	0	0
+dial	niches $P_a$/two-4 (8)	2	0	0	0
+dial	niches $P_a$/two-4 (8)	2	0	0	0
+dial	niches $P_a$/two-4 (8)	3	0	0	0
+dial	niches $P_a$/two-4 (8)	3	0	0	0
+dial	niches $P_a$/two-4 (8)	3	0	0	0
+dial	niches $P_a$/two-4 (8)	3	0	0	0
+dial	niches $P_a$/two-4 (8)	3	0	0	0
+dial	niches $P_a$/two-4 (8)	3	0	0	0
+dial	niches $P_a$/two-4 (8)	3	0	0	0
+dial	niches $P_a$/two-4 (8)	3	0	0	0
+dial	niches $P_a$/two-4 (8)	3	8	0	0
+dial	niches $P_a$/two-4 (8)	3	8	0	0
+dial	mutation $0.10$	0	0	0	0
+dial	mutation $0.10$	0	0	0	0
+dial	mutation $0.10$	0	0	0	0
+dial	mutation $0.10$	0	0	0	0
+dial	mutation $0.10$	0	0	0	0
+dial	mutation $0.10$	0	0	0	0
+dial	mutation $0.10$	0	0	0	0
+dial	mutation $0.10$	0	0	0	0
+dial	mutation $0.10$	0	0	0	0
+dial	mutation $0.10$	0	0	0	0
+dial	mutation $0.10$	1	0	0	0
+dial	mutation $0.10$	1	0	0	0
+dial	mutation $0.10$	1	0	0	0
+dial	mutation $0.10$	1	0	0	0
+dial	mutation $0.10$	1	0	0	0
+dial	mutation $0.10$	1	0	0	0
+dial	mutation $0.10$	1	0	0	0
+dial	mutation $0.10$	1	0	0	0
+dial	mutation $0.10$	1	0	0	0
+dial	mutation $0.10$	1	0	0	0
+dial	mutation $0.10$	2	0	0	0
+dial	mutation $0.10$	2	0	0	0
+dial	mutation $0.10$	2	0	0	0
+dial	mutation $0.10$	2	0	0	0
+dial	mutation $0.10$	2	2	0	0
+dial	mutation $0.10$	2	0	0	0
+dial	mutation $0.10$	2	0	0	0
+dial	mutation $0.10$	2	0	0	0
+dial	mutation $0.10$	2	6	0	0
+dial	mutation $0.10$	2	0	0	0
+dial	mutation $0.10$	3	0	0	0
+dial	mutation $0.10$	3	0	0	0
+dial	mutation $0.10$	3	0	0	0
+dial	mutation $0.10$	3	0	0	0
+dial	mutation $0.10$	3	1	0	0
+dial	mutation $0.10$	3	0	0	0
+dial	mutation $0.10$	3	0	0	0
+dial	mutation $0.10$	3	0	0	0
+dial	mutation $0.10$	3	0	0	0
+dial	mutation $0.10$	3	0	0	0
+dial	mutation $0.40$	0	0	0	0
+dial	mutation $0.40$	0	0	0	0
+dial	mutation $0.40$	0	0	0	0
+dial	mutation $0.40$	0	0	0	0
+dial	mutation $0.40$	0	0	0	0
+dial	mutation $0.40$	0	0	0	0
+dial	mutation $0.40$	0	0	0	0
+dial	mutation $0.40$	0	0	0	0
+dial	mutation $0.40$	0	0	0	0
+dial	mutation $0.40$	0	0	0	0
+dial	mutation $0.40$	1	0	0	0
+dial	mutation $0.40$	1	0	0	0
+dial	mutation $0.40$	1	0	0	0
+dial	mutation $0.40$	1	0	0	0
+dial	mutation $0.40$	1	0	0	0
+dial	mutation $0.40$	1	0	0	0
+dial	mutation $0.40$	1	0	0	0
+dial	mutation $0.40$	1	0	0	0
+dial	mutation $0.40$	1	0	0	0
+dial	mutation $0.40$	1	0	0	0
+dial	mutation $0.40$	2	0	0	0
+dial	mutation $0.40$	2	0	0	0
+dial	mutation $0.40$	2	0	0	0
+dial	mutation $0.40$	2	0	0	0
+dial	mutation $0.40$	2	4	0	0
+dial	mutation $0.40$	2	4	0	0
+dial	mutation $0.40$	2	0	0	0
+dial	mutation $0.40$	2	8	0	0
+dial	mutation $0.40$	2	8	0	0
+dial	mutation $0.40$	2	0	0	0
+dial	mutation $0.40$	3	0	0	0
+dial	mutation $0.40$	3	0	0	0
+dial	mutation $0.40$	3	2	0	0
+dial	mutation $0.40$	3	1	0	0
+dial	mutation $0.40$	3	1	0	0
+dial	mutation $0.40$	3	0	0	0
+dial	mutation $0.40$	3	0	0	0
+dial	mutation $0.40$	3	0	0	0
+dial	mutation $0.40$	3	6	0	0
+dial	mutation $0.40$	3	0	0	0
+dial	transport $0.00$	0	1	0	0
+dial	transport $0.00$	0	3	0	0
+dial	transport $0.00$	0	0	0	0
+dial	transport $0.00$	0	2	0	0
+dial	transport $0.00$	0	2	0	0
+dial	transport $0.00$	0	0	0	0
+dial	transport $0.00$	0	1	0	0
+dial	transport $0.00$	0	0	0	0
+dial	transport $0.00$	0	0	0	0
+dial	transport $0.00$	0	1	0	0
+dial	transport $0.00$	1	0	0	0
+dial	transport $0.00$	1	2	0	0
+dial	transport $0.00$	1	5	0	0
+dial	transport $0.00$	1	0	0	0
+dial	transport $0.00$	1	1	0	0
+dial	transport $0.00$	1	0	0	0
+dial	transport $0.00$	1	0	0	0
+dial	transport $0.00$	1	0	0	0
+dial	transport $0.00$	1	0	0	0
+dial	transport $0.00$	1	0	0	0
+dial	transport $0.00$	2	2	0	0
+dial	transport $0.00$	2	0	0	0
+dial	transport $0.00$	2	1	0	0
+dial	transport $0.00$	2	3	0	0
+dial	transport $0.00$	2	4	0	0
+dial	transport $0.00$	2	0	0	0
+dial	transport $0.00$	2	0	0	0
+dial	transport $0.00$	2	1	0	0
+dial	transport $0.00$	2	1	0	0
+dial	transport $0.00$	2	0	0	0
+dial	transport $0.00$	3	2	0	0
+dial	transport $0.00$	3	1	0	0
+dial	transport $0.00$	3	0	0	0
+dial	transport $0.00$	3	3	0	0
+dial	transport $0.00$	3	1	0	0
+dial	transport $0.00$	3	1	0	0
+dial	transport $0.00$	3	0	0	0
+dial	transport $0.00$	3	2	0	0
+dial	transport $0.00$	3	1	0	0
+dial	transport $0.00$	3	3	0	0
+dial	transport $0.05$	0	4	0	0
+dial	transport $0.05$	0	8	0	0
+dial	transport $0.05$	0	12	0	0
+dial	transport $0.05$	0	0	0	0
+dial	transport $0.05$	0	6	0	0
+dial	transport $0.05$	0	0	0	0
+dial	transport $0.05$	0	0	0	0
+dial	transport $0.05$	0	0	0	0
+dial	transport $0.05$	0	0	0	0
+dial	transport $0.05$	0	1	0	0
+dial	transport $0.05$	1	0	0	0
+dial	transport $0.05$	1	3	0	0
+dial	transport $0.05$	1	0	0	0
+dial	transport $0.05$	1	4	0	0
+dial	transport $0.05$	1	4	0	0
+dial	transport $0.05$	1	0	0	0
+dial	transport $0.05$	1	2	0	0
+dial	transport $0.05$	1	0	0	0
+dial	transport $0.05$	1	12	0	0
+dial	transport $0.05$	1	0	0	0
+dial	transport $0.05$	2	0	0	0
+dial	transport $0.05$	2	0	0	0
+dial	transport $0.05$	2	0	0	0
+dial	transport $0.05$	2	0	0	0
+dial	transport $0.05$	2	8	0	0
+dial	transport $0.05$	2	0	0	0
+dial	transport $0.05$	2	0	0	0
+dial	transport $0.05$	2	0	0	0
+dial	transport $0.05$	2	5	0	0
+dial	transport $0.05$	2	0	0	0
+dial	transport $0.05$	3	0	0	0
+dial	transport $0.05$	3	0	0	0
+dial	transport $0.05$	3	0	0	0
+dial	transport $0.05$	3	2	0	0
+dial	transport $0.05$	3	0	0	0
+dial	transport $0.05$	3	9	0	0
+dial	transport $0.05$	3	0	0	0
+dial	transport $0.05$	3	2	0	0
+dial	transport $0.05$	3	3	0	0
+dial	transport $0.05$	3	2	0	0
+dial	transport $0.10$	0	4	0	0
+dial	transport $0.10$	0	7	0	0
+dial	transport $0.10$	0	13	0	0
+dial	transport $0.10$	0	0	0	0
+dial	transport $0.10$	0	3	0	0
+dial	transport $0.10$	0	9	0	0
+dial	transport $0.10$	0	0	0	0
+dial	transport $0.10$	0	0	0	0
+dial	transport $0.10$	0	0	0	0
+dial	transport $0.10$	0	0	0	0
+dial	transport $0.10$	1	0	0	0
+dial	transport $0.10$	1	3	0	0
+dial	transport $0.10$	1	14	0	0
+dial	transport $0.10$	1	19	0	0
+dial	transport $0.10$	1	0	0	0
+dial	transport $0.10$	1	0	0	0
+dial	transport $0.10$	1	0	0	0
+dial	transport $0.10$	1	0	0	0
+dial	transport $0.10$	1	0	0	0
+dial	transport $0.10$	1	0	0	0
+dial	transport $0.10$	2	7	0	0
+dial	transport $0.10$	2	0	0	0
+dial	transport $0.10$	2	0	0	0
+dial	transport $0.10$	2	11	0	0
+dial	transport $0.10$	2	0	0	0
+dial	transport $0.10$	2	14	0	0
+dial	transport $0.10$	2	0	0	0
+dial	transport $0.10$	2	0	0	0
+dial	transport $0.10$	2	9	0	0
+dial	transport $0.10$	2	0	0	0
+dial	transport $0.10$	3	5	0	0
+dial	transport $0.10$	3	5	0	0
+dial	transport $0.10$	3	0	0	0
+dial	transport $0.10$	3	9	0	0
+dial	transport $0.10$	3	17	0	0
+dial	transport $0.10$	3	0	0	0
+dial	transport $0.10$	3	10	0	0
+dial	transport $0.10$	3	2	0	0
+dial	transport $0.10$	3	4	0	0
+dial	transport $0.10$	3	5	0	0
+dial	transport $0.20$	0	0	0	0
+dial	transport $0.20$	0	7	0	0
+dial	transport $0.20$	0	0	0	0
+dial	transport $0.20$	0	9	0	0
+dial	transport $0.20$	0	9	0	0
+dial	transport $0.20$	0	0	0	0
+dial	transport $0.20$	0	0	0	0
+dial	transport $0.20$	0	0	0	0
+dial	transport $0.20$	0	9	0	0
+dial	transport $0.20$	0	7	0	0
+dial	transport $0.20$	1	2	0	0
+dial	transport $0.20$	1	11	0	0
+dial	transport $0.20$	1	17	0	0
+dial	transport $0.20$	1	19	0	0
+dial	transport $0.20$	1	20	0	0
+dial	transport $0.20$	1	17	0	0
+dial	transport $0.20$	1	18	0	0
+dial	transport $0.20$	1	6	0	0
+dial	transport $0.20$	1	20	0	0
+dial	transport $0.20$	1	9	0	0
+dial	transport $0.20$	2	3	0	0
+dial	transport $0.20$	2	5	0	0
+dial	transport $0.20$	2	17	0	0
+dial	transport $0.20$	2	12	0	0
+dial	transport $0.20$	2	14	0	0
+dial	transport $0.20$	2	0	0	0
+dial	transport $0.20$	2	0	0	0
+dial	transport $0.20$	2	18	0	0
+dial	transport $0.20$	2	11	0	0
+dial	transport $0.20$	2	12	0	0
+dial	transport $0.20$	3	3	0	0
+dial	transport $0.20$	3	12	0	0
+dial	transport $0.20$	3	9	0	0
+dial	transport $0.20$	3	16	0	0
+dial	transport $0.20$	3	0	0	0
+dial	transport $0.20$	3	12	0	0
+dial	transport $0.20$	3	18	0	0
+dial	transport $0.20$	3	9	0	0
+dial	transport $0.20$	3	13	0	0
+dial	transport $0.20$	3	13	0	0
+dial	transport $0.35$	0	13	0	0
+dial	transport $0.35$	0	17	0	0
+dial	transport $0.35$	0	20	0	0
+dial	transport $0.35$	0	20	0	0
+dial	transport $0.35$	0	0	0	0
+dial	transport $0.35$	0	14	0	0
+dial	transport $0.35$	0	13	0	0
+dial	transport $0.35$	0	23	0	0
+dial	transport $0.35$	0	18	0	0
+dial	transport $0.35$	0	15	0	0
+dial	transport $0.35$	1	0	0	0
+dial	transport $0.35$	1	15	0	0
+dial	transport $0.35$	1	24	0	0
+dial	transport $0.35$	1	20	0	0
+dial	transport $0.35$	1	24	0	0
+dial	transport $0.35$	1	23	0	0
+dial	transport $0.35$	1	21	0	0
+dial	transport $0.35$	1	12	0	0
+dial	transport $0.35$	1	19	0	0
+dial	transport $0.35$	1	17	0	0
+dial	transport $0.35$	2	0	0	0
+dial	transport $0.35$	2	9	0	0
+dial	transport $0.35$	2	0	0	0
+dial	transport $0.35$	2	17	0	0
+dial	transport $0.35$	2	10	0	0
+dial	transport $0.35$	2	25	0	0
+dial	transport $0.35$	2	21	0	0
+dial	transport $0.35$	2	20	0	0
+dial	transport $0.35$	2	11	0	0
+dial	transport $0.35$	2	13	0	0
+dial	transport $0.35$	3	0	0	0
+dial	transport $0.35$	3	19	0	0
+dial	transport $0.35$	3	0	0	0
+dial	transport $0.35$	3	19	0	0
+dial	transport $0.35$	3	26	0	0
+dial	transport $0.35$	3	27	0	0
+dial	transport $0.35$	3	0	0	0
+dial	transport $0.35$	3	0	0	0
+dial	transport $0.35$	3	16	0	0
+dial	transport $0.35$	3	17	0	0
+dial	transport $0.50$	0	10	0	0
+dial	transport $0.50$	0	14	0	0
+dial	transport $0.50$	0	21	0	0
+dial	transport $0.50$	0	25	0	0
+dial	transport $0.50$	0	30	0	0
+dial	transport $0.50$	0	26	0	0
+dial	transport $0.50$	0	23	0	0
+dial	transport $0.50$	0	30	0	0
+dial	transport $0.50$	0	17	0	0
+dial	transport $0.50$	0	17	0	0
+dial	transport $0.50$	1	12	0	0
+dial	transport $0.50$	1	13	0	0
+dial	transport $0.50$	1	0	0	0
+dial	transport $0.50$	1	20	0	0
+dial	transport $0.50$	1	33	0	0
+dial	transport $0.50$	1	32	0	0
+dial	transport $0.50$	1	28	0	0
+dial	transport $0.50$	1	32	0	0
+dial	transport $0.50$	1	19	0	0
+dial	transport $0.50$	1	20	0	0
+dial	transport $0.50$	2	0	0	0
+dial	transport $0.50$	2	20	0	0
+dial	transport $0.50$	2	26	0	0
+dial	transport $0.50$	2	0	0	0
+dial	transport $0.50$	2	22	0	0
+dial	transport $0.50$	2	0	0	0
+dial	transport $0.50$	2	30	0	0
+dial	transport $0.50$	2	27	0	0
+dial	transport $0.50$	2	22	0	0
+dial	transport $0.50$	2	13	0	0
+dial	transport $0.50$	3	0	0	0
+dial	transport $0.50$	3	0	0	0
+dial	transport $0.50$	3	20	0	0
+dial	transport $0.50$	3	29	0	0
+dial	transport $0.50$	3	29	0	0
+dial	transport $0.50$	3	25	0	0
+dial	transport $0.50$	3	32	0	0
+dial	transport $0.50$	3	24	0	0
+dial	transport $0.50$	3	17	0	0
+dial	transport $0.50$	3	13	0	0
+dial	transport $0.75$	0	0	0	0
+dial	transport $0.75$	0	20	0	0
+dial	transport $0.75$	0	31	0	0
+dial	transport $0.75$	0	33	0	0
+dial	transport $0.75$	0	36	0	0
+dial	transport $0.75$	0	27	0	0
+dial	transport $0.75$	0	28	0	0
+dial	transport $0.75$	0	24	0	0
+dial	transport $0.75$	0	15	0	0
+dial	transport $0.75$	0	19	0	0
+dial	transport $0.75$	1	20	0	0
+dial	transport $0.75$	1	23	0	0
+dial	transport $0.75$	1	28	0	0
+dial	transport $0.75$	1	26	0	0
+dial	transport $0.75$	1	31	0	0
+dial	transport $0.75$	1	37	0	0
+dial	transport $0.75$	1	36	0	0
+dial	transport $0.75$	1	35	0	0
+dial	transport $0.75$	1	28	0	0
+dial	transport $0.75$	1	21	0	0
+dial	transport $0.75$	2	16	0	0
+dial	transport $0.75$	2	0	0	0
+dial	transport $0.75$	2	27	0	0
+dial	transport $0.75$	2	30	0	0
+dial	transport $0.75$	2	47	0	0
+dial	transport $0.75$	2	31	0	0
+dial	transport $0.75$	2	35	0	0
+dial	transport $0.75$	2	29	0	0
+dial	transport $0.75$	2	19	0	0
+dial	transport $0.75$	2	19	0	0
+dial	transport $0.75$	3	0	0	0
+dial	transport $0.75$	3	23	0	0
+dial	transport $0.75$	3	33	0	0
+dial	transport $0.75$	3	36	0	0
+dial	transport $0.75$	3	29	0	0
+dial	transport $0.75$	3	29	0	0
+dial	transport $0.75$	3	34	0	0
+dial	transport $0.75$	3	30	0	0
+dial	transport $0.75$	3	34	0	0
+dial	transport $0.75$	3	23	0	0
+dial	transport $1.00$	0	0	0	0
+dial	transport $1.00$	0	17	0	0
+dial	transport $1.00$	0	0	0	0
+dial	transport $1.00$	0	24	0	0
+dial	transport $1.00$	0	28	0	0
+dial	transport $1.00$	0	32	0	0
+dial	transport $1.00$	0	32	0	0
+dial	transport $1.00$	0	26	0	0
+dial	transport $1.00$	0	0	0	0
+dial	transport $1.00$	0	22	0	0
+dial	transport $1.00$	1	21	0	0
+dial	transport $1.00$	1	27	0	0
+dial	transport $1.00$	1	37	0	0
+dial	transport $1.00$	1	0	0	0
+dial	transport $1.00$	1	36	0	0
+dial	transport $1.00$	1	36	0	0
+dial	transport $1.00$	1	25	0	0
+dial	transport $1.00$	1	25	0	0
+dial	transport $1.00$	1	28	0	0
+dial	transport $1.00$	1	31	0	0
+dial	transport $1.00$	2	19	0	0
+dial	transport $1.00$	2	21	0	0
+dial	transport $1.00$	2	26	0	0
+dial	transport $1.00$	2	25	0	0
+dial	transport $1.00$	2	41	0	0
+dial	transport $1.00$	2	41	0	0
+dial	transport $1.00$	2	34	0	0
+dial	transport $1.00$	2	32	0	0
+dial	transport $1.00$	2	25	0	0
+dial	transport $1.00$	2	26	0	0
+dial	transport $1.00$	3	22	0	0
+dial	transport $1.00$	3	0	0	0
+dial	transport $1.00$	3	26	0	0
+dial	transport $1.00$	3	34	0	0
+dial	transport $1.00$	3	43	0	0
+dial	transport $1.00$	3	33	0	0
+dial	transport $1.00$	3	37	0	0
+dial	transport $1.00$	3	30	0	0
+dial	transport $1.00$	3	28	0	0
+dial	transport $1.00$	3	25	0	0
+dial	ungated $0.20$	0	0	0	0
+dial	ungated $0.20$	0	0	0	0
+dial	ungated $0.20$	0	0	0	0
+dial	ungated $0.20$	0	0	0	0
+dial	ungated $0.20$	0	0	0	0
+dial	ungated $0.20$	0	5	0	0
+dial	ungated $0.20$	0	4	0	0
+dial	ungated $0.20$	0	0	0	0
+dial	ungated $0.20$	0	0	0	0
+dial	ungated $0.20$	0	0	0	0
+dial	ungated $0.20$	1	0	0	0
+dial	ungated $0.20$	1	0	0	0
+dial	ungated $0.20$	1	7	0	0
+dial	ungated $0.20$	1	10	0	0
+dial	ungated $0.20$	1	11	0	0
+dial	ungated $0.20$	1	7	0	0
+dial	ungated $0.20$	1	5	0	0
+dial	ungated $0.20$	1	5	0	0
+dial	ungated $0.20$	1	0	0	0
+dial	ungated $0.20$	1	0	0	0
+dial	ungated $0.20$	2	2	0	0
+dial	ungated $0.20$	2	0	0	0
+dial	ungated $0.20$	2	0	0	0
+dial	ungated $0.20$	2	0	0	0
+dial	ungated $0.20$	2	0	0	0
+dial	ungated $0.20$	2	0	0	0
+dial	ungated $0.20$	2	0	0	0
+dial	ungated $0.20$	2	0	0	0
+dial	ungated $0.20$	2	6	0	0
+dial	ungated $0.20$	2	0	0	0
+dial	ungated $0.20$	3	0	0	0
+dial	ungated $0.20$	3	0	0	0
+dial	ungated $0.20$	3	0	0	0
+dial	ungated $0.20$	3	0	0	0
+dial	ungated $0.20$	3	0	0	0
+dial	ungated $0.20$	3	0	0	0
+dial	ungated $0.20$	3	2	0	0
+dial	ungated $0.20$	3	0	0	0
+dial	ungated $0.20$	3	2	0	0
+dial	ungated $0.20$	3	0	0	0
+dial	ungated $0.35$	0	2	0	0
+dial	ungated $0.35$	0	2	0	0
+dial	ungated $0.35$	0	0	0	0
+dial	ungated $0.35$	0	0	0	0
+dial	ungated $0.35$	0	0	0	0
+dial	ungated $0.35$	0	0	0	0
+dial	ungated $0.35$	0	4	0	0
+dial	ungated $0.35$	0	0	0	0
+dial	ungated $0.35$	0	4	0	0
+dial	ungated $0.35$	0	0	0	0
+dial	ungated $0.35$	1	0	0	0
+dial	ungated $0.35$	1	0	0	0
+dial	ungated $0.35$	1	0	0	0
+dial	ungated $0.35$	1	0	0	0
+dial	ungated $0.35$	1	4	0	0
+dial	ungated $0.35$	1	0	0	0
+dial	ungated $0.35$	1	0	0	0
+dial	ungated $0.35$	1	0	0	0
+dial	ungated $0.35$	1	0	0	0
+dial	ungated $0.35$	1	0	0	0
+dial	ungated $0.35$	2	0	0	0
+dial	ungated $0.35$	2	0	0	0
+dial	ungated $0.35$	2	0	0	0
+dial	ungated $0.35$	2	0	0	0
+dial	ungated $0.35$	2	11	0	0
+dial	ungated $0.35$	2	0	0	0
+dial	ungated $0.35$	2	7	0	0
+dial	ungated $0.35$	2	6	0	0
+dial	ungated $0.35$	2	7	0	0
+dial	ungated $0.35$	2	0	0	0
+dial	ungated $0.35$	3	0	0	0
+dial	ungated $0.35$	3	0	0	0
+dial	ungated $0.35$	3	6	0	0
+dial	ungated $0.35$	3	0	0	0
+dial	ungated $0.35$	3	0	0	0
+dial	ungated $0.35$	3	8	0	0
+dial	ungated $0.35$	3	0	0	0
+dial	ungated $0.35$	3	0	0	0
+dial	ungated $0.35$	3	0	0	0
+dial	ungated $0.35$	3	6	0	0
+dial	ungated $0.50$	0	0	0	0
+dial	ungated $0.50$	0	0	0	0
+dial	ungated $0.50$	0	0	0	0
+dial	ungated $0.50$	0	0	0	0
+dial	ungated $0.50$	0	0	0	0
+dial	ungated $0.50$	0	0	0	0
+dial	ungated $0.50$	0	0	0	0
+dial	ungated $0.50$	0	1	0	0
+dial	ungated $0.50$	0	0	0	0
+dial	ungated $0.50$	0	0	0	0
+dial	ungated $0.50$	1	0	0	0
+dial	ungated $0.50$	1	0	0	0
+dial	ungated $0.50$	1	0	0	0
+dial	ungated $0.50$	1	6	0	0
+dial	ungated $0.50$	1	0	0	0
+dial	ungated $0.50$	1	0	0	0
+dial	ungated $0.50$	1	0	0	0
+dial	ungated $0.50$	1	13	0	0
+dial	ungated $0.50$	1	3	0	0
+dial	ungated $0.50$	1	0	0	0
+dial	ungated $0.50$	2	0	0	0
+dial	ungated $0.50$	2	0	0	0
+dial	ungated $0.50$	2	0	0	0
+dial	ungated $0.50$	2	0	0	0
+dial	ungated $0.50$	2	0	0	0
+dial	ungated $0.50$	2	0	0	0
+dial	ungated $0.50$	2	0	0	0
+dial	ungated $0.50$	2	0	0	0
+dial	ungated $0.50$	2	8	0	0
+dial	ungated $0.50$	2	0	0	0
+dial	ungated $0.50$	3	0	0	0
+dial	ungated $0.50$	3	0	0	0
+dial	ungated $0.50$	3	7	0	0
+dial	ungated $0.50$	3	7	0	0
+dial	ungated $0.50$	3	9	0	0
+dial	ungated $0.50$	3	0	0	0
+dial	ungated $0.50$	3	0	0	0
+dial	ungated $0.50$	3	17	0	0
+dial	ungated $0.50$	3	0	0	0
+dial	ungated $0.50$	3	0	0	0
+dial	ungated $0.75$	0	2	0	0
+dial	ungated $0.75$	0	5	0	0
+dial	ungated $0.75$	0	11	0	0
+dial	ungated $0.75$	0	8	0	0
+dial	ungated $0.75$	0	8	0	0
+dial	ungated $0.75$	0	0	0	0
+dial	ungated $0.75$	0	3	0	0
+dial	ungated $0.75$	0	3	0	0
+dial	ungated $0.75$	0	3	0	0
+dial	ungated $0.75$	0	3	0	0
+dial	ungated $0.75$	1	0	0	0
+dial	ungated $0.75$	1	0	0	0
+dial	ungated $0.75$	1	0	0	0
+dial	ungated $0.75$	1	8	0	0
+dial	ungated $0.75$	1	12	0	0
+dial	ungated $0.75$	1	0	0	0
+dial	ungated $0.75$	1	6	0	0
+dial	ungated $0.75$	1	6	0	0
+dial	ungated $0.75$	1	0	0	0
+dial	ungated $0.75$	1	0	0	0
+dial	ungated $0.75$	2	0	0	0
+dial	ungated $0.75$	2	0	0	0
+dial	ungated $0.75$	2	0	0	0
+dial	ungated $0.75$	2	0	0	0
+dial	ungated $0.75$	2	0	0	0
+dial	ungated $0.75$	2	0	0	0
+dial	ungated $0.75$	2	0	0	0
+dial	ungated $0.75$	2	8	0	0
+dial	ungated $0.75$	2	7	0	0
+dial	ungated $0.75$	2	0	0	0
+dial	ungated $0.75$	3	5	0	0
+dial	ungated $0.75$	3	0	0	0
+dial	ungated $0.75$	3	0	0	0
+dial	ungated $0.75$	3	0	0	0
+dial	ungated $0.75$	3	13	0	0
+dial	ungated $0.75$	3	0	0	0
+dial	ungated $0.75$	3	0	0	0
+dial	ungated $0.75$	3	0	0	0
+dial	ungated $0.75$	3	0	0	0
+dial	ungated $0.75$	3	0	0	0
+dial	ungated $1.00$	0	0	0	0
+dial	ungated $1.00$	0	0	0	0
+dial	ungated $1.00$	0	0	0	0
+dial	ungated $1.00$	0	0	0	0
+dial	ungated $1.00$	0	0	0	0
+dial	ungated $1.00$	0	0	0	0
+dial	ungated $1.00$	0	11	0	0
+dial	ungated $1.00$	0	11	0	0
+dial	ungated $1.00$	0	5	0	0
+dial	ungated $1.00$	0	0	0	0
+dial	ungated $1.00$	1	0	0	0
+dial	ungated $1.00$	1	0	0	0
+dial	ungated $1.00$	1	0	0	0
+dial	ungated $1.00$	1	0	0	0
+dial	ungated $1.00$	1	0	0	0
+dial	ungated $1.00$	1	20	0	0
+dial	ungated $1.00$	1	0	0	0
+dial	ungated $1.00$	1	0	0	0
+dial	ungated $1.00$	1	0	0	0
+dial	ungated $1.00$	1	0	0	0
+dial	ungated $1.00$	2	0	0	0
+dial	ungated $1.00$	2	16	0	0
+dial	ungated $1.00$	2	0	0	0
+dial	ungated $1.00$	2	15	0	0
+dial	ungated $1.00$	2	6	0	0
+dial	ungated $1.00$	2	0	0	0
+dial	ungated $1.00$	2	0	0	0
+dial	ungated $1.00$	2	6	0	0
+dial	ungated $1.00$	2	17	0	0
+dial	ungated $1.00$	2	20	0	0
+dial	ungated $1.00$	3	0	0	0
+dial	ungated $1.00$	3	0	0	0
+dial	ungated $1.00$	3	0	0	0
+dial	ungated $1.00$	3	0	0	0
+dial	ungated $1.00$	3	0	0	0
+dial	ungated $1.00$	3	14	0	0
+dial	ungated $1.00$	3	17	0	0
+dial	ungated $1.00$	3	0	0	0
+dial	ungated $1.00$	3	0	0	0
+dial	ungated $1.00$	3	4	0	0
+dial	preserving limit	0	1	0	0
+dial	preserving limit	0	3	0	0
+dial	preserving limit	0	0	0	0
+dial	preserving limit	0	2	0	0
+dial	preserving limit	0	2	0	0
+dial	preserving limit	0	0	0	0
+dial	preserving limit	0	1	0	0
+dial	preserving limit	0	0	0	0
+dial	preserving limit	0	0	0	0
+dial	preserving limit	0	1	0	0
+dial	preserving limit	1	0	0	0
+dial	preserving limit	1	2	0	0
+dial	preserving limit	1	5	0	0
+dial	preserving limit	1	0	0	0
+dial	preserving limit	1	1	0	0
+dial	preserving limit	1	0	0	0
+dial	preserving limit	1	0	0	0
+dial	preserving limit	1	0	0	0
+dial	preserving limit	1	0	0	0
+dial	preserving limit	1	0	0	0
+dial	preserving limit	2	2	0	0
+dial	preserving limit	2	0	0	0
+dial	preserving limit	2	1	0	0
+dial	preserving limit	2	3	0	0
+dial	preserving limit	2	4	0	0
+dial	preserving limit	2	0	0	0
+dial	preserving limit	2	0	0	0
+dial	preserving limit	2	1	0	0
+dial	preserving limit	2	1	0	0
+dial	preserving limit	2	0	0	0
+dial	preserving limit	3	2	0	0
+dial	preserving limit	3	1	0	0
+dial	preserving limit	3	0	0	0
+dial	preserving limit	3	3	0	0
+dial	preserving limit	3	1	0	0
+dial	preserving limit	3	1	0	0
+dial	preserving limit	3	0	0	0
+dial	preserving limit	3	2	0	0
+dial	preserving limit	3	1	0	0
+dial	preserving limit	3	3	0	0
+exotype	explore	0	1	99200	99200
+exotype	explore	0	2	99200	99200
+exotype	explore	0	5	99200	99200
+exotype	explore	0	9	99200	99200
+exotype	explore	0	1	99200	99200
+exotype	explore	0	2	99200	99200
+exotype	explore	0	4	99200	99200
+exotype	explore	0	0	99200	99200
+exotype	explore	0	2	99200	99200
+exotype	explore	0	4	99200	99200
+exotype	explore	1	1	99200	99200
+exotype	explore	1	7	99200	99200
+exotype	explore	1	2	99200	99200
+exotype	explore	1	3	99200	99200
+exotype	explore	1	1	99200	99200
+exotype	explore	1	6	99200	99200
+exotype	explore	1	0	99200	99200
+exotype	explore	1	3	99200	99200
+exotype	explore	1	2	99200	99200
+exotype	explore	1	9	99200	99200
+exotype	explore	2	0	99200	99200
+exotype	explore	2	1	99200	99200
+exotype	explore	2	0	99200	99200
+exotype	explore	2	4	99200	99200
+exotype	explore	2	1	99200	99200
+exotype	explore	2	7	99200	99200
+exotype	explore	2	10	99200	99200
+exotype	explore	2	1	99200	99200
+exotype	explore	2	0	99200	99200
+exotype	explore	2	6	99200	99200
+exotype	explore	3	1	99200	99200
+exotype	explore	3	1	99200	99200
+exotype	explore	3	0	99200	99200
+exotype	explore	3	0	99200	99200
+exotype	explore	3	9	99200	99200
+exotype	explore	3	11	99200	99200
+exotype	explore	3	0	99200	99200
+exotype	explore	3	8	99200	99200
+exotype	explore	3	3	99200	99200
+exotype	explore	3	2	99200	99200
+exotype	explore	4	1	99200	99200
+exotype	explore	4	3	99200	99200
+exotype	explore	4	2	99200	99200
+exotype	explore	4	0	99200	99200
+exotype	explore	4	2	99200	99200
+exotype	explore	4	1	99200	99200
+exotype	explore	4	9	99200	99200
+exotype	explore	4	1	99200	99200
+exotype	explore	4	7	99200	99200
+exotype	explore	4	12	99200	99200
+exotype	explore	5	1	99200	99200
+exotype	explore	5	0	99200	99200
+exotype	explore	5	2	99200	99200
+exotype	explore	5	6	99200	99200
+exotype	explore	5	1	99200	99200
+exotype	explore	5	2	99200	99200
+exotype	explore	5	0	99200	99200
+exotype	explore	5	0	99200	99200
+exotype	explore	5	6	99200	99200
+exotype	explore	5	2	99200	99200
+exotype	explore	6	0	99200	99200
+exotype	explore	6	6	99200	99200
+exotype	explore	6	0	99200	99200
+exotype	explore	6	1	99200	99200
+exotype	explore	6	0	99200	99200
+exotype	explore	6	2	99200	99200
+exotype	explore	6	8	99200	99200
+exotype	explore	6	10	99200	99200
+exotype	explore	6	2	99200	99200
+exotype	explore	6	7	99200	99200
+exotype	explore	7	1	99200	99200
+exotype	explore	7	3	99200	99200
+exotype	explore	7	4	99200	99200
+exotype	explore	7	7	99200	99200
+exotype	explore	7	13	99200	99200
+exotype	explore	7	4	99200	99200
+exotype	explore	7	7	99200	99200
+exotype	explore	7	1	99200	99200
+exotype	explore	7	1	99200	99200
+exotype	explore	7	2	99200	99200
+exotype	explore	8	1	99200	99200
+exotype	explore	8	3	99200	99200
+exotype	explore	8	1	99200	99200
+exotype	explore	8	3	99200	99200
+exotype	explore	8	3	99200	99200
+exotype	explore	8	0	99200	99200
+exotype	explore	8	6	99200	99200
+exotype	explore	8	5	99200	99200
+exotype	explore	8	0	99200	99200
+exotype	explore	8	4	99200	99200
+exotype	explore	9	0	99200	99200
+exotype	explore	9	1	99200	99200
+exotype	explore	9	1	99200	99200
+exotype	explore	9	4	99200	99200
+exotype	explore	9	0	99200	99200
+exotype	explore	9	2	99200	99200
+exotype	explore	9	0	99200	99200
+exotype	explore	9	5	99200	99200
+exotype	explore	9	9	99200	99200
+exotype	explore	9	5	99200	99200
+exotype	explore	10	1	99200	99200
+exotype	explore	10	6	99200	99200
+exotype	explore	10	5	99200	99200
+exotype	explore	10	0	99200	99200
+exotype	explore	10	1	99200	99200
+exotype	explore	10	1	99200	99200
+exotype	explore	10	4	99200	99200
+exotype	explore	10	6	99200	99200
+exotype	explore	10	5	99200	99200
+exotype	explore	10	1	99200	99200
+exotype	explore	11	1	99200	99200
+exotype	explore	11	1	99200	99200
+exotype	explore	11	3	99200	99200
+exotype	explore	11	0	99200	99200
+exotype	explore	11	3	99200	99200
+exotype	explore	11	6	99200	99200
+exotype	explore	11	6	99200	99200
+exotype	explore	11	3	99200	99200
+exotype	explore	11	5	99200	99200
+exotype	explore	11	2	99200	99200
+exotype	explore	12	0	99200	99200
+exotype	explore	12	3	99200	99200
+exotype	explore	12	7	99200	99200
+exotype	explore	12	4	99200	99200
+exotype	explore	12	4	99200	99200
+exotype	explore	12	15	99200	99200
+exotype	explore	12	12	99200	99200
+exotype	explore	12	23	99200	99200
+exotype	explore	12	7	99200	99200
+exotype	explore	12	4	99200	99200
+exotype	explore	13	1	99200	99200
+exotype	explore	13	4	99200	99200
+exotype	explore	13	0	99200	99200
+exotype	explore	13	3	99200	99200
+exotype	explore	13	5	99200	99200
+exotype	explore	13	1	99200	99200
+exotype	explore	13	6	99200	99200
+exotype	explore	13	0	99200	99200
+exotype	explore	13	6	99200	99200
+exotype	explore	13	3	99200	99200
+exotype	explore	14	0	99200	99200
+exotype	explore	14	6	99200	99200
+exotype	explore	14	0	99200	99200
+exotype	explore	14	4	99200	99200
+exotype	explore	14	0	99200	99200
+exotype	explore	14	3	99200	99200
+exotype	explore	14	4	99200	99200
+exotype	explore	14	2	99200	99200
+exotype	explore	14	4	99200	99200
+exotype	explore	14	5	99200	99200
+exotype	explore	15	0	99200	99200
+exotype	explore	15	0	99200	99200
+exotype	explore	15	2	99200	99200
+exotype	explore	15	6	99200	99200
+exotype	explore	15	8	99200	99200
+exotype	explore	15	4	99200	99200
+exotype	explore	15	1	99200	99200
+exotype	explore	15	0	99200	99200
+exotype	explore	15	4	99200	99200
+exotype	explore	15	1	99200	99200
+exotype	hold	0	1	0	99200
+exotype	hold	0	3	0	99200
+exotype	hold	0	0	0	99200
+exotype	hold	0	2	0	99200
+exotype	hold	0	2	0	99200
+exotype	hold	0	0	0	99200
+exotype	hold	0	1	0	99200
+exotype	hold	0	0	0	99200
+exotype	hold	0	0	0	99200
+exotype	hold	0	1	0	99200
+exotype	hold	1	0	0	99200
+exotype	hold	1	2	0	99200
+exotype	hold	1	5	0	99200
+exotype	hold	1	0	0	99200
+exotype	hold	1	1	0	99200
+exotype	hold	1	0	0	99200
+exotype	hold	1	0	0	99200
+exotype	hold	1	0	0	99200
+exotype	hold	1	0	0	99200
+exotype	hold	1	0	0	99200
+exotype	hold	2	2	0	99200
+exotype	hold	2	0	0	99200
+exotype	hold	2	1	0	99200
+exotype	hold	2	3	0	99200
+exotype	hold	2	4	0	99200
+exotype	hold	2	0	0	99200
+exotype	hold	2	0	0	99200
+exotype	hold	2	1	0	99200
+exotype	hold	2	1	0	99200
+exotype	hold	2	0	0	99200
+exotype	hold	3	2	0	99200
+exotype	hold	3	1	0	99200
+exotype	hold	3	0	0	99200
+exotype	hold	3	3	0	99200
+exotype	hold	3	1	0	99200
+exotype	hold	3	1	0	99200
+exotype	hold	3	0	0	99200
+exotype	hold	3	2	0	99200
+exotype	hold	3	1	0	99200
+exotype	hold	3	3	0	99200
+exotype	hold	4	1	0	99200
+exotype	hold	4	2	0	99200
+exotype	hold	4	0	0	99200
+exotype	hold	4	0	0	99200
+exotype	hold	4	0	0	99200
+exotype	hold	4	2	0	99200
+exotype	hold	4	1	0	99200
+exotype	hold	4	1	0	99200
+exotype	hold	4	1	0	99200
+exotype	hold	4	0	0	99200
+exotype	hold	5	0	0	99200
+exotype	hold	5	6	0	99200
+exotype	hold	5	0	0	99200
+exotype	hold	5	0	0	99200
+exotype	hold	5	2	0	99200
+exotype	hold	5	0	0	99200
+exotype	hold	5	0	0	99200
+exotype	hold	5	0	0	99200
+exotype	hold	5	5	0	99200
+exotype	hold	5	0	0	99200
+exotype	hold	6	1	0	99200
+exotype	hold	6	1	0	99200
+exotype	hold	6	0	0	99200
+exotype	hold	6	2	0	99200
+exotype	hold	6	0	0	99200
+exotype	hold	6	1	0	99200
+exotype	hold	6	1	0	99200
+exotype	hold	6	1	0	99200
+exotype	hold	6	2	0	99200
+exotype	hold	6	2	0	99200
+exotype	hold	7	1	0	99200
+exotype	hold	7	0	0	99200
+exotype	hold	7	0	0	99200
+exotype	hold	7	0	0	99200
+exotype	hold	7	2	0	99200
+exotype	hold	7	0	0	99200
+exotype	hold	7	0	0	99200
+exotype	hold	7	0	0	99200
+exotype	hold	7	3	0	99200
+exotype	hold	7	1	0	99200
+exotype	hold	8	2	0	99200
+exotype	hold	8	1	0	99200
+exotype	hold	8	0	0	99200
+exotype	hold	8	0	0	99200
+exotype	hold	8	2	0	99200
+exotype	hold	8	0	0	99200
+exotype	hold	8	1	0	99200
+exotype	hold	8	0	0	99200
+exotype	hold	8	0	0	99200
+exotype	hold	8	2	0	99200
+exotype	hold	9	0	0	99200
+exotype	hold	9	1	0	99200
+exotype	hold	9	0	0	99200
+exotype	hold	9	0	0	99200
+exotype	hold	9	0	0	99200
+exotype	hold	9	3	0	99200
+exotype	hold	9	1	0	99200
+exotype	hold	9	4	0	99200
+exotype	hold	9	1	0	99200
+exotype	hold	9	0	0	99200
+exotype	hold	10	0	0	99200
+exotype	hold	10	0	0	99200
+exotype	hold	10	1	0	99200
+exotype	hold	10	3	0	99200
+exotype	hold	10	1	0	99200
+exotype	hold	10	2	0	99200
+exotype	hold	10	4	0	99200
+exotype	hold	10	4	0	99200
+exotype	hold	10	2	0	99200
+exotype	hold	10	5	0	99200
+exotype	hold	11	2	0	99200
+exotype	hold	11	2	0	99200
+exotype	hold	11	2	0	99200
+exotype	hold	11	3	0	99200
+exotype	hold	11	0	0	99200
+exotype	hold	11	0	0	99200
+exotype	hold	11	1	0	99200
+exotype	hold	11	0	0	99200
+exotype	hold	11	1	0	99200
+exotype	hold	11	3	0	99200
+exotype	hold	12	0	0	99200
+exotype	hold	12	2	0	99200
+exotype	hold	12	2	0	99200
+exotype	hold	12	2	0	99200
+exotype	hold	12	0	0	99200
+exotype	hold	12	3	0	99200
+exotype	hold	12	0	0	99200
+exotype	hold	12	0	0	99200
+exotype	hold	12	3	0	99200
+exotype	hold	12	7	0	99200
+exotype	hold	13	0	0	99200
+exotype	hold	13	1	0	99200
+exotype	hold	13	2	0	99200
+exotype	hold	13	0	0	99200
+exotype	hold	13	0	0	99200
+exotype	hold	13	2	0	99200
+exotype	hold	13	0	0	99200
+exotype	hold	13	0	0	99200
+exotype	hold	13	0	0	99200
+exotype	hold	13	1	0	99200
+exotype	hold	14	6	0	99200
+exotype	hold	14	2	0	99200
+exotype	hold	14	2	0	99200
+exotype	hold	14	2	0	99200
+exotype	hold	14	1	0	99200
+exotype	hold	14	1	0	99200
+exotype	hold	14	0	0	99200
+exotype	hold	14	2	0	99200
+exotype	hold	14	4	0	99200
+exotype	hold	14	0	0	99200
+exotype	hold	15	1	0	99200
+exotype	hold	15	1	0	99200
+exotype	hold	15	2	0	99200
+exotype	hold	15	1	0	99200
+exotype	hold	15	0	0	99200
+exotype	hold	15	5	0	99200
+exotype	hold	15	0	0	99200
+exotype	hold	15	1	0	99200
+exotype	hold	15	0	0	99200
+exotype	hold	15	0	0	99200
+exotype	exotype	0	1	6757	99200
+exotype	exotype	0	0	6757	99200
+exotype	exotype	0	4	6757	99200
+exotype	exotype	0	5	6757	99200
+exotype	exotype	0	4	6757	99200
+exotype	exotype	0	3	6757	99200
+exotype	exotype	0	4	6757	99200
+exotype	exotype	0	5	6757	99200
+exotype	exotype	0	3	6757	99200
+exotype	exotype	0	4	6757	99200
+exotype	exotype	1	4	11287	99200
+exotype	exotype	1	6	11287	99200
+exotype	exotype	1	5	11287	99200
+exotype	exotype	1	2	11287	99200
+exotype	exotype	1	2	11287	99200
+exotype	exotype	1	2	11287	99200
+exotype	exotype	1	3	11287	99200
+exotype	exotype	1	0	11287	99200
+exotype	exotype	1	1	11287	99200
+exotype	exotype	1	4	11287	99200
+exotype	exotype	2	5	17748	99200
+exotype	exotype	2	9	17748	99200
+exotype	exotype	2	6	17748	99200
+exotype	exotype	2	5	17748	99200
+exotype	exotype	2	10	17748	99200
+exotype	exotype	2	3	17748	99200
+exotype	exotype	2	1	17748	99200
+exotype	exotype	2	5	17748	99200
+exotype	exotype	2	7	17748	99200
+exotype	exotype	2	6	17748	99200
+exotype	exotype	3	5	13683	99200
+exotype	exotype	3	8	13683	99200
+exotype	exotype	3	4	13683	99200
+exotype	exotype	3	12	13683	99200
+exotype	exotype	3	8	13683	99200
+exotype	exotype	3	9	13683	99200
+exotype	exotype	3	11	13683	99200
+exotype	exotype	3	3	13683	99200
+exotype	exotype	3	7	13683	99200
+exotype	exotype	3	2	13683	99200
+exotype	exotype	4	4	10808	99200
+exotype	exotype	4	8	10808	99200
+exotype	exotype	4	12	10808	99200
+exotype	exotype	4	5	10808	99200
+exotype	exotype	4	5	10808	99200
+exotype	exotype	4	3	10808	99200
+exotype	exotype	4	7	10808	99200
+exotype	exotype	4	3	10808	99200
+exotype	exotype	4	5	10808	99200
+exotype	exotype	4	3	10808	99200
+exotype	exotype	5	6	11876	99200
+exotype	exotype	5	14	11876	99200
+exotype	exotype	5	3	11876	99200
+exotype	exotype	5	2	11876	99200
+exotype	exotype	5	10	11876	99200
+exotype	exotype	5	0	11876	99200
+exotype	exotype	5	4	11876	99200
+exotype	exotype	5	6	11876	99200
+exotype	exotype	5	0	11876	99200
+exotype	exotype	5	4	11876	99200
+exotype	exotype	6	0	11436	99200
+exotype	exotype	6	10	11436	99200
+exotype	exotype	6	13	11436	99200
+exotype	exotype	6	11	11436	99200
+exotype	exotype	6	12	11436	99200
+exotype	exotype	6	9	11436	99200
+exotype	exotype	6	9	11436	99200
+exotype	exotype	6	17	11436	99200
+exotype	exotype	6	17	11436	99200
+exotype	exotype	6	15	11436	99200
+exotype	exotype	7	1	9326	99200
+exotype	exotype	7	2	9326	99200
+exotype	exotype	7	1	9326	99200
+exotype	exotype	7	4	9326	99200
+exotype	exotype	7	1	9326	99200
+exotype	exotype	7	1	9326	99200
+exotype	exotype	7	0	9326	99200
+exotype	exotype	7	5	9326	99200
+exotype	exotype	7	0	9326	99200
+exotype	exotype	7	2	9326	99200
+exotype	exotype	8	9	12366	99200
+exotype	exotype	8	16	12366	99200
+exotype	exotype	8	14	12366	99200
+exotype	exotype	8	20	12366	99200
+exotype	exotype	8	18	12366	99200
+exotype	exotype	8	15	12366	99200
+exotype	exotype	8	13	12366	99200
+exotype	exotype	8	17	12366	99200
+exotype	exotype	8	12	12366	99200
+exotype	exotype	8	11	12366	99200
+exotype	exotype	9	6	9611	99200
+exotype	exotype	9	7	9611	99200
+exotype	exotype	9	7	9611	99200
+exotype	exotype	9	10	9611	99200
+exotype	exotype	9	3	9611	99200
+exotype	exotype	9	6	9611	99200
+exotype	exotype	9	9	9611	99200
+exotype	exotype	9	0	9611	99200
+exotype	exotype	9	9	9611	99200
+exotype	exotype	9	6	9611	99200
+exotype	exotype	10	4	16982	99200
+exotype	exotype	10	10	16982	99200
+exotype	exotype	10	16	16982	99200
+exotype	exotype	10	11	16982	99200
+exotype	exotype	10	8	16982	99200
+exotype	exotype	10	8	16982	99200
+exotype	exotype	10	11	16982	99200
+exotype	exotype	10	10	16982	99200
+exotype	exotype	10	10	16982	99200
+exotype	exotype	10	16	16982	99200
+exotype	exotype	11	5	11039	99200
+exotype	exotype	11	7	11039	99200
+exotype	exotype	11	5	11039	99200
+exotype	exotype	11	5	11039	99200
+exotype	exotype	11	5	11039	99200
+exotype	exotype	11	10	11039	99200
+exotype	exotype	11	8	11039	99200
+exotype	exotype	11	0	11039	99200
+exotype	exotype	11	8	11039	99200
+exotype	exotype	11	9	11039	99200
+exotype	exotype	12	5	14757	99200
+exotype	exotype	12	5	14757	99200
+exotype	exotype	12	4	14757	99200
+exotype	exotype	12	13	14757	99200
+exotype	exotype	12	5	14757	99200
+exotype	exotype	12	9	14757	99200
+exotype	exotype	12	9	14757	99200
+exotype	exotype	12	2	14757	99200
+exotype	exotype	12	9	14757	99200
+exotype	exotype	12	9	14757	99200
+exotype	exotype	13	14	15176	99200
+exotype	exotype	13	16	15176	99200
+exotype	exotype	13	12	15176	99200
+exotype	exotype	13	17	15176	99200
+exotype	exotype	13	11	15176	99200
+exotype	exotype	13	9	15176	99200
+exotype	exotype	13	16	15176	99200
+exotype	exotype	13	13	15176	99200
+exotype	exotype	13	13	15176	99200
+exotype	exotype	13	17	15176	99200
+exotype	exotype	14	2	11580	99200
+exotype	exotype	14	1	11580	99200
+exotype	exotype	14	4	11580	99200
+exotype	exotype	14	3	11580	99200
+exotype	exotype	14	5	11580	99200
+exotype	exotype	14	1	11580	99200
+exotype	exotype	14	2	11580	99200
+exotype	exotype	14	7	11580	99200
+exotype	exotype	14	1	11580	99200
+exotype	exotype	14	3	11580	99200
+exotype	exotype	15	6	14745	99200
+exotype	exotype	15	5	14745	99200
+exotype	exotype	15	4	14745	99200
+exotype	exotype	15	8	14745	99200
+exotype	exotype	15	3	14745	99200
+exotype	exotype	15	5	14745	99200
+exotype	exotype	15	5	14745	99200
+exotype	exotype	15	3	14745	99200
+exotype	exotype	15	9	14745	99200
+exotype	exotype	15	5	14745	99200

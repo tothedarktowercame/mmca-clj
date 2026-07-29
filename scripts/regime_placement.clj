@@ -23,17 +23,24 @@
   (let [width (count phenotype)
         bit-at #(nth phenotype (mod % width))]
     (= (bit-at (dec i)) (bit-at i) (bit-at (inc i)))))
-(defn exotype-step [pr genotype phenotype policy]
-  (mapv (fn [i rule]
-          (let [fire? (case policy
-                        :explore true
-                        :hold false
-                        :exotype (boring? phenotype i))]
-            (if fire?
-              (c/propagate pr rule exotype-explore-writing true)
-              rule)))
-        (range (count genotype))
-        genotype))
+(defn exotype-step [pr genotype phenotype policy activity]
+  (let [fires (volatile! 0)
+        result
+        (mapv (fn [i rule]
+                (let [fire? (case policy
+                              :explore true
+                              :hold false
+                              :exotype (boring? phenotype i))]
+                  (when fire? (vswap! fires inc))
+                  (if fire?
+                    (c/propagate pr rule exotype-explore-writing true)
+                    rule)))
+              (range (count genotype))
+              genotype)]
+    (swap! activity (fn [{:keys [fired opportunities]}]
+                      {:fired (+ fired @fires)
+                       :opportunities (+ opportunities (count genotype))}))
+    result))
 (defn eca-row [rule p]
   (let [n (count p)]
     (apply str (for [i (range n)]
@@ -41,11 +48,11 @@
             ce (Character/digit (nth p i) 2)
             r (Character/digit (nth p (mod (inc i) n)) 2)]
         (bit-and (bit-shift-right rule (+ (* 4 l) (* 2 ce) r)) 1))))))
-(defn mech-step [pr mr g cfg t phenotype]
+(defn mech-step [pr mr g cfg t phenotype activity]
   (let [{:keys [kind policy wa wb b u patch]} cfg]
     (cond
       (= kind :preserve) g
-      (= kind :exotype) (exotype-step pr g phenotype policy)
+      (= kind :exotype) (exotype-step pr g phenotype policy activity)
       (= kind :transport)
       (let [start (mod t 2)]
         (reduce (fn [gg i]
@@ -80,24 +87,29 @@
 (defn run-mech [cfg seed]
   (let [pr (rng/make-rng (format "prop-%d" seed)) mr (rng/make-rng (format "mech-%d" seed))
         nr (rng/make-rng (format "noise-%d" seed))
+        activity (atom {:fired 0 :opportunities 0})
         g0 (c/random-genotype pr W) p0 (c/random-phenotype pr W)
         step (fn [p m n g t ph]
-               (let [g' (mech-step p m g cfg t ph)]
+               (let [g' (mech-step p m g cfg t ph activity)]
                  (if (pos? (or (:noise cfg) 0)) (c/genotype-noise n g' (:noise cfg)) g')))]
     (loop [t 0 g g0 p p0]
       (if (= t TSTAR)
-        (for [x (range 0 W 8)]
-          (let [pB (apply str (assoc (vec p) x (if (= \1 (nth p x)) \0 \1)))
-                pA' (clone pr) pB' (clone pr) mA (clone mr) mB (clone mr)
-                nA (clone nr) nB (clone nr)]
-            (loop [tt TSTAR gA g a p gB g b pB]
-              (if (= tt (+ TSTAR DT)) (count (remove true? (map = a b)))
-                (recur (inc tt) (step pA' mA nA gA tt a) (c/phenotype-step gA a)
-                                (step pB' mB nB gB tt b) (c/phenotype-step gB b))))))
+        (let [damages
+              (mapv
+                (fn [x]
+                  (let [pB (apply str (assoc (vec p) x (if (= \1 (nth p x)) \0 \1)))
+                        pA' (clone pr) pB' (clone pr) mA (clone mr) mB (clone mr)
+                        nA (clone nr) nB (clone nr)]
+                    (loop [tt TSTAR gA g a p gB g b pB]
+                      (if (= tt (+ TSTAR DT)) (count (remove true? (map = a b)))
+                        (recur (inc tt) (step pA' mA nA gA tt a) (c/phenotype-step gA a)
+                                        (step pB' mB nB gB tt b) (c/phenotype-step gB b))))))
+                (range 0 W 8))]
+          (assoc @activity :damages damages))
         (recur (inc t) (step pr mr nr g t p) (c/phenotype-step g p))))))
 (let [PA [3 0 1 2 7 4 5 6] T4 [6 7 0 2 1 4 3 5]
       R1 [1 2 3 4 5 6 7 0] R2 [2 3 4 5 6 7 0 1] R4 [4 5 6 7 0 1 2 3]]
-  (println "class\tname\tseed\tdamage")
+  (println "class\tname\tseed\tdamage\tfired\topportunities")
   (doseq [rule [0 204 90 54 110 30] seed (range 4)]
     (let [r (rng/make-rng (format "prop-%d" seed))
           _ (c/random-genotype r W) p0 (c/random-phenotype r W)]
@@ -109,7 +121,7 @@
                           (if (= tt (+ TSTAR DT)) (count (remove true? (map = a b)))
                             (recur (inc tt) (eca-row rule a) (eca-row rule b))))))
                     (recur (inc t) (eca-row rule p))))]
-        (println (format "eca\trule %d\t%d\t%d" rule seed d)))))
+        (println (format "eca\trule %d\t%d\t%d\t0\t0" rule seed d)))))
   (doseq [[cls nm cfg]
           [["family" "$P_a$ (bare)"          {:kind :baseline :wa PA}]
            ["family" "rot$+1$"               {:kind :baseline :wa R1}]
@@ -144,5 +156,7 @@
            ["exotype" "hold"                  {:kind :exotype :policy :hold}]
            ["exotype" "exotype"               {:kind :exotype :policy :exotype}]]
           seed (range (if (= cls "exotype") 16 4))]
-    (doseq [d (run-mech cfg seed)]
-      (println (format "%s\t%s\t%d\t%d" cls nm seed d)))))
+    (let [{:keys [damages fired opportunities]} (run-mech cfg seed)]
+      (doseq [d damages]
+        (println (format "%s\t%s\t%d\t%d\t%d\t%d"
+                         cls nm seed d fired opportunities))))))
