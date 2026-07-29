@@ -22,21 +22,27 @@ dial	ungated $0.50$	1.7750	0.6309	40
 family	rot$+1$	2.0500	0.6650	40
 dial	transport $0.05$	2.1750	0.5381	40
 dial	ungated $0.75$	2.7750	0.6165	40
+gain-random	switch random $0.099417$, transport $1.00$/hold	2.7812	0.2781	160
 dial	blend $0.35$	3.3750	0.9300	40
 exotype	explore	3.3813	0.2756	160
 exotype	switch transport $1.00$/hold	3.5063	0.3156	160
+gain-random	switch random $0.120172$, transport $1.00$/hold	3.5562	0.3060	160
 dial	ungated $1.00$	4.0500	1.0603	40
 dial	transport $0.10$	4.2500	0.8695	40
 family	braid rot$+2$/rot$+4$	5.2000	1.1181	40
+gain-random	switch random $0.236886$, transport $1.00$/hold	6.0812	0.4178	160
 gain-sweep	switch agree $4/5$, transport $1.00$/hold	6.6813	0.4847	160
 eca	rule 90	8.0000	0.0000	40
 dial	blend $0.00$	8.1500	1.0325	40
 dial	transport $0.20$	9.4250	1.0506	40
 dial	transport $0.35$	14.4500	1.3368	40
+gain-random	switch random $0.646794$, transport $1.00$/hold	14.8750	0.7387	160
 eca	rule 110	16.6750	1.5302	40
+gain-random	switch random $0.683199$, transport $1.00$/hold	17.7375	0.7579	160
 eca	rule 54	18.3000	1.7469	40
 gain-sweep	switch agree $5/7$, transport $1.00$/hold	18.4937	0.8332	160
 dial	transport $0.50$	19.2750	1.6184	40
+gain-random	switch random $0.935261$, transport $1.00$/hold	22.0375	0.8867	160
 dial	transport $1.00$	25.3750	1.8091	40
 dial	transport $0.75$	26.0500	1.5856	40
 gain-sweep	switch agree $2/5$, transport $1.00$/hold	30.3813	0.9246	160

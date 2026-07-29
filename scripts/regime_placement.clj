@@ -66,32 +66,45 @@
             ce (Character/digit (nth p i) 2)
             r (Character/digit (nth p (mod (inc i) n)) 2)]
         (bit-and (bit-shift-right rule (+ (* 4 l) (* 2 ce) r)) 1))))))
-(defn mech-step [pr mr g cfg t phenotype activity]
-  (let [{:keys [kind policy wa wb b u patch m k]} cfg]
+(defn mech-step [pr mr gr g cfg t phenotype activity]
+  (let [{:keys [kind policy wa wb b u patch m k rate]} cfg]
     (cond
       (= kind :preserve) g
       (= kind :exotype) (exotype-step pr g phenotype policy activity)
-      (or (= kind :transport) (= kind :transport-switch))
+      (#{:transport :transport-switch :transport-random-switch} kind)
       (let [start (mod t 2)
             indices (range start (dec W) 2)
-            switch? (= kind :transport-switch)
-            gate? #(agreement-gate? phenotype % (or m 3) (or k 3))
-            step-fired (if switch? (count (filter gate? indices)) 0)]
+            switch? (not= kind :transport)
+            fires (volatile! 0)
+            result
+            (reduce (fn [gg i]
+                      (let [j (inc i)
+                            li (Character/digit (nth phenotype i) 2)
+                            lj (Character/digit (nth phenotype j) 2)
+                            pr* (min 1.0 (* u (if (= li lj) 0.5 1.5)))
+                            ;; The transport stream advances once at every
+                            ;; opportunity, whether or not either gate fires.
+                            coin (rng/rand-double mr)
+                            ;; Random gate coins live on a separate stream and
+                            ;; are likewise drawn once per opportunity. `gr` is
+                            ;; cloned identically across damage-fork branches.
+                            fire? (case kind
+                                    :transport true
+                                    :transport-switch
+                                    (agreement-gate? phenotype i (or m 3) (or k 3))
+                                    :transport-random-switch
+                                    (< (rng/rand-double gr) rate))]
+                        (when (and switch? fire?) (vswap! fires inc))
+                        (if (and fire?
+                                 (< coin (if (:ungated cfg) (min 1.0 u) pr*)))
+                          (assoc gg i (nth gg j) j (nth gg i))
+                          gg)))
+                    g indices)]
         (when switch?
           (swap! activity (fn [{total-fired :fired opportunities :opportunities}]
-                            {:fired (+ total-fired step-fired)
+                            {:fired (+ total-fired @fires)
                              :opportunities (+ opportunities (count indices))})))
-        (reduce (fn [gg i]
-                  (let [j (inc i)
-                        li (Character/digit (nth phenotype i) 2)
-                        lj (Character/digit (nth phenotype j) 2)
-                        pr* (min 1.0 (* u (if (= li lj) 0.5 1.5)))]
-                    ;; draw BEFORE gating; `and` would short-circuit and skip it
-                    (if (let [coin (rng/rand-double mr)]
-                          (and (or (not switch?) (gate? i))
-                               (< coin (if (:ungated cfg) (min 1.0 u) pr*))))
-                      (assoc gg i (nth gg j) j (nth gg i)) gg)))
-                g indices))
+        result)
       :else
       (let [ord (concat [0 (dec W)] (range 1 (dec W)))]
         (reduce (fn [out i]
@@ -115,11 +128,12 @@
                 (vec (repeat W nil)) ord)))))
 (defn run-mech [cfg seed]
   (let [pr (rng/make-rng (format "prop-%d" seed)) mr (rng/make-rng (format "mech-%d" seed))
+        gr (rng/make-rng (format "gate-%d" seed))
         nr (rng/make-rng (format "noise-%d" seed))
         activity (atom {:fired 0 :opportunities 0})
         g0 (c/random-genotype pr W) p0 (c/random-phenotype pr W)
-        step (fn [p m n g t ph]
-               (let [g' (mech-step p m g cfg t ph activity)]
+        step (fn [p m gate n g t ph]
+               (let [g' (mech-step p m gate g cfg t ph activity)]
                  (if (pos? (or (:noise cfg) 0)) (c/genotype-noise n g' (:noise cfg)) g')))]
     (loop [t 0 g g0 p p0]
       (if (= t TSTAR)
@@ -128,14 +142,15 @@
                 (fn [x]
                   (let [pB (apply str (assoc (vec p) x (if (= \1 (nth p x)) \0 \1)))
                         pA' (clone pr) pB' (clone pr) mA (clone mr) mB (clone mr)
+                        gateA (clone gr) gateB (clone gr)
                         nA (clone nr) nB (clone nr)]
                     (loop [tt TSTAR gA g a p gB g b pB]
                       (if (= tt (+ TSTAR DT)) (count (remove true? (map = a b)))
-                        (recur (inc tt) (step pA' mA nA gA tt a) (c/phenotype-step gA a)
-                                        (step pB' mB nB gB tt b) (c/phenotype-step gB b))))))
+                        (recur (inc tt) (step pA' mA gateA nA gA tt a) (c/phenotype-step gA a)
+                                        (step pB' mB gateB nB gB tt b) (c/phenotype-step gB b))))))
                 (range 0 W 8))]
           (assoc @activity :damages damages))
-        (recur (inc t) (step pr mr nr g t p) (c/phenotype-step g p))))))
+        (recur (inc t) (step pr mr gr nr g t p) (c/phenotype-step g p))))))
 (let [PA [3 0 1 2 7 4 5 6] T4 [6 7 0 2 1 4 3 5]
       R1 [1 2 3 4 5 6 7 0] R2 [2 3 4 5 6 7 0 1] R4 [4 5 6 7 0 1 2 3]]
   (println "class\tname\tseed\tdamage\tfired\topportunities")
@@ -195,8 +210,20 @@
            ["gain-sweep" "switch agree $4/7$, transport $1.00$/hold"
             {:kind :transport-switch :u 1.0 :m 7 :k 4}]
            ["gain-sweep" "switch agree $2/5$, transport $1.00$/hold"
-            {:kind :transport-switch :u 1.0 :m 5 :k 2}]]
-          seed (range (if (#{"exotype" "gain-sweep"} cls) 16 4))]
+            {:kind :transport-switch :u 1.0 :m 5 :k 2}]
+           ["gain-random" "switch random $0.099417$, transport $1.00$/hold"
+            {:kind :transport-random-switch :u 1.0 :rate 0.09941697285160236}]
+           ["gain-random" "switch random $0.120172$, transport $1.00$/hold"
+            {:kind :transport-random-switch :u 1.0 :rate 0.12017248418044499}]
+           ["gain-random" "switch random $0.236886$, transport $1.00$/hold"
+            {:kind :transport-random-switch :u 1.0 :rate 0.23688635435803226}]
+           ["gain-random" "switch random $0.646794$, transport $1.00$/hold"
+            {:kind :transport-random-switch :u 1.0 :rate 0.6467939885690958}]
+           ["gain-random" "switch random $0.683199$, transport $1.00$/hold"
+            {:kind :transport-random-switch :u 1.0 :rate 0.6831993774239641}]
+           ["gain-random" "switch random $0.935261$, transport $1.00$/hold"
+            {:kind :transport-random-switch :u 1.0 :rate 0.9352610226576853}]]
+          seed (range (if (#{"exotype" "gain-sweep" "gain-random"} cls) 16 4))]
     (let [{:keys [damages fired opportunities]} (run-mech cfg seed)]
       (doseq [d damages]
         (println (format "%s\t%s\t%d\t%d\t%d\t%d"
