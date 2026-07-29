@@ -14,19 +14,19 @@ dial	mutation $0.40$	0.8500	0.3331	40
 eca	rule 204	1.0000	0.0000	40
 dial	transport $0.00$	1.1000	0.2019	40
 dial	preserving limit	1.1000	0.2019	40
-exotype	hold	1.1000	0.2019	40
+exotype	hold	1.2063	0.1139	160
 dial	ungated $0.20$	1.6500	0.4731	40
 dial	ungated $0.35$	1.6750	0.4632	40
 dial	ungated $0.50$	1.7750	0.6309	40
 family	rot$+1$	2.0500	0.6650	40
 dial	transport $0.05$	2.1750	0.5381	40
 dial	ungated $0.75$	2.7750	0.6165	40
-exotype	explore	3.2250	0.5158	40
 dial	blend $0.35$	3.3750	0.9300	40
+exotype	explore	3.3813	0.2756	160
 dial	ungated $1.00$	4.0500	1.0603	40
 dial	transport $0.10$	4.2500	0.8695	40
-exotype	exotype	4.7000	0.4588	40
 family	braid rot$+2$/rot$+4$	5.2000	1.1181	40
+exotype	exotype	6.7875	0.3715	160
 eca	rule 90	8.0000	0.0000	40
 dial	blend $0.00$	8.1500	1.0325	40
 dial	transport $0.20$	9.4250	1.0506	40

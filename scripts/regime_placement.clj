@@ -143,6 +143,6 @@
            ["exotype" "explore"               {:kind :exotype :policy :explore}]
            ["exotype" "hold"                  {:kind :exotype :policy :hold}]
            ["exotype" "exotype"               {:kind :exotype :policy :exotype}]]
-          seed (range 4)]
+          seed (range (if (= cls "exotype") 16 4))]
     (doseq [d (run-mech cfg seed)]
       (println (format "%s\t%s\t%d\t%d" cls nm seed d)))))
