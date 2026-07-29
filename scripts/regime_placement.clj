@@ -11,9 +11,29 @@
 ;;   niches           : blend-propagate with the writing selected by patch
 ;; Conservative transport follows diversity_dial4.clj: Margolus-style disjoint
 ;; phenotype-gated bijective swaps, which never rewrite a rule.
+;; The exotype rows port futon5/scripts/exotype_by_example.clj exactly at the
+;; operator level: switch(boring?, rotate+2 propagator, no-op). "Boring" means
+;; the circular phenotype neighbourhood [prev self next] is uniform.
 (require '[mmca.core :as c] '[mmca.rng :as rng])
 (defn clone [r] (rng/->EmacsRng (atom @(:state r)) (atom @(:index r))))
 (def W 80) (def TSTAR 60) (def DT 59)
+(def exotype-explore-writing
+  (c/positional-writing->neighbourhood-writing [2 3 4 5 6 7 0 1]))
+(defn boring? [phenotype i]
+  (let [width (count phenotype)
+        bit-at #(nth phenotype (mod % width))]
+    (= (bit-at (dec i)) (bit-at i) (bit-at (inc i)))))
+(defn exotype-step [pr genotype phenotype policy]
+  (mapv (fn [i rule]
+          (let [fire? (case policy
+                        :explore true
+                        :hold false
+                        :exotype (boring? phenotype i))]
+            (if fire?
+              (c/propagate pr rule exotype-explore-writing true)
+              rule)))
+        (range (count genotype))
+        genotype))
 (defn eca-row [rule p]
   (let [n (count p)]
     (apply str (for [i (range n)]
@@ -22,38 +42,41 @@
             r (Character/digit (nth p (mod (inc i) n)) 2)]
         (bit-and (bit-shift-right rule (+ (* 4 l) (* 2 ce) r)) 1))))))
 (defn mech-step [pr mr g cfg t phenotype]
-  (let [{:keys [kind wa wb b u patch]} cfg]
-    (if (= kind :preserve) g
-      (if (= kind :transport)
-        (let [start (mod t 2)]
-          (reduce (fn [gg i]
-                    (let [j (inc i)
-                          li (Character/digit (nth phenotype i) 2)
-                          lj (Character/digit (nth phenotype j) 2)
-                          pr* (min 1.0 (* u (if (= li lj) 0.5 1.5)))]
-                      (if (< (rng/rand-double mr) (if (:ungated cfg) (min 1.0 u) pr*))
-                        (assoc gg i (nth gg j) j (nth gg i)) gg)))
-                  g (range start (dec W) 2)))
-        (let [ord (concat [0 (dec W)] (range 1 (dec W)))]
-          (reduce (fn [out i]
-                    (let [pred (if (zero? i) c/default-rule (nth g (dec i)))
-                          ctr (nth g i)
-                          succ (if (= i (dec W)) c/default-rule (nth g (inc i)))
-                          blended (c/blend-rule pred ctr succ)
-                          source (rng/rand-int pr 8)
-                          wr (cond wb (if patch
-                                        (if (even? (quot i patch)) wa wb)
-                                        (if (even? t) wa wb))
-                                   :else wa)
-                          nxt (case kind
-                                :baseline (c/propagate-at blended wr source true)
-                                :blend (c/propagate-at
-                                         (if (< (rng/rand-double mr) b) blended ctr)
-                                         wr source true)
-                                :async (if (< (rng/rand-double mr) u)
-                                         (c/propagate-at blended wr source true) ctr))]
-                      (assoc out i nxt)))
-                  (vec (repeat W nil)) ord))))))
+  (let [{:keys [kind policy wa wb b u patch]} cfg]
+    (cond
+      (= kind :preserve) g
+      (= kind :exotype) (exotype-step pr g phenotype policy)
+      (= kind :transport)
+      (let [start (mod t 2)]
+        (reduce (fn [gg i]
+                  (let [j (inc i)
+                        li (Character/digit (nth phenotype i) 2)
+                        lj (Character/digit (nth phenotype j) 2)
+                        pr* (min 1.0 (* u (if (= li lj) 0.5 1.5)))]
+                    (if (< (rng/rand-double mr) (if (:ungated cfg) (min 1.0 u) pr*))
+                      (assoc gg i (nth gg j) j (nth gg i)) gg)))
+                g (range start (dec W) 2)))
+      :else
+      (let [ord (concat [0 (dec W)] (range 1 (dec W)))]
+        (reduce (fn [out i]
+                  (let [pred (if (zero? i) c/default-rule (nth g (dec i)))
+                        ctr (nth g i)
+                        succ (if (= i (dec W)) c/default-rule (nth g (inc i)))
+                        blended (c/blend-rule pred ctr succ)
+                        source (rng/rand-int pr 8)
+                        wr (cond wb (if patch
+                                      (if (even? (quot i patch)) wa wb)
+                                      (if (even? t) wa wb))
+                                 :else wa)
+                        nxt (case kind
+                              :baseline (c/propagate-at blended wr source true)
+                              :blend (c/propagate-at
+                                       (if (< (rng/rand-double mr) b) blended ctr)
+                                       wr source true)
+                              :async (if (< (rng/rand-double mr) u)
+                                       (c/propagate-at blended wr source true) ctr))]
+                    (assoc out i nxt)))
+                (vec (repeat W nil)) ord)))))
 (defn run-mech [cfg seed]
   (let [pr (rng/make-rng (format "prop-%d" seed)) mr (rng/make-rng (format "mech-%d" seed))
         nr (rng/make-rng (format "noise-%d" seed))
@@ -116,7 +139,10 @@
            ["dial" "ungated $0.50$"          {:kind :transport :u 0.5 :ungated true}]
            ["dial" "ungated $0.75$"          {:kind :transport :u 0.75 :ungated true}]
            ["dial" "ungated $1.00$"          {:kind :transport :u 1.0 :ungated true}]
-           ["dial" "preserving limit"        {:kind :preserve}]]
+           ["dial" "preserving limit"        {:kind :preserve}]
+           ["exotype" "explore"               {:kind :exotype :policy :explore}]
+           ["exotype" "hold"                  {:kind :exotype :policy :hold}]
+           ["exotype" "exotype"               {:kind :exotype :policy :exotype}]]
           seed (range 4)]
     (doseq [d (run-mech cfg seed)]
       (println (format "%s\t%s\t%d\t%d" cls nm seed d)))))
