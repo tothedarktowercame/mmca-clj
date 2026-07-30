@@ -66,12 +66,13 @@
             ce (Character/digit (nth p i) 2)
             r (Character/digit (nth p (mod (inc i) n)) 2)]
         (bit-and (bit-shift-right rule (+ (* 4 l) (* 2 ce) r)) 1))))))
-(defn mech-step [pr mr gr g cfg t phenotype activity]
+(defn mech-step [pr mr gr g cfg t phenotype gate-phenotype activity]
   (let [{:keys [kind policy wa wb b u patch m k rate]} cfg]
     (cond
       (= kind :preserve) g
       (= kind :exotype) (exotype-step pr g phenotype policy activity)
-      (#{:transport :transport-switch :transport-random-switch} kind)
+      (#{:transport :transport-switch :transport-random-switch
+         :transport-frozen-switch} kind)
       (let [start (mod t 2)
             indices (range start (dec W) 2)
             switch? (not= kind :transport)
@@ -93,7 +94,10 @@
                                     :transport-switch
                                     (agreement-gate? phenotype i (or m 3) (or k 3))
                                     :transport-random-switch
-                                    (< (rng/rand-double gr) rate))]
+                                    (< (rng/rand-double gr) rate)
+                                    :transport-frozen-switch
+                                    (agreement-gate? gate-phenotype i
+                                                     (or m 3) (or k 3)))]
                         (when (and switch? fire?) (vswap! fires inc))
                         (if (and fire?
                                  (< coin (if (:ungated cfg) (min 1.0 u) pr*)))
@@ -132,8 +136,8 @@
         nr (rng/make-rng (format "noise-%d" seed))
         activity (atom {:fired 0 :opportunities 0})
         g0 (c/random-genotype pr W) p0 (c/random-phenotype pr W)
-        step (fn [p m gate n g t ph]
-               (let [g' (mech-step p m gate g cfg t ph activity)]
+        step (fn [p m gate n g t ph fph]
+               (let [g' (mech-step p m gate g cfg t ph fph activity)]
                  (if (pos? (or (:noise cfg) 0)) (c/genotype-noise n g' (:noise cfg)) g')))]
     (loop [t 0 g g0 p p0]
       (if (= t TSTAR)
@@ -146,11 +150,11 @@
                         nA (clone nr) nB (clone nr)]
                     (loop [tt TSTAR gA g a p gB g b pB]
                       (if (= tt (+ TSTAR DT)) (count (remove true? (map = a b)))
-                        (recur (inc tt) (step pA' mA gateA nA gA tt a) (c/phenotype-step gA a)
-                                        (step pB' mB gateB nB gB tt b) (c/phenotype-step gB b))))))
+                        (recur (inc tt) (step pA' mA gateA nA gA tt a p) (c/phenotype-step gA a)
+                                        (step pB' mB gateB nB gB tt b pB) (c/phenotype-step gB b))))))
                 (range 0 W 8))]
           (assoc @activity :damages damages))
-        (recur (inc t) (step pr mr gr nr g t p) (c/phenotype-step g p))))))
+        (recur (inc t) (step pr mr gr nr g t p p) (c/phenotype-step g p))))))
 (let [PA [3 0 1 2 7 4 5 6] T4 [6 7 0 2 1 4 3 5]
       R1 [1 2 3 4 5 6 7 0] R2 [2 3 4 5 6 7 0 1] R4 [4 5 6 7 0 1 2 3]]
   (println "class\tname\tseed\tdamage\tfired\topportunities")
@@ -225,6 +229,20 @@
             {:kind :transport-switch :u 1.0 :m 9 :k 7}]
            ["gain-grid" "switch agree $9/9$, transport $1.00$/hold"
             {:kind :transport-switch :u 1.0 :m 9 :k 9}]
+           ["gain-frozen" "switch FROZEN agree $2/3$, transport $1.00$/hold"
+            {:kind :transport-frozen-switch :u 1.0 :m 3 :k 2}]
+           ["gain-frozen" "switch FROZEN agree $3/5$, transport $1.00$/hold"
+            {:kind :transport-frozen-switch :u 1.0 :m 5 :k 3}]
+           ["gain-frozen" "switch FROZEN agree $4/7$, transport $1.00$/hold"
+            {:kind :transport-frozen-switch :u 1.0 :m 7 :k 4}]
+           ["gain-frozen" "switch FROZEN agree $5/9$, transport $1.00$/hold"
+            {:kind :transport-frozen-switch :u 1.0 :m 9 :k 5}]
+           ["gain-frozen" "switch FROZEN agree $4/5$, transport $1.00$/hold"
+            {:kind :transport-frozen-switch :u 1.0 :m 5 :k 4}]
+           ["gain-frozen" "switch FROZEN agree $5/7$, transport $1.00$/hold"
+            {:kind :transport-frozen-switch :u 1.0 :m 7 :k 5}]
+           ["gain-frozen" "switch FROZEN agree $7/9$, transport $1.00$/hold"
+            {:kind :transport-frozen-switch :u 1.0 :m 9 :k 7}]
            ["gain-random" "switch random $0.099417$, transport $1.00$/hold"
             {:kind :transport-random-switch :u 1.0 :rate 0.09941697285160236}]
            ["gain-random" "switch random $0.120172$, transport $1.00$/hold"
@@ -237,7 +255,8 @@
             {:kind :transport-random-switch :u 1.0 :rate 0.6831993774239641}]
            ["gain-random" "switch random $0.935261$, transport $1.00$/hold"
             {:kind :transport-random-switch :u 1.0 :rate 0.9352610226576853}]]
-          seed (range (if (#{"exotype" "gain-sweep" "gain-random" "gain-grid"} cls) 16 4))]
+          seed (range (if (#{"exotype" "gain-sweep" "gain-random" "gain-grid"
+                              "gain-frozen"} cls) 16 4))]
     (let [{:keys [damages fired opportunities]} (run-mech cfg seed)]
       (doseq [d damages]
         (println (format "%s\t%s\t%d\t%d\t%d\t%d"
