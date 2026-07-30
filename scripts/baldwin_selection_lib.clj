@@ -1,3 +1,14 @@
+
+;; GENERATED FILE -- do not edit. Regenerate with:
+;;   python3 -c "import pathlib; \
+;;     s=pathlib.Path('scripts/baldwin_selection.clj').read_text().replace('(apply -main *command-line-args*)\n',''); \
+;;     pathlib.Path('scripts/baldwin_selection_lib.clj').write_text(s)"
+;;
+;; This is baldwin_selection.clj with its -main invocation stripped, so other
+;; scripts can load-file it as a library. It was committed once and then drifted:
+;; the plastic-fraction -> plastic-dependence rename landed in the source and not
+;; here, and the assimilation probe failed on the box with an unresolved symbol.
+;; Regenerate whenever the source changes.
 ;; A selection loop over (gamma, initial genotype field), scored by the paper's
 ;; own causal-reach protocol with an explicit cost on plasticity.
 ;;
@@ -17,12 +28,40 @@
 ;; See futon5/holes/tech-notes/TN-part-III-b-baldwin-recovery.md for the
 ;; preregistered criteria; they were fixed before this script existed.
 
-(require '[mmca.core :as c] '[clojure.string :as str])
+(require '[mmca.core :as c] '[clojure.string :as str] '[mmca.baldwin-spec :as spec]
+         '[clojure.java.io])
 
 (def W 80) (def STEPS 120) (def TSTAR 60) (def DT 59)
-(def BAND-CENTRE 15.0)   ;; midpoint of the complex band [8, 22]
-(def BAND-HALF 7.0)
-(def GAMMA-LEVELS (mapv #(/ (double %) 7.0) (range 8)))
+;; CALIBRATION, measured in THIS experiment's own frame (same reach fn, same
+;; protocol, same p0 construction, update-prob 0 so the field is fixed and the run
+;; is a pure CA on that rule):
+;;
+;;   rule 0    0.0000     rule 90   10.0000
+;;   rule 204  1.0000     rule 110  16.6000
+;;   rule 54   6.0333     rule 30   18.7000
+;;
+;; The previous bands [8, 22] were imported from a calibration run with PERIODIC
+;; boundaries (`eca-row`), while every construction here evolves with ZERO
+;; boundaries (`c/phenotype-step`). That made "high function" ill-defined: rule 30
+;; measured 18.4 under the constructions' own dynamics, inside the supposed complex
+;; band, so a calibration-chaotic endpoint could score as successful.
+;;
+;; Anchored on rule 90 (onset of complexity) and rule 30 (chaos), which are the
+;; canonical endpoints. NOTE, and this is not a rescaling: the rules REORDER between
+;; frames. Rule 54 is 18.30 periodic but 6.03 here, below rule 90 rather than above
+;; it, so it does not behave as a complex rule under these dynamics. Anchoring on 54
+;; would give a different and less defensible band.
+(def BAND-LOW 10.0)      ;; rule 90, in-frame
+(def BAND-HIGH 18.7)     ;; rule 30, in-frame
+(def BAND-CENTRE (/ (+ BAND-LOW BAND-HIGH) 2.0))
+(def BAND-HALF (/ (- BAND-HIGH BAND-LOW) 2.0))
+;; Gene resolution must sit where the function VARIES. Eight uniform levels put
+;; seven in the dead zone below the band and one at the top, giving a profile with
+;; a single cliff that no hill-climber can descend -- the preflight rejects it, and
+;; correctly. Measured in-frame, reach is graded across 0.875..1.0 (7.60, 8.90,
+;; 8.63, 11.43, 12.07) rather than discontinuous, so the region merely needed
+;; resolution. Levels are therefore dense near 1 where the gain curve is convex.
+(def GAMMA-LEVELS [0.0 0.5 0.75 0.875 0.9 0.95 0.99 1.0])
 ;; G5: zero lets a lineage stop rewriting entirely and become a FIXED field, which
 ;; is the blind destination -- fixed rules 90/110/54 sit in the complex band at
 ;; 8.00/16.68/18.30. Without a reachable zero, the gamma=0 organism is only a blind
@@ -131,15 +170,40 @@
 (defn band-score [r]
   (max 0.0 (- 1.0 (/ (Math/abs (- (double r) BAND-CENTRE)) BAND-HALF))))
 
-(defn plastic-fraction [{:keys [hold]}]
-  ;; a held locus is assimilated: it costs nothing and never changes
-  (if hold (/ (count (remove true? hold)) (double (count hold))) 1.0))
+(defn plastic-dependence
+  "Lean: `ExperimentalDesign.plasticDependence`. ONE operational definition, used
+   for BOTH the reported column and the cost term.
+
+   A cell contributes plastic dependence exactly when it is not held (so it can
+   rewrite), it actually rewrites (probability `update-prob`), and its rewrite
+   reads the CURRENT phenotype rather than the frozen snapshot (`mask` and
+   `gamma`). Hence
+
+     dependence = update-prob * gamma * fraction of cells that are unheld and unmasked
+
+   Previously `fraction-not-held` was reported while `c * gamma * fraction` was
+   charged, and neither accounted for `update-prob` or `mask`, so the reported
+   quantity and the selected quantity were different things and neither
+   corresponded to the Lean field."
+  [{:keys [gamma update-prob mask hold]}]
+  (let [n (count (or hold []))
+        live (if (zero? n)
+               1.0
+               (/ (count (filter identity
+                                 (map (fn [h m] (and (not h) m))
+                                      hold (or mask (repeat n true)))))
+                  (double n)))]
+    (* (double (or update-prob 1.0)) (double (or gamma 0.0)) live)))
+
+;; retained name for the reporting column, now identical to what is charged
+(def plastic-fraction plastic-dependence)
 
 (defn fitness [genome c seeds sites]
   ;; charge for the plasticity actually carried: a genome that has assimilated
   ;; half its cells pays half as much. Under a scalar gamma this reduces to c*gamma.
   (let [r (:mean (reach genome seeds sites))]
-    {:reach r :score (- (band-score r) (* c (:gamma genome) (plastic-fraction genome)))}))
+    ;; charge exactly the quantity that is reported -- see plastic-dependence
+    {:reach r :score (- (band-score r) (* c (plastic-dependence genome)))}))
 
 ;; --- population --------------------------------------------------------------
 (defn- step-level [^java.util.Random rng levels v]
@@ -154,6 +218,10 @@
 ;; Field and mask transfer TOGETHER: moving good rules into cells that are still
 ;; plastic would let them be overwritten immediately, so the segment must carry its
 ;; own assimilation state.
+;; `hgt` draws its cut points from a DEDICATED stream. Drawing them from the
+;; mutation rng meant enabling HGT consumed extra draws, so HGT and no-HGT arms
+;; stopped sharing genetic randomness and could not be compared as a paired
+;; treatment. This is the tape-alignment discipline applied to the outer loop.
 (defn hgt [^java.util.Random rng a b]
   (let [w (count (:field a))
         i (.nextInt rng w) j (.nextInt rng w)
@@ -190,6 +258,89 @@
    :hold (mapv (fn [h] (if (< (.nextDouble rng) field-rate) (not h) h))
                (or hold (vec (repeat (count field) false))))})
 
+
+;; ---------------------------------------------------------------- PREFLIGHT ----
+;; Delegates to mmca.baldwin-spec, which is the port of DarkTower/BaldwinDesign.lean
+;; and whose predicates are tested against the counterexamples that motivated them.
+;;
+;; An earlier inline version reimplemented these weakly and gave FALSE ASSURANCE: its
+;; I3 test checked key presence rather than donor linkage, so a child with field from
+;; one parent and hold from the other passed -- exactly the defect it existed to
+;; catch; and its I6 test accepted any profile with two distinct values, so the spike
+;; [0 ... 0 0.627] passed, which is the landscape on which gradual retreat is
+;; impossible. Duplicating a check weakly is worse than not having it.
+;;
+;; There is deliberately NO bypass flag. A run that cannot pass its invariants is a
+;; run whose output cannot be interpreted.
+
+(defn preflight
+  "Returns the seq of invariant failures. Empty means the run may proceed."
+  [seed-set site-set]
+  (let [neutral {:gamma 1.0 :update-prob 1.0
+                 :field (c/java-random-genotype (java.util.Random. 1) W)
+                 :mask (vec (repeat W true)) :hold (vec (repeat W false))}
+        dial (fn [g]
+               (let [ms (for [sd [1 2 3]]
+                          (let [r (java.util.Random. (long sd))
+                                g0 (c/java-random-genotype r W)]
+                            (:mean (reach (assoc neutral :gamma g :field g0) [sd] (range W)))))]
+                 (/ (reduce + ms) (count ms))))
+        rng (java.util.Random. 7)
+        a (assoc neutral :hold (vec (repeat W true)))
+        b (assoc neutral :field (c/java-random-genotype (java.util.Random. 2) W))
+        child (hgt rng a b)
+        walk (take 4000 (iterate #(mutate rng % 0.05 false) neutral))
+        probe (mapv #(band-score (:mean (reach (assoc neutral :gamma %) seed-set site-set)))
+                    GAMMA-LEVELS)
+        ;; I2 layering fidelity -- Lean Extension.agrees
+        i2-cases [{:neutral? true :performance (dial 0.0) :reference 1.2833  :label "gamma=0"}
+                  {:neutral? true :performance (dial 1.0) :reference 12.3875 :label "gamma=1"}]
+        i2 (spec/extension-failures i2-cases 1e-4)
+        ;; I3 donor linkage -- Lean linkedHGT_sameDonor. Tests LINKAGE, not key presence.
+        i3 (spec/linked-hgt? a b child)
+        ;; I4 reachability -- Lean GeneReachable
+        i4g (= (set GAMMA-LEVELS) (set (map :gamma walk)))
+        i4u (= (set UPDATE-LEVELS) (set (map :update-prob walk)))
+        i4h (= #{true false} (set (mapcat :hold walk)))
+        i4m (= #{true false} (set (mapcat :mask walk)))
+        i4f (> (count (distinct (mapcat :field walk))) 1)
+        ;; I6 navigability -- rejects the constant axis AND the spike
+        i6 (spec/axis-navigable? probe 2)]
+    (cond-> []
+      (seq i2) (conj {:invariant :I2-layering :failures (vec i2)})
+      (not i3) (conj {:invariant :I3-donor-linkage :note "hgt did not keep field and hold from one donor"})
+      (not (and i4g i4u i4h i4m i4f))
+      (conj {:invariant :I4-reachability :gamma i4g :update-prob i4u :hold i4h :mask i4m :field i4f})
+      (not i6) (conj {:invariant :I6-axis-not-navigable :profile probe
+                      :gradient-steps (spec/gradient-steps probe)
+                      :note "a constant axis or a single cliff cannot be descended"}))))
+
+;; ------------------------------------------------------------- RECORDING ----
+;; Lean's BaldwinWitness needs an accessible PATH, raw function at every step,
+;; declining dependence, and a functional static endpoint. A TSV of population
+;; means can express none of those, so even a successful run could not produce the
+;; certificate. This writes, per individual per generation: the complete genome,
+;; its parent and HGT donor, raw reach, band score and cost-adjusted fitness kept
+;; SEPARATE, dependence, and -- for the generation's best -- the held-rule endpoint
+;; evaluation that `inheritedFunction` requires.
+
+(defn genome-record [gen ind]
+  (-> (select-keys ind [:id :parent :donor :gamma :update-prob :reach :band :dependence :score])
+      (assoc :gen gen
+             :field (:field ind)
+             :mask (mapv #(if % 1 0) (:mask ind))
+             :hold (mapv #(if % 1 0) (:hold ind)))))
+
+(defn write-records! [w gen scored best-endpoint]
+  (when w
+    (doseq [ind scored]
+      (.write ^java.io.Writer w (str (pr-str (genome-record gen ind)) "\n")))
+    (.write ^java.io.Writer w
+            (str (pr-str {:gen gen :kind :endpoint
+                          :id (:id (first scored))
+                          :held-reach (:mean best-endpoint)}) "\n"))
+    (.flush ^java.io.Writer w)))
+
 (defn -main [& args]
   (let [argm (apply hash-map (map #(if (str/starts-with? % "--") (subs % 2) %) args))
         {:strs [c gens pop seeds sites field-rate pin warmup]} argm
@@ -204,10 +355,29 @@
         ;; read from the arg map, NOT a destructured `hgt` binding -- that would
         ;; shadow the hgt fn and (hgt rng pa pb) would try to call a string
         hgt? (= "1" (get argm "hgt" "0"))
+        ;; dedicated streams: HGT cut points and neutral-mode coins must not shift
+        ;; the mutation tape, or paired arms cease to be comparable
+        hrng (java.util.Random. 555000001)
+        nrng (java.util.Random. 555000002)
+        neutral? (= "1" (get argm "neutral" "0"))
+        record-file (get argm "record")
+        w (when record-file (clojure.java.io/writer record-file))
+        !next-id (atom 0)
+        fresh-id #(swap! !next-id inc)
         rng (java.util.Random. 20260730)
         seed-set (range 1 (inc nseeds))
         site-set (take nsites (range 0 W (max 1 (quot W nsites))))]
-    (println "gen\tmean-gamma\tmean-score\tmean-reach\tbest-score\tbest-gamma\tmean-update\tbest-update\tmean-plastic")
+    (let [fails (preflight seed-set site-set)]
+      (when (seq fails)
+        (binding [*out* *err*]
+          (println "PREFLIGHT FAILED -- refusing to run:")
+          (doseq [f fails] (println "  " f)))
+        (System/exit 2))
+      (binding [*out* *err*]
+        (println "preflight: I2 I3 I4 I6 pass. NOT checked here:"
+                 "I1 tape alignment, I5 empirical null, I7 endpoint, I8 calibration,"
+                 "I9 treatment separation.")))
+    (println "gen\tmean-gamma\tmean-score\tmean-reach\tbest-score\tbest-gamma\tmean-update\tbest-update\tmean-plastic\tmean-held")
     (loop [gen 0
            population (vec (repeatedly P #(hash-map
                                             :gamma (or pinned (nth GAMMA-LEVELS (.nextInt rng 8)))
@@ -219,7 +389,8 @@
    :update-prob 1.0
                                             :mask (vec (repeat W true))
                                             :hold (vec (repeat W false))
-                                            :field (c/java-random-genotype rng W))))]
+                                            :field (c/java-random-genotype rng W)
+                                            :id (fresh-id))))]
       (when (< gen G)
         ;; Fitness evaluation is embarrassingly parallel across the population:
         ;; each genome's reach builds its own seeded RNGs and shares no state, so
@@ -228,24 +399,53 @@
         ;; Baldwin's first phase is plasticity ESTABLISHING; charging for it from
         ;; generation 0 forecloses that by construction. Cost applies after warm-up.
         (let [c-now (if (< gen warm) 0.0 cost)
-              scored (vec (pmap #(merge % (fitness % c-now seed-set site-set)) population))
+              scored (vec (pmap (fn [g]
+                                  (let [r (:mean (reach g seed-set site-set))
+                                        b (band-score r)
+                                        d (plastic-dependence g)]
+                                    ;; band and cost kept SEPARATE so the witness
+                                    ;; check can test raw function independently
+                                    (assoc g :reach r :band b :dependence d
+                                             :score (if neutral?
+                                                      ;; no selection: survival is a
+                                                      ;; coin, not a ranking. A CONSTANT
+                                                      ;; score would keep the same half
+                                                      ;; every generation under a stable
+                                                      ;; sort, which is not neutrality.
+                                                      (.nextDouble ^java.util.Random nrng)
+                                                      (- b (* c-now d))))))
+                                population))
               ranked (vec (sort-by :score > scored))
               n (count ranked)
               survivors (vec (take (max 1 (quot n 2)) ranked))
               offspring (vec (repeatedly (- n (count survivors))
                                          #(let [pa (nth survivors (.nextInt rng (count survivors)))
                                                 pb (nth survivors (.nextInt rng (count survivors)))
-                                                base (if (and hgt? (not= pa pb)) (hgt rng pa pb) pa)]
-                                            (mutate rng base frate (some? pinned)))))
+                                                used-hgt? (and hgt? (not= pa pb))
+                                                base (if used-hgt? (hgt hrng pa pb) pa)]
+                                            (assoc (mutate rng base frate (some? pinned))
+                                                   :id (fresh-id)
+                                                   :parent (:id pa)
+                                                   :donor (when used-hgt? (:id pb))))))
               mg (/ (reduce + (map :gamma scored)) (double n))
               mu (/ (reduce + (map #(or (:update-prob %) 1.0) scored)) (double n))
               mp (/ (reduce + (map plastic-fraction scored)) (double n))
+              ;; RAW held fraction, distinct from plastic-dependence: this is what the
+              ;; --neutral null baselines, and it is not recoverable from mp because mp
+              ;; folds in gamma and update-prob
+              mh (/ (reduce + (map (fn [g] (/ (count (filter true? (:hold g)))
+                                              (double (count (:hold g))))) scored))
+                    (double n))
               ms (/ (reduce + (map :score scored)) (double n))
               mr (/ (reduce + (map :reach scored)) (double n))
-              best (first ranked)]
-          (println (format "%d\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f"
+              best (first ranked)
+              ;; Lean inheritedFunction: does the best genome still work when EVERY
+              ;; locus is held? Without this a witness cannot be completed.
+              endpoint (reach (assoc best :hold (vec (repeat W true))) seed-set site-set)
+              _ (write-records! w gen ranked endpoint)]
+          (println (format "%d\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f"
                            gen mg ms mr (:score best) (:gamma best)
-                           mu (or (:update-prob best) 1.0) mp))
+                           mu (or (:update-prob best) 1.0) mp mh))
           (flush)
-          (recur (inc gen) (into (mapv #(select-keys % [:gamma :update-prob :field :mask :hold]) survivors) offspring)))))))
+          (recur (inc gen) (into (mapv #(select-keys % [:id :gamma :update-prob :field :mask :hold]) survivors) offspring)))))))
 
