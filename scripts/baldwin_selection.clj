@@ -161,7 +161,13 @@
         splice (fn [x y] (vec (concat (subvec x 0 lo) (subvec y lo hi) (subvec x hi w))))]
     (assoc a :field (splice (:field a) (:field b))
              :mask (splice (or (:mask a) (vec (repeat w true)))
-                           (or (:mask b) (vec (repeat w true)))))))
+                           (or (:mask b) (vec (repeat w true))))
+             ;; :hold MUST travel with :field. Transferring rules under the
+             ;; recipient's unrelated hold pattern cannot combine an inherited rule
+             ;; with its fixed/plastic status, which is the whole mechanism this is
+             ;; meant to test. Omitting it made the earlier HGT arm uninterpretable.
+             :hold (splice (or (:hold a) (vec (repeat w false)))
+                           (or (:hold b) (vec (repeat w false)))))))
 
 (defn mutate [^java.util.Random rng {:keys [gamma update-prob field mask hold]} field-rate gamma-pinned?]
   {:update-prob (step-level rng UPDATE-LEVELS (or update-prob 1.0))
