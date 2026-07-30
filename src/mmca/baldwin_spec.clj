@@ -73,6 +73,25 @@
   [dependences]
   (<= (count (distinct (map double dependences))) 1))
 
+(defn gradient-steps
+  "How many ADJACENT pairs along an ordered profile differ. Counting distinct
+   values is not enough: the spike profile [0 0 0 0 0 0 0 0.627] has two distinct
+   values yet only ONE adjacent transition carries any gradient, and that is
+   exactly the landscape on which gradual retreat was geometrically impossible.
+   A hill-climber needs a run of transitions, not one cliff."
+  [profile]
+  (count (remove zero? (map (fn [[a b]] (- (double b) (double a)))
+                            (partition 2 1 profile)))))
+
+(defn axis-navigable?
+  "A profile a hill-climber can actually descend: at least `min-steps` adjacent
+   transitions carry gradient. Rejects both the constant axis (I6) and the spike
+   that the naive distinct-value test admits."
+  ([profile] (axis-navigable? profile 2))
+  ([profile min-steps]
+   (and (not (axis-degenerate? profile))
+        (>= (gradient-steps profile) min-steps))))
+
 ;; ------------------------------------------------------ Baldwin witness ----
 
 (defn witness-failures

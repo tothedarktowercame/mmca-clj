@@ -17,7 +17,7 @@
 ;; See futon5/holes/tech-notes/TN-part-III-b-baldwin-recovery.md for the
 ;; preregistered criteria; they were fixed before this script existed.
 
-(require '[mmca.core :as c] '[clojure.string :as str])
+(require '[mmca.core :as c] '[clojure.string :as str] '[mmca.baldwin-spec :as spec])
 
 (def W 80) (def STEPS 120) (def TSTAR 60) (def DT 59)
 (def BAND-CENTRE 15.0)   ;; midpoint of the complex band [8, 22]
@@ -192,50 +192,60 @@
 
 
 ;; ---------------------------------------------------------------- PREFLIGHT ----
-;; The run REFUSES TO START unless the applicable invariants pass. Nine designs in
-;; this line were written up as results before anyone noticed they could not have
-;; answered their question; every one would have been stopped here. See
-;; futon5/holes/tech-notes/TN-mmca-experiment-invariants.md and, for the proofs,
-;; mathlib4 DarkTower/BaldwinDesign.lean.
+;; Delegates to mmca.baldwin-spec, which is the port of DarkTower/BaldwinDesign.lean
+;; and whose predicates are tested against the counterexamples that motivated them.
+;;
+;; An earlier inline version reimplemented these weakly and gave FALSE ASSURANCE: its
+;; I3 test checked key presence rather than donor linkage, so a child with field from
+;; one parent and hold from the other passed -- exactly the defect it existed to
+;; catch; and its I6 test accepted any profile with two distinct values, so the spike
+;; [0 ... 0 0.627] passed, which is the landscape on which gradual retreat is
+;; impossible. Duplicating a check weakly is worse than not having it.
+;;
+;; There is deliberately NO bypass flag. A run that cannot pass its invariants is a
+;; run whose output cannot be interpreted.
 
 (defn preflight
-  "Returns the seq of invariants that FAIL. Empty means the run may proceed."
+  "Returns the seq of invariant failures. Empty means the run may proceed."
   [seed-set site-set]
-  (let [W* W
-        neutral {:gamma 1.0 :update-prob 1.0
-                 :field (c/java-random-genotype (java.util.Random. 1) W*)
-                 :mask (vec (repeat W* true)) :hold (vec (repeat W* false))}
-        ;; I2 layering fidelity: neutral machinery must reproduce the published dial
+  (let [neutral {:gamma 1.0 :update-prob 1.0
+                 :field (c/java-random-genotype (java.util.Random. 1) W)
+                 :mask (vec (repeat W true)) :hold (vec (repeat W false))}
         dial (fn [g]
                (let [ms (for [sd [1 2 3]]
                           (let [r (java.util.Random. (long sd))
-                                g0 (c/java-random-genotype r W*)]
-                            (:mean (reach (assoc neutral :gamma g :field g0) [sd] (range W*)))))]
+                                g0 (c/java-random-genotype r W)]
+                            (:mean (reach (assoc neutral :gamma g :field g0) [sd] (range W)))))]
                  (/ (reduce + ms) (count ms))))
-        d0 (dial 0.0) d1 (dial 1.0)
-        i2 (and (< (Math/abs (- d0 1.2833)) 1e-4) (< (Math/abs (- d1 12.3875)) 1e-4))
-        ;; I3 heritable completeness: every position-indexed key must be spliced
         rng (java.util.Random. 7)
-        a (assoc neutral :hold (vec (repeat W* true)))
-        b (assoc neutral :field (c/java-random-genotype (java.util.Random. 2) W*))
+        a (assoc neutral :hold (vec (repeat W true)))
+        b (assoc neutral :field (c/java-random-genotype (java.util.Random. 2) W))
         child (hgt rng a b)
-        i3 (every? #(contains? child %) [:field :mask :hold])
-        ;; I4 reachability: mutation must reach every level of each scalar gene
         walk (take 4000 (iterate #(mutate rng % 0.05 false) neutral))
-        i4 (and (= (set GAMMA-LEVELS) (set (map :gamma walk)))
-                (= (set UPDATE-LEVELS) (set (map :update-prob walk))))
-        ;; I6 non-degeneracy: the selected axis must move the score
-        probe (for [g GAMMA-LEVELS]
-                (band-score (:mean (reach (assoc neutral :gamma g) seed-set site-set))))
-        i6 (> (count (distinct probe)) 1)]
+        probe (mapv #(band-score (:mean (reach (assoc neutral :gamma %) seed-set site-set)))
+                    GAMMA-LEVELS)
+        ;; I2 layering fidelity -- Lean Extension.agrees
+        i2-cases [{:neutral? true :performance (dial 0.0) :reference 1.2833  :label "gamma=0"}
+                  {:neutral? true :performance (dial 1.0) :reference 12.3875 :label "gamma=1"}]
+        i2 (spec/extension-failures i2-cases 1e-4)
+        ;; I3 donor linkage -- Lean linkedHGT_sameDonor. Tests LINKAGE, not key presence.
+        i3 (spec/linked-hgt? a b child)
+        ;; I4 reachability -- Lean GeneReachable
+        i4g (= (set GAMMA-LEVELS) (set (map :gamma walk)))
+        i4u (= (set UPDATE-LEVELS) (set (map :update-prob walk)))
+        i4h (= #{true false} (set (mapcat :hold walk)))
+        i4m (= #{true false} (set (mapcat :mask walk)))
+        i4f (> (count (distinct (mapcat :field walk))) 1)
+        ;; I6 navigability -- rejects the constant axis AND the spike
+        i6 (spec/axis-navigable? probe 2)]
     (cond-> []
-      (not i2) (conj {:invariant :I2-layering :gamma0 d0 :gamma1 d1
-                      :expected [1.2833 12.3875]})
-      (not i3) (conj {:invariant :I3-linked-transfer :child-keys (keys child)})
-      (not i4) (conj {:invariant :I4-reachability
-                      :gamma-reached (sort (distinct (map :gamma walk)))
-                      :update-reached (sort (distinct (map :update-prob walk)))})
-      (not i6) (conj {:invariant :I6-degenerate-axis :band-scores (vec probe)}))))
+      (seq i2) (conj {:invariant :I2-layering :failures (vec i2)})
+      (not i3) (conj {:invariant :I3-donor-linkage :note "hgt did not keep field and hold from one donor"})
+      (not (and i4g i4u i4h i4m i4f))
+      (conj {:invariant :I4-reachability :gamma i4g :update-prob i4u :hold i4h :mask i4m :field i4f})
+      (not i6) (conj {:invariant :I6-axis-not-navigable :profile probe
+                      :gradient-steps (spec/gradient-steps probe)
+                      :note "a constant axis or a single cliff cannot be descended"}))))
 
 (defn -main [& args]
   (let [argm (apply hash-map (map #(if (str/starts-with? % "--") (subs % 2) %) args))
@@ -254,14 +264,16 @@
         rng (java.util.Random. 20260730)
         seed-set (range 1 (inc nseeds))
         site-set (take nsites (range 0 W (max 1 (quot W nsites))))]
-    (when-not (= "1" (get argm "skip-preflight" "0"))
-      (let [fails (preflight seed-set site-set)]
-        (when (seq fails)
-          (binding [*out* *err*]
-            (println "PREFLIGHT FAILED -- refusing to run:")
-            (doseq [f fails] (println "  " f)))
-          (System/exit 2))
-        (binding [*out* *err*] (println "preflight: all applicable invariants pass"))))
+    (let [fails (preflight seed-set site-set)]
+      (when (seq fails)
+        (binding [*out* *err*]
+          (println "PREFLIGHT FAILED -- refusing to run:")
+          (doseq [f fails] (println "  " f)))
+        (System/exit 2))
+      (binding [*out* *err*]
+        (println "preflight: I2 I3 I4 I6 pass. NOT checked here:"
+                 "I1 tape alignment, I5 empirical null, I7 endpoint, I8 calibration,"
+                 "I9 treatment separation.")))
     (println "gen\tmean-gamma\tmean-score\tmean-reach\tbest-score\tbest-gamma\tmean-update\tbest-update\tmean-plastic")
     (loop [gen 0
            population (vec (repeatedly P #(hash-map
