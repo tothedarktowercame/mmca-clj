@@ -207,6 +207,10 @@
 ;; Field and mask transfer TOGETHER: moving good rules into cells that are still
 ;; plastic would let them be overwritten immediately, so the segment must carry its
 ;; own assimilation state.
+;; `hgt` draws its cut points from a DEDICATED stream. Drawing them from the
+;; mutation rng meant enabling HGT consumed extra draws, so HGT and no-HGT arms
+;; stopped sharing genetic randomness and could not be compared as a paired
+;; treatment. This is the tape-alignment discipline applied to the outer loop.
 (defn hgt [^java.util.Random rng a b]
   (let [w (count (:field a))
         i (.nextInt rng w) j (.nextInt rng w)
@@ -340,6 +344,11 @@
         ;; read from the arg map, NOT a destructured `hgt` binding -- that would
         ;; shadow the hgt fn and (hgt rng pa pb) would try to call a string
         hgt? (= "1" (get argm "hgt" "0"))
+        ;; dedicated streams: HGT cut points and neutral-mode coins must not shift
+        ;; the mutation tape, or paired arms cease to be comparable
+        hrng (java.util.Random. 555000001)
+        nrng (java.util.Random. 555000002)
+        neutral? (= "1" (get argm "neutral" "0"))
         record-file (get argm "record")
         w (when record-file (clojure.java.io/writer record-file))
         !next-id (atom 0)
@@ -357,7 +366,7 @@
         (println "preflight: I2 I3 I4 I6 pass. NOT checked here:"
                  "I1 tape alignment, I5 empirical null, I7 endpoint, I8 calibration,"
                  "I9 treatment separation.")))
-    (println "gen\tmean-gamma\tmean-score\tmean-reach\tbest-score\tbest-gamma\tmean-update\tbest-update\tmean-plastic")
+    (println "gen\tmean-gamma\tmean-score\tmean-reach\tbest-score\tbest-gamma\tmean-update\tbest-update\tmean-plastic\tmean-held")
     (loop [gen 0
            population (vec (repeatedly P #(hash-map
                                             :gamma (or pinned (nth GAMMA-LEVELS (.nextInt rng 8)))
@@ -386,7 +395,14 @@
                                     ;; band and cost kept SEPARATE so the witness
                                     ;; check can test raw function independently
                                     (assoc g :reach r :band b :dependence d
-                                             :score (- b (* c-now d)))))
+                                             :score (if neutral?
+                                                      ;; no selection: survival is a
+                                                      ;; coin, not a ranking. A CONSTANT
+                                                      ;; score would keep the same half
+                                                      ;; every generation under a stable
+                                                      ;; sort, which is not neutrality.
+                                                      (.nextDouble ^java.util.Random nrng)
+                                                      (- b (* c-now d))))))
                                 population))
               ranked (vec (sort-by :score > scored))
               n (count ranked)
@@ -395,7 +411,7 @@
                                          #(let [pa (nth survivors (.nextInt rng (count survivors)))
                                                 pb (nth survivors (.nextInt rng (count survivors)))
                                                 used-hgt? (and hgt? (not= pa pb))
-                                                base (if used-hgt? (hgt rng pa pb) pa)]
+                                                base (if used-hgt? (hgt hrng pa pb) pa)]
                                             (assoc (mutate rng base frate (some? pinned))
                                                    :id (fresh-id)
                                                    :parent (:id pa)
@@ -403,6 +419,12 @@
               mg (/ (reduce + (map :gamma scored)) (double n))
               mu (/ (reduce + (map #(or (:update-prob %) 1.0) scored)) (double n))
               mp (/ (reduce + (map plastic-fraction scored)) (double n))
+              ;; RAW held fraction, distinct from plastic-dependence: this is what the
+              ;; --neutral null baselines, and it is not recoverable from mp because mp
+              ;; folds in gamma and update-prob
+              mh (/ (reduce + (map (fn [g] (/ (count (filter true? (:hold g)))
+                                              (double (count (:hold g))))) scored))
+                    (double n))
               ms (/ (reduce + (map :score scored)) (double n))
               mr (/ (reduce + (map :reach scored)) (double n))
               best (first ranked)
@@ -410,9 +432,9 @@
               ;; locus is held? Without this a witness cannot be completed.
               endpoint (reach (assoc best :hold (vec (repeat W true))) seed-set site-set)
               _ (write-records! w gen ranked endpoint)]
-          (println (format "%d\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f"
+          (println (format "%d\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f"
                            gen mg ms mr (:score best) (:gamma best)
-                           mu (or (:update-prob best) 1.0) mp))
+                           mu (or (:update-prob best) 1.0) mp mh))
           (flush)
           (recur (inc gen) (into (mapv #(select-keys % [:id :gamma :update-prob :field :mask :hold]) survivors) offspring)))))))
 
