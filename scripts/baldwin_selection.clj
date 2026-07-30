@@ -23,16 +23,26 @@
 (def BAND-CENTRE 15.0)   ;; midpoint of the complex band [8, 22]
 (def BAND-HALF 7.0)
 (def GAMMA-LEVELS (mapv #(/ (double %) 7.0) (range 8)))
+;; G5: zero lets a lineage stop rewriting entirely and become a FIXED field, which
+;; is the blind destination -- fixed rules 90/110/54 sit in the complex band at
+;; 8.00/16.68/18.30. Without a reachable zero, the gamma=0 organism is only a blind
+;; REWRITER and assimilation has nowhere to land.
+(def UPDATE-LEVELS [0.0 0.25 0.5 0.75 1.0])
 
 ;; --- the gain gate, identical in form to river_gain.clj -----------------------
 (defn gain-genotype-step
-  [^java.util.Random random ^java.util.Random gate genotype phenotype next-phenotype frozen gamma]
+  [^java.util.Random random ^java.util.Random gate ^java.util.Random upd
+   genotype phenotype next-phenotype frozen gamma update-prob]
   (let [width (count genotype)]
     (mapv
      (fn [i]
-       ;; the gate coin is drawn for EVERY cell at every step regardless of the
-       ;; branch it selects, so the two damage branches stay tape-aligned
-       (let [live? (< (.nextDouble gate) gamma)
+       ;; Every coin and every source draw is taken for EVERY cell at every step,
+       ;; whatever is then decided with them, so the two damage branches stay
+       ;; tape-aligned. The update coin comes from a THIRD stream so that adding
+       ;; G5 leaves the gate and source tapes bit-identical to the published dial;
+       ;; at update-prob = 1 this reduces exactly to river_gain.clj.
+       (let [ucoin (.nextDouble upd)
+             live? (< (.nextDouble gate) gamma)
              ph (if live? phenotype frozen)
              nph (if live? next-phenotype frozen)
              predecessor (if (zero? i) c/default-rule (nth genotype (dec i)))
@@ -42,48 +52,54 @@
                        [(Character/digit (nth ph (dec i)) 2)
                         (Character/digit (nth ph i) 2)
                         (Character/digit (nth ph (inc i)) 2)
-                        (Character/digit (nth nph i) 2)])]
-         (c/propagate-at
-          (c/original-river-combine-rule predecessor centre successor context)
-          c/river-writing
-          (.nextInt random c/bit-count))))
+                        (Character/digit (nth nph i) 2)])
+             ;; source drawn unconditionally, used only when the cell rewrites
+             source (.nextInt random c/bit-count)]
+         (if (< ucoin update-prob)
+           (c/propagate-at
+            (c/original-river-combine-rule predecessor centre successor context)
+            c/river-writing
+            source)
+           centre)))                          ; G5: hold the rule -- no rewrite
      (range width))))
 
-(defn run-from [random gate genotype phenotype steps gamma frozen]
+(defn run-from [random gate upd genotype phenotype steps gamma update-prob frozen]
   (loop [t 0 g genotype p phenotype phes [phenotype]]
     (if (= t steps) {:phe phes :gen g}
       (let [np (c/phenotype-step g p)
-            ng (gain-genotype-step random gate g p np frozen gamma)]
+            ng (gain-genotype-step random gate upd g p np frozen gamma update-prob)]
         (recur (inc t) ng np (conj phes np))))))
 
 ;; `g0` is INJECTED rather than derived from the seed: that is what makes the
 ;; initial field heritable, and hence what gives assimilation somewhere to
 ;; accumulate. Everything else matches river_gain.clj/two-stage.
-(defn two-stage [gamma seed g0 intervene frozen*]
+(defn two-stage [gamma update-prob seed g0 intervene frozen*]
   (let [r (java.util.Random. (long seed))
         gate (java.util.Random. (long (+ 987654321 seed)))
+        upd (java.util.Random. (long (+ 123456789 seed)))
         ;; river_gain.clj draws the genotype from `r` BEFORE the phenotype. We
         ;; inject the genotype instead, so `r` must still be advanced by exactly
         ;; those draws or `p0` diverges from the published initial condition and
         ;; the numbers stop being comparable to the paper's rows.
         _ (c/java-random-genotype r W)
         p0 (c/java-random-phenotype r W)
-        a (run-from r gate g0 p0 TSTAR gamma (or frozen* p0))
+        a (run-from r gate upd g0 p0 TSTAR gamma update-prob (or frozen* p0))
         g* (:gen a) p* (peek (:phe a))
         [g' p'] (if intervene (intervene g* p*) [g* p*])
-        b (run-from r gate g' p' (- STEPS TSTAR) gamma (or frozen* p0))]
+        b (run-from r gate upd g' p' (- STEPS TSTAR) gamma update-prob (or frozen* p0))]
     {:phe (into (:phe a) (rest (:phe b)))}))
 
 (defn flip-at [x] (fn [g p] [g (str (subs p 0 x) (if (= \1 (nth p x)) \0 \1) (subs p (inc x)))]))
 
 ;; --- reach, at the published protocol ---------------------------------------
-(defn reach [{:keys [gamma field]} seeds sites]
+(defn reach [{:keys [gamma update-prob field]} seeds sites]
   (let [ms (for [seed seeds]
-             (let [ref (two-stage 1.0 seed field nil nil)
+             (let [up (if (nil? update-prob) 1.0 update-prob)
+                   ref (two-stage 1.0 up seed field nil nil)
                    frozen* (nth (:phe ref) TSTAR)
-                   A (two-stage gamma seed field nil frozen*)]
+                   A (two-stage gamma up seed field nil frozen*)]
                (for [x sites]
-                 (let [B (two-stage gamma seed field (flip-at x) frozen*)]
+                 (let [B (two-stage gamma up seed field (flip-at x) frozen*)]
                    (reduce + (map #(if (= %1 %2) 0 1)
                                   (nth (:phe A) (+ TSTAR DT))
                                   (nth (:phe B) (+ TSTAR DT))))))))
@@ -100,8 +116,13 @@
     {:reach r :score (- (band-score r) (* c (:gamma genome)))}))
 
 ;; --- population --------------------------------------------------------------
-(defn mutate [^java.util.Random rng {:keys [gamma field]} field-rate gamma-pinned?]
-  {:gamma (if gamma-pinned? gamma
+(defn- step-level [^java.util.Random rng levels v]
+  (nth levels (max 0 (min (dec (count levels))
+                          (+ (.indexOf levels v) (dec (.nextInt rng 3)))))))
+
+(defn mutate [^java.util.Random rng {:keys [gamma update-prob field]} field-rate gamma-pinned?]
+  {:update-prob (step-level rng UPDATE-LEVELS (or update-prob 1.0))
+   :gamma (if gamma-pinned? gamma
             (nth GAMMA-LEVELS
                  (max 0 (min (dec (count GAMMA-LEVELS))
                              (+ (.indexOf GAMMA-LEVELS gamma)
@@ -126,10 +147,11 @@
         rng (java.util.Random. 20260730)
         seed-set (range 1 (inc nseeds))
         site-set (take nsites (range 0 W (max 1 (quot W nsites))))]
-    (println "gen\tmean-gamma\tmean-score\tmean-reach\tbest-score\tbest-gamma")
+    (println "gen\tmean-gamma\tmean-score\tmean-reach\tbest-score\tbest-gamma\tmean-update\tbest-update")
     (loop [gen 0
            population (vec (repeatedly P #(hash-map
                                             :gamma (or pinned (nth GAMMA-LEVELS (.nextInt rng 8)))
+                                            :update-prob (nth UPDATE-LEVELS (.nextInt rng (count UPDATE-LEVELS)))
                                             :field (c/java-random-genotype rng W))))]
       (when (< gen G)
         (let [scored (mapv #(merge % (fitness % cost seed-set site-set)) population)
@@ -140,12 +162,14 @@
                                          #(mutate rng (nth survivors (.nextInt rng (count survivors)))
                                                   frate (some? pinned))))
               mg (/ (reduce + (map :gamma scored)) (double n))
+              mu (/ (reduce + (map #(or (:update-prob %) 1.0) scored)) (double n))
               ms (/ (reduce + (map :score scored)) (double n))
               mr (/ (reduce + (map :reach scored)) (double n))
               best (first ranked)]
-          (println (format "%d\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f"
-                           gen mg ms mr (:score best) (:gamma best)))
+          (println (format "%d\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f"
+                           gen mg ms mr (:score best) (:gamma best)
+                           mu (or (:update-prob best) 1.0)))
           (flush)
-          (recur (inc gen) (into (mapv #(select-keys % [:gamma :field]) survivors) offspring)))))))
+          (recur (inc gen) (into (mapv #(select-keys % [:gamma :update-prob :field]) survivors) offspring)))))))
 
 (apply -main *command-line-args*)
