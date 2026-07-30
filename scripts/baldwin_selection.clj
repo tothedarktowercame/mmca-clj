@@ -29,10 +29,20 @@
 ;; REWRITER and assimilation has nowhere to land.
 (def UPDATE-LEVELS [0.0 0.25 0.5 0.75 1.0])
 
+;; PER-CELL PLASTICITY. A global gamma is all-or-nothing across the lattice, so a
+;; partially assimilated genome cannot exist and selection has no gradient to climb.
+;; Hinton & Nowlan's plasticity is PER POSITION -- each locus independently `?` or
+;; fixed -- which is what makes partial assimilation pay there. `:mask` is the
+;; analogue: true = this cell may read the live phenotype, false = it always reads
+;; the frozen one. About 27% of cell-steps are indifferent to the read (the live
+;; context selects a different rule in 73.1%), so that fraction is assimilable at
+;; no cost -- exactly H&N's loci where the `?` did not matter.
+;; All-true reduces exactly to the scalar-gamma behaviour.
+
 ;; --- the gain gate, identical in form to river_gain.clj -----------------------
 (defn gain-genotype-step
   [^java.util.Random random ^java.util.Random gate ^java.util.Random upd
-   genotype phenotype next-phenotype frozen gamma update-prob]
+   genotype phenotype next-phenotype frozen gamma update-prob mask]
   (let [width (count genotype)]
     (mapv
      (fn [i]
@@ -42,7 +52,10 @@
        ;; G5 leaves the gate and source tapes bit-identical to the published dial;
        ;; at update-prob = 1 this reduces exactly to river_gain.clj.
        (let [ucoin (.nextDouble upd)
-             live? (< (.nextDouble gate) gamma)
+             ;; coin drawn unconditionally either way; the mask only decides whether
+             ;; its outcome is allowed to select the live read
+             coin (.nextDouble gate)
+             live? (and (nth mask i) (< coin gamma))
              ph (if live? phenotype frozen)
              nph (if live? next-phenotype frozen)
              predecessor (if (zero? i) c/default-rule (nth genotype (dec i)))
@@ -63,17 +76,17 @@
            centre)))                          ; G5: hold the rule -- no rewrite
      (range width))))
 
-(defn run-from [random gate upd genotype phenotype steps gamma update-prob frozen]
+(defn run-from [random gate upd genotype phenotype steps gamma update-prob mask frozen]
   (loop [t 0 g genotype p phenotype phes [phenotype]]
     (if (= t steps) {:phe phes :gen g}
       (let [np (c/phenotype-step g p)
-            ng (gain-genotype-step random gate upd g p np frozen gamma update-prob)]
+            ng (gain-genotype-step random gate upd g p np frozen gamma update-prob mask)]
         (recur (inc t) ng np (conj phes np))))))
 
 ;; `g0` is INJECTED rather than derived from the seed: that is what makes the
 ;; initial field heritable, and hence what gives assimilation somewhere to
 ;; accumulate. Everything else matches river_gain.clj/two-stage.
-(defn two-stage [gamma update-prob seed g0 intervene frozen*]
+(defn two-stage [gamma update-prob mask seed g0 intervene frozen*]
   (let [r (java.util.Random. (long seed))
         gate (java.util.Random. (long (+ 987654321 seed)))
         upd (java.util.Random. (long (+ 123456789 seed)))
@@ -83,23 +96,24 @@
         ;; the numbers stop being comparable to the paper's rows.
         _ (c/java-random-genotype r W)
         p0 (c/java-random-phenotype r W)
-        a (run-from r gate upd g0 p0 TSTAR gamma update-prob (or frozen* p0))
+        a (run-from r gate upd g0 p0 TSTAR gamma update-prob mask (or frozen* p0))
         g* (:gen a) p* (peek (:phe a))
         [g' p'] (if intervene (intervene g* p*) [g* p*])
-        b (run-from r gate upd g' p' (- STEPS TSTAR) gamma update-prob (or frozen* p0))]
+        b (run-from r gate upd g' p' (- STEPS TSTAR) gamma update-prob mask (or frozen* p0))]
     {:phe (into (:phe a) (rest (:phe b)))}))
 
 (defn flip-at [x] (fn [g p] [g (str (subs p 0 x) (if (= \1 (nth p x)) \0 \1) (subs p (inc x)))]))
 
 ;; --- reach, at the published protocol ---------------------------------------
-(defn reach [{:keys [gamma update-prob field]} seeds sites]
+(defn reach [{:keys [gamma update-prob field mask]} seeds sites]
   (let [ms (for [seed seeds]
              (let [up (if (nil? update-prob) 1.0 update-prob)
-                   ref (two-stage 1.0 up seed field nil nil)
+                   mk (or mask (vec (repeat W true)))
+                   ref (two-stage 1.0 up mk seed field nil nil)
                    frozen* (nth (:phe ref) TSTAR)
-                   A (two-stage gamma up seed field nil frozen*)]
+                   A (two-stage gamma up mk seed field nil frozen*)]
                (for [x sites]
-                 (let [B (two-stage gamma up seed field (flip-at x) frozen*)]
+                 (let [B (two-stage gamma up mk seed field (flip-at x) frozen*)]
                    (reduce + (map #(if (= %1 %2) 0 1)
                                   (nth (:phe A) (+ TSTAR DT))
                                   (nth (:phe B) (+ TSTAR DT))))))))
@@ -111,16 +125,38 @@
 (defn band-score [r]
   (max 0.0 (- 1.0 (/ (Math/abs (- (double r) BAND-CENTRE)) BAND-HALF))))
 
+(defn plastic-fraction [{:keys [mask]}]
+  (if mask (/ (count (filter true? mask)) (double (count mask))) 1.0))
+
 (defn fitness [genome c seeds sites]
+  ;; charge for the plasticity actually carried: a genome that has assimilated
+  ;; half its cells pays half as much. Under a scalar gamma this reduces to c*gamma.
   (let [r (:mean (reach genome seeds sites))]
-    {:reach r :score (- (band-score r) (* c (:gamma genome)))}))
+    {:reach r :score (- (band-score r) (* c (:gamma genome) (plastic-fraction genome)))}))
 
 ;; --- population --------------------------------------------------------------
 (defn- step-level [^java.util.Random rng levels v]
   (nth levels (max 0 (min (dec (count levels))
                           (+ (.indexOf levels v) (dec (.nextInt rng 3)))))))
 
-(defn mutate [^java.util.Random rng {:keys [gamma update-prob field]} field-rate gamma-pinned?]
+;; HORIZONTAL GENE TRANSFER. Mutation alone cannot assemble: if one lineage has
+;; assimilated cells 0-20 and another 40-60, no sequence of point mutations combines
+;; them, so partial solutions cannot meet. Recombination is what crosses that valley.
+;; The segment is CONTIGUOUS along the lattice because the building blocks here are
+;; spatial -- a uniform crossover would shred the very structure that carries reach.
+;; Field and mask transfer TOGETHER: moving good rules into cells that are still
+;; plastic would let them be overwritten immediately, so the segment must carry its
+;; own assimilation state.
+(defn hgt [^java.util.Random rng a b]
+  (let [w (count (:field a))
+        i (.nextInt rng w) j (.nextInt rng w)
+        [lo hi] (if (< i j) [i j] [j i])
+        splice (fn [x y] (vec (concat (subvec x 0 lo) (subvec y lo hi) (subvec x hi w))))]
+    (assoc a :field (splice (:field a) (:field b))
+             :mask (splice (or (:mask a) (vec (repeat w true)))
+                           (or (:mask b) (vec (repeat w true)))))))
+
+(defn mutate [^java.util.Random rng {:keys [gamma update-prob field mask]} field-rate gamma-pinned?]
   {:update-prob (step-level rng UPDATE-LEVELS (or update-prob 1.0))
    :gamma (if gamma-pinned? gamma
             (nth GAMMA-LEVELS
@@ -132,11 +168,15 @@
    :field (mapv (fn [r] (if (< (.nextDouble rng) field-rate)
                           (.nextInt rng c/rule-count)
                           r))
-                field)})
+                field)
+   ;; each cell's plasticity flips independently -- the per-locus analogue of
+   ;; Hinton & Nowlan mutating a `?` to a fixed value or back
+   :mask (mapv (fn [m] (if (< (.nextDouble rng) field-rate) (not m) m))
+               (or mask (vec (repeat (count field) true))))})
 
 (defn -main [& args]
-  (let [{:strs [c gens pop seeds sites field-rate pin warmup]}
-        (apply hash-map (map #(if (str/starts-with? % "--") (subs % 2) %) args))
+  (let [argm (apply hash-map (map #(if (str/starts-with? % "--") (subs % 2) %) args))
+        {:strs [c gens pop seeds sites field-rate pin warmup]} argm
         cost (Double/parseDouble (or c "0.0"))
         G (Integer/parseInt (or gens "12"))
         P (Integer/parseInt (or pop "12"))
@@ -145,10 +185,13 @@
         frate (Double/parseDouble (or field-rate "0.02"))
         pinned (some-> pin Double/parseDouble)
         warm (Integer/parseInt (or warmup "8"))
+        ;; read from the arg map, NOT a destructured `hgt` binding -- that would
+        ;; shadow the hgt fn and (hgt rng pa pb) would try to call a string
+        hgt? (= "1" (get argm "hgt" "0"))
         rng (java.util.Random. 20260730)
         seed-set (range 1 (inc nseeds))
         site-set (take nsites (range 0 W (max 1 (quot W nsites))))]
-    (println "gen\tmean-gamma\tmean-score\tmean-reach\tbest-score\tbest-gamma\tmean-update\tbest-update")
+    (println "gen\tmean-gamma\tmean-score\tmean-reach\tbest-score\tbest-gamma\tmean-update\tbest-update\tmean-plastic")
     (loop [gen 0
            population (vec (repeatedly P #(hash-map
                                             :gamma (or pinned (nth GAMMA-LEVELS (.nextInt rng 8)))
@@ -158,6 +201,7 @@
    ;; left was -c*gamma, so selection just minimised gamma and never found reach.
    ;; Mutation still walks update-prob down to 0, so degeneration stays reachable.
    :update-prob 1.0
+                                            :mask (vec (repeat W true))
                                             :field (c/java-random-genotype rng W))))]
       (when (< gen G)
         ;; Fitness evaluation is embarrassingly parallel across the population:
@@ -172,17 +216,20 @@
               n (count ranked)
               survivors (vec (take (max 1 (quot n 2)) ranked))
               offspring (vec (repeatedly (- n (count survivors))
-                                         #(mutate rng (nth survivors (.nextInt rng (count survivors)))
-                                                  frate (some? pinned))))
+                                         #(let [pa (nth survivors (.nextInt rng (count survivors)))
+                                                pb (nth survivors (.nextInt rng (count survivors)))
+                                                base (if (and hgt? (not= pa pb)) (hgt rng pa pb) pa)]
+                                            (mutate rng base frate (some? pinned)))))
               mg (/ (reduce + (map :gamma scored)) (double n))
               mu (/ (reduce + (map #(or (:update-prob %) 1.0) scored)) (double n))
+              mp (/ (reduce + (map plastic-fraction scored)) (double n))
               ms (/ (reduce + (map :score scored)) (double n))
               mr (/ (reduce + (map :reach scored)) (double n))
               best (first ranked)]
-          (println (format "%d\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f"
+          (println (format "%d\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f"
                            gen mg ms mr (:score best) (:gamma best)
-                           mu (or (:update-prob best) 1.0)))
+                           mu (or (:update-prob best) 1.0) mp))
           (flush)
-          (recur (inc gen) (into (mapv #(select-keys % [:gamma :update-prob :field]) survivors) offspring)))))))
+          (recur (inc gen) (into (mapv #(select-keys % [:gamma :update-prob :field :mask]) survivors) offspring)))))))
 
 (apply -main *command-line-args*)
