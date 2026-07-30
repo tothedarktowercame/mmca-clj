@@ -22,8 +22,12 @@ ssh_box () { timeout 60 ssh -o BatchMode=yes -o StrictHostKeyChecking=no \
 say "watchdog start; polling for run2_done (max ${MAX_MIN}min)"
 done_seen=""
 for i in $(seq 1 $((MAX_MIN / 2))); do
-  if [ -n "$(ssh_box 'cat /root/run2_done 2>/dev/null')" ]; then
-    done_seen=yes; say "run2_done seen after $((i*2))min"; break
+  # BOTH runs must finish: the knob arms and the pinned arms launched alongside
+  # them. Tearing down on run2_done alone would kill the pinned arms mid-flight.
+  m2=$(ssh_box 'cat /root/run2_done 2>/dev/null')
+  m3=$(ssh_box 'cat /root/run3_done 2>/dev/null')
+  if [ -n "$m2" ] && [ -n "$m3" ]; then
+    done_seen=yes; say "both markers seen after $((i*2))min"; break
   fi
   sleep 120
 done
