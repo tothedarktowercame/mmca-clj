@@ -20,9 +20,36 @@
 (require '[mmca.core :as c] '[clojure.string :as str] '[mmca.baldwin-spec :as spec])
 
 (def W 80) (def STEPS 120) (def TSTAR 60) (def DT 59)
-(def BAND-CENTRE 15.0)   ;; midpoint of the complex band [8, 22]
-(def BAND-HALF 7.0)
-(def GAMMA-LEVELS (mapv #(/ (double %) 7.0) (range 8)))
+;; CALIBRATION, measured in THIS experiment's own frame (same reach fn, same
+;; protocol, same p0 construction, update-prob 0 so the field is fixed and the run
+;; is a pure CA on that rule):
+;;
+;;   rule 0    0.0000     rule 90   10.0000
+;;   rule 204  1.0000     rule 110  16.6000
+;;   rule 54   6.0333     rule 30   18.7000
+;;
+;; The previous bands [8, 22] were imported from a calibration run with PERIODIC
+;; boundaries (`eca-row`), while every construction here evolves with ZERO
+;; boundaries (`c/phenotype-step`). That made "high function" ill-defined: rule 30
+;; measured 18.4 under the constructions' own dynamics, inside the supposed complex
+;; band, so a calibration-chaotic endpoint could score as successful.
+;;
+;; Anchored on rule 90 (onset of complexity) and rule 30 (chaos), which are the
+;; canonical endpoints. NOTE, and this is not a rescaling: the rules REORDER between
+;; frames. Rule 54 is 18.30 periodic but 6.03 here, below rule 90 rather than above
+;; it, so it does not behave as a complex rule under these dynamics. Anchoring on 54
+;; would give a different and less defensible band.
+(def BAND-LOW 10.0)      ;; rule 90, in-frame
+(def BAND-HIGH 18.7)     ;; rule 30, in-frame
+(def BAND-CENTRE (/ (+ BAND-LOW BAND-HIGH) 2.0))
+(def BAND-HALF (/ (- BAND-HIGH BAND-LOW) 2.0))
+;; Gene resolution must sit where the function VARIES. Eight uniform levels put
+;; seven in the dead zone below the band and one at the top, giving a profile with
+;; a single cliff that no hill-climber can descend -- the preflight rejects it, and
+;; correctly. Measured in-frame, reach is graded across 0.875..1.0 (7.60, 8.90,
+;; 8.63, 11.43, 12.07) rather than discontinuous, so the region merely needed
+;; resolution. Levels are therefore dense near 1 where the gain curve is convex.
+(def GAMMA-LEVELS [0.0 0.5 0.75 0.875 0.9 0.95 0.99 1.0])
 ;; G5: zero lets a lineage stop rewriting entirely and become a FIXED field, which
 ;; is the blind destination -- fixed rules 90/110/54 sit in the complex band at
 ;; 8.00/16.68/18.30. Without a reachable zero, the gamma=0 organism is only a blind
@@ -131,15 +158,40 @@
 (defn band-score [r]
   (max 0.0 (- 1.0 (/ (Math/abs (- (double r) BAND-CENTRE)) BAND-HALF))))
 
-(defn plastic-fraction [{:keys [hold]}]
-  ;; a held locus is assimilated: it costs nothing and never changes
-  (if hold (/ (count (remove true? hold)) (double (count hold))) 1.0))
+(defn plastic-dependence
+  "Lean: `ExperimentalDesign.plasticDependence`. ONE operational definition, used
+   for BOTH the reported column and the cost term.
+
+   A cell contributes plastic dependence exactly when it is not held (so it can
+   rewrite), it actually rewrites (probability `update-prob`), and its rewrite
+   reads the CURRENT phenotype rather than the frozen snapshot (`mask` and
+   `gamma`). Hence
+
+     dependence = update-prob * gamma * fraction of cells that are unheld and unmasked
+
+   Previously `fraction-not-held` was reported while `c * gamma * fraction` was
+   charged, and neither accounted for `update-prob` or `mask`, so the reported
+   quantity and the selected quantity were different things and neither
+   corresponded to the Lean field."
+  [{:keys [gamma update-prob mask hold]}]
+  (let [n (count (or hold []))
+        live (if (zero? n)
+               1.0
+               (/ (count (filter identity
+                                 (map (fn [h m] (and (not h) m))
+                                      hold (or mask (repeat n true)))))
+                  (double n)))]
+    (* (double (or update-prob 1.0)) (double (or gamma 0.0)) live)))
+
+;; retained name for the reporting column, now identical to what is charged
+(def plastic-fraction plastic-dependence)
 
 (defn fitness [genome c seeds sites]
   ;; charge for the plasticity actually carried: a genome that has assimilated
   ;; half its cells pays half as much. Under a scalar gamma this reduces to c*gamma.
   (let [r (:mean (reach genome seeds sites))]
-    {:reach r :score (- (band-score r) (* c (:gamma genome) (plastic-fraction genome)))}))
+    ;; charge exactly the quantity that is reported -- see plastic-dependence
+    {:reach r :score (- (band-score r) (* c (plastic-dependence genome)))}))
 
 ;; --- population --------------------------------------------------------------
 (defn- step-level [^java.util.Random rng levels v]
