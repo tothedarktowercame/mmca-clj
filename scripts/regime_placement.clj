@@ -211,6 +211,20 @@
             {:kind :transport-switch :u 1.0 :m 7 :k 4}]
            ["gain-sweep" "switch agree $2/5$, transport $1.00$/hold"
             {:kind :transport-switch :u 1.0 :m 5 :k 2}]
+           ["gain-grid" "switch agree $2/3$, transport $1.00$/hold"
+            {:kind :transport-switch :u 1.0 :m 3 :k 2}]
+           ["gain-grid" "switch agree $5/5$, transport $1.00$/hold"
+            {:kind :transport-switch :u 1.0 :m 5 :k 5}]
+           ["gain-grid" "switch agree $6/7$, transport $1.00$/hold"
+            {:kind :transport-switch :u 1.0 :m 7 :k 6}]
+           ["gain-grid" "switch agree $7/7$, transport $1.00$/hold"
+            {:kind :transport-switch :u 1.0 :m 7 :k 7}]
+           ["gain-grid" "switch agree $5/9$, transport $1.00$/hold"
+            {:kind :transport-switch :u 1.0 :m 9 :k 5}]
+           ["gain-grid" "switch agree $7/9$, transport $1.00$/hold"
+            {:kind :transport-switch :u 1.0 :m 9 :k 7}]
+           ["gain-grid" "switch agree $9/9$, transport $1.00$/hold"
+            {:kind :transport-switch :u 1.0 :m 9 :k 9}]
            ["gain-random" "switch random $0.099417$, transport $1.00$/hold"
             {:kind :transport-random-switch :u 1.0 :rate 0.09941697285160236}]
            ["gain-random" "switch random $0.120172$, transport $1.00$/hold"
@@ -223,7 +237,7 @@
             {:kind :transport-random-switch :u 1.0 :rate 0.6831993774239641}]
            ["gain-random" "switch random $0.935261$, transport $1.00$/hold"
             {:kind :transport-random-switch :u 1.0 :rate 0.9352610226576853}]]
-          seed (range (if (#{"exotype" "gain-sweep" "gain-random"} cls) 16 4))]
+          seed (range (if (#{"exotype" "gain-sweep" "gain-random" "gain-grid"} cls) 16 4))]
     (let [{:keys [damages fired opportunities]} (run-mech cfg seed)]
       (doseq [d damages]
         (println (format "%s\t%s\t%d\t%d\t%d\t%d"
