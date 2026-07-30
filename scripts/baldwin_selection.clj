@@ -226,7 +226,14 @@
              :hold (splice (or (:hold a) (vec (repeat w false)))
                            (or (:hold b) (vec (repeat w false)))))))
 
-(defn mutate [^java.util.Random rng {:keys [gamma update-prob field mask hold]} field-rate gamma-pinned?]
+;; When `plasticity-pinned?`, mutation may not touch `update-prob` or `mask`. Without
+;; this the cost has THREE interchangeable escape routes and selection takes the
+;; cheapest: dropping update-prob is ONE scalar mutation worth a whole level, while
+;; assimilation needs eighty independent hold mutations each worth 1/80 as much. At
+;; c=2 the population duly collapsed update-prob 1.000 -> 0.052 and reach 6.56 -> 1.46,
+;; a cost dodge rather than assimilation. Pinning isolates the mechanism under study.
+(defn mutate [^java.util.Random rng {:keys [gamma update-prob field mask hold]} field-rate gamma-pinned?
+              & [plasticity-pinned?]]
   {:update-prob (step-level rng UPDATE-LEVELS (or update-prob 1.0))
    :gamma (if gamma-pinned? gamma
             (nth GAMMA-LEVELS
@@ -241,8 +248,10 @@
                 field)
    ;; each cell's plasticity flips independently -- the per-locus analogue of
    ;; Hinton & Nowlan mutating a `?` to a fixed value or back
-   :mask (mapv (fn [m] (if (< (.nextDouble rng) field-rate) (not m) m))
-               (or mask (vec (repeat (count field) true))))
+   :mask (let [m0 (or mask (vec (repeat (count field) true)))]
+           (if plasticity-pinned?
+             m0
+             (mapv (fn [m] (if (< (.nextDouble rng) field-rate) (not m) m)) m0)))
    ;; each locus independently flips between plastic and FIXED -- H&N's ? <-> value
    :hold (mapv (fn [h] (if (< (.nextDouble rng) field-rate) (not h) h))
                (or hold (vec (repeat (count field) false))))})
@@ -344,6 +353,9 @@
         ;; read from the arg map, NOT a destructured `hgt` binding -- that would
         ;; shadow the hgt fn and (hgt rng pa pb) would try to call a string
         hgt? (= "1" (get argm "hgt" "0"))
+        ;; --pin-plasticity 1 freezes update-prob and mask, leaving HOLDING as the
+        ;; only way to reduce dependence
+        pin-plast? (= "1" (get argm "pin-plasticity" "0"))
         ;; dedicated streams: HGT cut points and neutral-mode coins must not shift
         ;; the mutation tape, or paired arms cease to be comparable
         hrng (java.util.Random. 555000001)
@@ -412,7 +424,7 @@
                                                 pb (nth survivors (.nextInt rng (count survivors)))
                                                 used-hgt? (and hgt? (not= pa pb))
                                                 base (if used-hgt? (hgt hrng pa pb) pa)]
-                                            (assoc (mutate rng base frate (some? pinned))
+                                            (assoc (mutate rng base frate (some? pinned) pin-plast?)
                                                    :id (fresh-id)
                                                    :parent (:id pa)
                                                    :donor (when used-hgt? (:id pb))))))
