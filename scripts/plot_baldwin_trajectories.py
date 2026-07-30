@@ -21,10 +21,21 @@ srcdir = sys.argv[1] if len(sys.argv) > 1 else "/tmp/box3"
 out = sys.argv[2] if len(sys.argv) > 2 else "figures/baldwin_trajectories.png"
 
 def load(path):
-    lines = open(path).read().splitlines()
+    """Tolerate an arm still being written: an empty or header-only file yields no
+    rows rather than crashing the whole figure."""
+    lines = [l for l in open(path).read().splitlines() if l.strip()]
+    if not lines:
+        return [], []
     hdr = lines[0].split("\t")
-    rows = [l.split("\t") for l in lines[1:] if l.strip()]
-    return hdr, [[float(x) for x in r] for r in rows]
+    rows = []
+    for l in lines[1:]:
+        parts = l.split("\t")
+        if len(parts) == len(hdr):
+            try:
+                rows.append([float(x) for x in parts])
+            except ValueError:
+                pass
+    return hdr, rows
 
 arms = {}
 for p in sorted(glob.glob(os.path.join(srcdir, "data_*.tsv"))):
