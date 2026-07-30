@@ -11,7 +11,8 @@
             [mmca.local-causal-states-test]
             [mmca.multiscale-spectra-test]
             [mmca.direct-computation-test]
-            [mmca.river-feedback-test]))
+            [mmca.river-feedback-test]
+            [mmca.baldwin-spec-test]))
 
 (defn -main [& _]
   (let [{:keys [fail error]}
@@ -23,6 +24,7 @@
                         'mmca.directed-predictive-info-test
                         'mmca.local-causal-states-test
                         'mmca.multiscale-spectra-test
+                        'mmca.baldwin-spec-test
                         'mmca.direct-computation-test
                         'mmca.river-feedback-test)]
     (when (pos? (+ fail error))
