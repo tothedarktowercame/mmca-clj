@@ -17,7 +17,8 @@
 ;; See futon5/holes/tech-notes/TN-part-III-b-baldwin-recovery.md for the
 ;; preregistered criteria; they were fixed before this script existed.
 
-(require '[mmca.core :as c] '[clojure.string :as str] '[mmca.baldwin-spec :as spec])
+(require '[mmca.core :as c] '[clojure.string :as str] '[mmca.baldwin-spec :as spec]
+         '[clojure.java.io])
 
 (def W 80) (def STEPS 120) (def TSTAR 60) (def DT 59)
 ;; CALIBRATION, measured in THIS experiment's own frame (same reach fn, same
@@ -299,6 +300,32 @@
                       :gradient-steps (spec/gradient-steps probe)
                       :note "a constant axis or a single cliff cannot be descended"}))))
 
+;; ------------------------------------------------------------- RECORDING ----
+;; Lean's BaldwinWitness needs an accessible PATH, raw function at every step,
+;; declining dependence, and a functional static endpoint. A TSV of population
+;; means can express none of those, so even a successful run could not produce the
+;; certificate. This writes, per individual per generation: the complete genome,
+;; its parent and HGT donor, raw reach, band score and cost-adjusted fitness kept
+;; SEPARATE, dependence, and -- for the generation's best -- the held-rule endpoint
+;; evaluation that `inheritedFunction` requires.
+
+(defn genome-record [gen ind]
+  (-> (select-keys ind [:id :parent :donor :gamma :update-prob :reach :band :dependence :score])
+      (assoc :gen gen
+             :field (:field ind)
+             :mask (mapv #(if % 1 0) (:mask ind))
+             :hold (mapv #(if % 1 0) (:hold ind)))))
+
+(defn write-records! [w gen scored best-endpoint]
+  (when w
+    (doseq [ind scored]
+      (.write ^java.io.Writer w (str (pr-str (genome-record gen ind)) "\n")))
+    (.write ^java.io.Writer w
+            (str (pr-str {:gen gen :kind :endpoint
+                          :id (:id (first scored))
+                          :held-reach (:mean best-endpoint)}) "\n"))
+    (.flush ^java.io.Writer w)))
+
 (defn -main [& args]
   (let [argm (apply hash-map (map #(if (str/starts-with? % "--") (subs % 2) %) args))
         {:strs [c gens pop seeds sites field-rate pin warmup]} argm
@@ -313,6 +340,10 @@
         ;; read from the arg map, NOT a destructured `hgt` binding -- that would
         ;; shadow the hgt fn and (hgt rng pa pb) would try to call a string
         hgt? (= "1" (get argm "hgt" "0"))
+        record-file (get argm "record")
+        w (when record-file (clojure.java.io/writer record-file))
+        !next-id (atom 0)
+        fresh-id #(swap! !next-id inc)
         rng (java.util.Random. 20260730)
         seed-set (range 1 (inc nseeds))
         site-set (take nsites (range 0 W (max 1 (quot W nsites))))]
@@ -338,7 +369,8 @@
    :update-prob 1.0
                                             :mask (vec (repeat W true))
                                             :hold (vec (repeat W false))
-                                            :field (c/java-random-genotype rng W))))]
+                                            :field (c/java-random-genotype rng W)
+                                            :id (fresh-id))))]
       (when (< gen G)
         ;; Fitness evaluation is embarrassingly parallel across the population:
         ;; each genome's reach builds its own seeded RNGs and shares no state, so
@@ -347,25 +379,41 @@
         ;; Baldwin's first phase is plasticity ESTABLISHING; charging for it from
         ;; generation 0 forecloses that by construction. Cost applies after warm-up.
         (let [c-now (if (< gen warm) 0.0 cost)
-              scored (vec (pmap #(merge % (fitness % c-now seed-set site-set)) population))
+              scored (vec (pmap (fn [g]
+                                  (let [r (:mean (reach g seed-set site-set))
+                                        b (band-score r)
+                                        d (plastic-dependence g)]
+                                    ;; band and cost kept SEPARATE so the witness
+                                    ;; check can test raw function independently
+                                    (assoc g :reach r :band b :dependence d
+                                             :score (- b (* c-now d)))))
+                                population))
               ranked (vec (sort-by :score > scored))
               n (count ranked)
               survivors (vec (take (max 1 (quot n 2)) ranked))
               offspring (vec (repeatedly (- n (count survivors))
                                          #(let [pa (nth survivors (.nextInt rng (count survivors)))
                                                 pb (nth survivors (.nextInt rng (count survivors)))
-                                                base (if (and hgt? (not= pa pb)) (hgt rng pa pb) pa)]
-                                            (mutate rng base frate (some? pinned)))))
+                                                used-hgt? (and hgt? (not= pa pb))
+                                                base (if used-hgt? (hgt rng pa pb) pa)]
+                                            (assoc (mutate rng base frate (some? pinned))
+                                                   :id (fresh-id)
+                                                   :parent (:id pa)
+                                                   :donor (when used-hgt? (:id pb))))))
               mg (/ (reduce + (map :gamma scored)) (double n))
               mu (/ (reduce + (map #(or (:update-prob %) 1.0) scored)) (double n))
               mp (/ (reduce + (map plastic-fraction scored)) (double n))
               ms (/ (reduce + (map :score scored)) (double n))
               mr (/ (reduce + (map :reach scored)) (double n))
-              best (first ranked)]
+              best (first ranked)
+              ;; Lean inheritedFunction: does the best genome still work when EVERY
+              ;; locus is held? Without this a witness cannot be completed.
+              endpoint (reach (assoc best :hold (vec (repeat W true))) seed-set site-set)
+              _ (write-records! w gen ranked endpoint)]
           (println (format "%d\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f"
                            gen mg ms mr (:score best) (:gamma best)
                            mu (or (:update-prob best) 1.0) mp))
           (flush)
-          (recur (inc gen) (into (mapv #(select-keys % [:gamma :update-prob :field :mask :hold]) survivors) offspring)))))))
+          (recur (inc gen) (into (mapv #(select-keys % [:id :gamma :update-prob :field :mask :hold]) survivors) offspring)))))))
 
 (apply -main *command-line-args*)
