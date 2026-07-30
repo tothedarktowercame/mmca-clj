@@ -133,3 +133,76 @@
                       (every? (fn [[x y]] (<= (:dependence y) (:dependence x)))
                               (partition 2 1 c)))))
        first))
+
+;; ------------------------------------------------ Layering fidelity (I2) ----
+
+(defn extension-agrees?
+  "Lean: `Extension.agrees` / `performance_eq_reference` — an extension must
+   reproduce the reference measurement wherever its new machinery is neutral.
+
+   This caught a real defect: injecting a heritable genotype left the RNG tape
+   un-advanced by the draws the original construction made, moving the reference
+   from 12.3875 to 11.0083 while still reproducing byte-for-byte. Determinism is
+   not fidelity, and only this check separates them.
+
+   `cases` is a seq of {:neutral? :performance :reference}; tolerance is exact by
+   default because the published values are exact."
+  ([cases] (extension-agrees? cases 0.0))
+  ([cases tol]
+   (every? (fn [{:keys [neutral? performance reference]}]
+             (or (not neutral?)
+                 (<= (Math/abs (- (double performance) (double reference))) tol)))
+           cases)))
+
+(defn extension-failures
+  "Which neutral cases disagree with the reference, and by how much."
+  ([cases] (extension-failures cases 0.0))
+  ([cases tol]
+   (->> cases
+        (filter :neutral?)
+        (keep (fn [{:keys [performance reference label]}]
+                (let [d (- (double performance) (double reference))]
+                  (when (> (Math/abs d) tol)
+                    {:label label :performance performance :reference reference :delta d})))))))
+
+;; -------------------------------------------- Mutation reachability (I4) ----
+
+(defn gene-reachable?
+  "Lean: `GeneReachable` — every value in `domain` is attainable from `start`
+   under the mutation operator. A gene the operator cannot reach looks present
+   and is not, and if the assimilated endpoint needs such a value then
+   `no_path_of_unreachable` says no run length rescues the experiment.
+
+   Walks the operator `mutate` for `steps` from `start`, collecting `gene`."
+  [mutate gene domain start steps]
+  (let [reached (loop [g start n 0 acc #{(gene start)}]
+                  (if (>= n steps)
+                    acc
+                    (let [g' (mutate g)]
+                      (recur g' (inc n) (conj acc (gene g'))))))]
+    {:reached reached
+     :missing (into (sorted-set) (remove reached domain))
+     :complete? (every? reached domain)}))
+
+;; ------------------------------------------ Treatments must separate (I9) ----
+
+(defn ranking-equivalent?
+  "Lean: `RankingEquivalent` — two scorings induce the same selection order.
+   Selection sees only ORDER, so a term shifting every genome equally is
+   invisible: `rankingEquivalent_sub_const`. When the population had converged in
+   gain, the cost c*gamma was exactly such a constant, and four cost arms produced
+   byte-identical trajectories as a result.
+
+   Byte-identical arms are therefore DIAGNOSTIC of an inert treatment, not
+   evidence of a robust result."
+  [scores-a scores-b]
+  (let [rank #(->> % (map-indexed vector) (sort-by second >) (map first))]
+    (= (rank scores-a) (rank scores-b))))
+
+(defn treatment-inert?
+  "True when differing treatments produced indistinguishable trajectories, which
+   means the treatment never reached selection. Compares the non-score columns,
+   since scores differ trivially by the cost offset."
+  [traj-a traj-b keys-to-compare]
+  (= (map #(select-keys % keys-to-compare) traj-a)
+     (map #(select-keys % keys-to-compare) traj-b)))
