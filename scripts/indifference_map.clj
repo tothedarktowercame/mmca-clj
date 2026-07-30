@@ -37,10 +37,17 @@
      (range width))))
 
 (let [seeds [1 2 3]
+      ;; The genotype is FIXED across seeds -- that is what a genome in the selection
+      ;; loop actually experiences: one heritable field scored against several
+      ;; phenotype initial conditions. Drawing a fresh genotype per seed (the earlier
+      ;; version) compared cell i holding rule X against cell i holding rule Y, which
+      ;; are different cells in every sense that matters, so zero correlation was
+      ;; guaranteed and said nothing about assimilability.
+      fixed-field (c/java-random-genotype (java.util.Random. 20260730) W)
       per-seed
       (for [seed seeds]
         (let [r (java.util.Random. (long seed))
-              g0 (c/java-random-genotype r W)
+              g0 fixed-field
               p0 (c/java-random-phenotype r W)
               agree (volatile! {})
               steps (atom 0)]
