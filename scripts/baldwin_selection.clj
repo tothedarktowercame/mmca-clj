@@ -154,7 +154,11 @@
                                             :update-prob (nth UPDATE-LEVELS (.nextInt rng (count UPDATE-LEVELS)))
                                             :field (c/java-random-genotype rng W))))]
       (when (< gen G)
-        (let [scored (mapv #(merge % (fitness % cost seed-set site-set)) population)
+        ;; Fitness evaluation is embarrassingly parallel across the population:
+        ;; each genome's reach builds its own seeded RNGs and shares no state, so
+        ;; pmap changes wall-clock only, never the numbers. This is what lets one
+        ;; run use a many-core box rather than one core.
+        (let [scored (vec (pmap #(merge % (fitness % cost seed-set site-set)) population))
               ranked (vec (sort-by :score > scored))
               n (count ranked)
               survivors (vec (take (max 1 (quot n 2)) ranked))
