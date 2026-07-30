@@ -135,7 +135,7 @@
                 field)})
 
 (defn -main [& args]
-  (let [{:strs [c gens pop seeds sites field-rate pin]}
+  (let [{:strs [c gens pop seeds sites field-rate pin warmup]}
         (apply hash-map (map #(if (str/starts-with? % "--") (subs % 2) %) args))
         cost (Double/parseDouble (or c "0.0"))
         G (Integer/parseInt (or gens "12"))
@@ -144,6 +144,7 @@
         nsites (Integer/parseInt (or sites "8"))
         frate (Double/parseDouble (or field-rate "0.02"))
         pinned (some-> pin Double/parseDouble)
+        warm (Integer/parseInt (or warmup "8"))
         rng (java.util.Random. 20260730)
         seed-set (range 1 (inc nseeds))
         site-set (take nsites (range 0 W (max 1 (quot W nsites))))]
@@ -151,14 +152,22 @@
     (loop [gen 0
            population (vec (repeatedly P #(hash-map
                                             :gamma (or pinned (nth GAMMA-LEVELS (.nextInt rng 8)))
-                                            :update-prob (nth UPDATE-LEVELS (.nextInt rng (count UPDATE-LEVELS)))
+                                            ;; Start at 1.0 -- where the river dynamics actually work, as the pre-G5 runs
+   ;; implicitly did. Randomising this crippled most lineages from generation 0,
+   ;; band-score was then 0 for the whole population, and the only ranking signal
+   ;; left was -c*gamma, so selection just minimised gamma and never found reach.
+   ;; Mutation still walks update-prob down to 0, so degeneration stays reachable.
+   :update-prob 1.0
                                             :field (c/java-random-genotype rng W))))]
       (when (< gen G)
         ;; Fitness evaluation is embarrassingly parallel across the population:
         ;; each genome's reach builds its own seeded RNGs and shares no state, so
         ;; pmap changes wall-clock only, never the numbers. This is what lets one
         ;; run use a many-core box rather than one core.
-        (let [scored (vec (pmap #(merge % (fitness % cost seed-set site-set)) population))
+        ;; Baldwin's first phase is plasticity ESTABLISHING; charging for it from
+        ;; generation 0 forecloses that by construction. Cost applies after warm-up.
+        (let [c-now (if (< gen warm) 0.0 cost)
+              scored (vec (pmap #(merge % (fitness % c-now seed-set site-set)) population))
               ranked (vec (sort-by :score > scored))
               n (count ranked)
               survivors (vec (take (max 1 (quot n 2)) ranked))
