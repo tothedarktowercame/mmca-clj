@@ -7,7 +7,7 @@
 ;; Reach is the count of that field's row at dt; if the field does not look like
 ;; spreading damage, the number is meaningless however exactly it reproduces.
 
-(require '[mmca.core :as c])
+(require '[mmca.core :as c] '[clojure.edn] '[clojure.string])
 (load-file "scripts/baldwin_selection_lib.clj")
 
 (def W 80) (def TSTAR 60) (def STEPS 120)
@@ -51,10 +51,30 @@
                 (recur (inc t) nga npa ngb npb
                        (conj acc [t nga npa (mapv #(if (= %1 %2) 0 1) npa npb)]))))))))
 
-(let [genome {:gamma 1.0 :update-prob 1.0
-              :field (c/java-random-genotype (java.util.Random. 1) W)
-              :mask (vec (repeat W true)) :hold (vec (repeat W false))}
+;; With a record file argument, render the BEST EVOLVED genome from that run --
+;; what selection actually built, rather than a random draw. Without one, fall back
+;; to a random genome.
+(let [args *command-line-args*
+      genome
+      (if-let [rec (first args)]
+        (let [recs (->> (slurp rec) clojure.string/split-lines
+                        (remove clojure.string/blank?)
+                        (map clojure.edn/read-string)
+                        (remove :kind))
+              ;; best by RAW band, not cost-adjusted score
+              b (->> recs (sort-by #(or (:band %) -1) >) first)]
+          {:gamma (:gamma b) :update-prob (:update-prob b)
+           :field (vec (:field b))
+           :mask (mapv #(= 1 %) (:mask b))
+           :hold (mapv #(= 1 %) (:hold b))})
+        {:gamma 1.0 :update-prob 1.0
+         :field (c/java-random-genotype (java.util.Random. 1) W)
+         :mask (vec (repeat W true)) :hold (vec (repeat W false))})
       rows (run-pair genome 1 40)]
+  (binding [*out* *err*]
+    (println (format "  genome: gamma=%.3f update-prob=%.2f held=%d/%d"
+                     (double (:gamma genome)) (double (:update-prob genome))
+                     (count (filter true? (:hold genome))) W)))
   (println "kind\tt\ti\tv")
   (doseq [[t g p d] rows i (range W)]
     (println (format "geno\t%d\t%d\t%d" t i (nth g i)))
