@@ -9,7 +9,7 @@ readonly CONFIG=/home/joe/.config/linode-cli
 
 for executable in "$LINODE_CLI" "$API_CLIENT" "$TEARDOWN" \
                   /usr/bin/curl /usr/bin/python3 /usr/bin/ssh /usr/bin/scp \
-                  /usr/bin/systemd-run /usr/bin/systemctl /usr/bin/timeout; do
+                  /usr/bin/systemd-run /bin/systemctl /usr/bin/timeout; do
   [[ -x $executable ]] || { echo "FATAL: required executable missing: $executable" >&2; exit 1; }
 done
 
