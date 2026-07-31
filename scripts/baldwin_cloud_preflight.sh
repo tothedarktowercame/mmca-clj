@@ -29,6 +29,6 @@ timeout 60 "$API_CLIENT" list >/dev/null
 echo "checking user systemd manager" >&2
 systemctl --user show-environment >/dev/null
 test_unit=baldwin-preflight-$$
-systemd-run --user --wait --collect --unit "$test_unit" /usr/bin/true >/dev/null
+systemd-run --user --wait --collect --unit "$test_unit" /bin/true >/dev/null
 
 echo "cloud preflight passed: both control paths and the dead-man scheduler are available" >&2
