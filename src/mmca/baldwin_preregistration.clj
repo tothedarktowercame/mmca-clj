@@ -30,6 +30,19 @@
   #{:baseline-assimilation :coordination-bottleneck
     :moving-target-bottleneck :interaction :no-tested-repair})
 
+(def required-production-protocol
+  {:mode "hold-only"
+   :generations 30
+   :population 24
+   :evaluation-seeds 3
+   :evaluation-sites 10
+   :warmup 8
+   :cost 0.05
+   :witness-reach-threshold 10.0
+   :hgt false
+   :pilot-evolution-seed 20260730
+   :arm-timeout-minutes 75})
+
 (defn read-registration [path]
   (edn/read-string (slurp path)))
 
@@ -55,6 +68,9 @@
 
       (not= 256 (:rule-count registration))
       (conj :wrong-rule-count)
+
+      (not= required-production-protocol (:production-protocol registration))
+      (conj :wrong-production-protocol)
 
       (empty? pilot)
       (conj :missing-pilot-seed)

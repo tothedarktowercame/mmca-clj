@@ -22,20 +22,23 @@
   [ind]
   (reverse (take-while some? (iterate #(some-> (:parent %) by-id) ind))))
 
-(let [threshold (Double/parseDouble (or (second *command-line-args*) "0.3"))
+  (let [threshold (Double/parseDouble (or (second *command-line-args*) "10.0"))
       best (->> inds (sort-by :score >) first)
       chain (lineage best)
       traj (mapv (fn [r] {:genome {:field (:field r)
                                    :hold (mapv #(= 1 %) (:hold r))}
-                          :performance (:band r)      ; RAW function, not cost-adjusted
+                          :performance (:reach r)     ; RAW function, not cost-adjusted
                           :dependence (:dependence r)})
                  chain)
       ;; Lean inheritedFunction uses the recorded held-rule evaluation, not a guess
       held (get endpoints (:gen (last chain)))
       accessible? (constantly true)                    ; every step is a recorded transition
-      fails (spec/witness-failures traj threshold accessible?)]
+      traj' (if (seq traj)
+              (assoc-in traj [(dec (count traj)) :inherited-performance] held)
+              traj)
+      fails (spec/witness-failures traj' threshold accessible?)]
   (println (format "  lineage length: %d  (best id %s, gen %s)" (count chain) (:id best) (:gen best)))
-  (println (format "  raw band along lineage: %s" (mapv #(format "%.3f" (:performance %)) traj)))
+  (println (format "  raw reach along lineage: %s" (mapv #(format "%.3f" (:performance %)) traj')))
   (println (format "  dependence along lineage: %s" (mapv #(format "%.3f" (:dependence %)) traj)))
   (println (format "  held-rule endpoint reach: %s" held))
   (if (empty? fails)

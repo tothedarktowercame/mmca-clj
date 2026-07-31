@@ -10,11 +10,11 @@
     (is (not (prereg/launchable? registration {}))
         "registration status alone is not implementation evidence")))
 
-(deftest committed-smoke-receipt-discharges-the-launch-gate
+(deftest an-older-smoke-receipt-does-not-certify-a-changed-protocol
   (let [registration (prereg/read-registration registration-path)
         receipt (prereg/read-registration
                  "data/baldwin-runs/search-smoke-4d4c7290/smoke.edn")]
-    (is (prereg/launchable? registration receipt))))
+    (is (not (prereg/launchable? registration receipt)))))
 
 (deftest replication-seeds-must-be-independent
   (let [registration (prereg/read-registration registration-path)
@@ -25,6 +25,12 @@
   (let [registration (prereg/read-registration registration-path)]
     (is (some #{:invalid-fixed-p0}
               (prereg/failures (assoc registration :fixed-p0 "chosen-later"))))))
+
+(deftest paid-run-protocol-cannot-drift-after-registration
+  (let [registration (prereg/read-registration registration-path)]
+    (is (some #{:wrong-production-protocol}
+              (prereg/failures
+               (assoc-in registration [:production-protocol :generations] 31))))))
 
 (deftest launch-needs-the-exact-smoke-receipt
   (let [base (prereg/read-registration registration-path)

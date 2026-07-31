@@ -118,8 +118,9 @@
       (conj :strict-assimilation)                 ; no net retreat
       (not (static? (:genome fin)))
       (conj :final-static)
-      (not (<= threshold (perf (assoc fin :genome (hold-all (:genome fin))))))
-      (conj :inherited-function))))               ; fails when fully held
+      (not (and (number? (:inherited-performance fin))
+                (<= threshold (:inherited-performance fin))))
+      (conj :inherited-function))))               ; measured after holding every locus
 
 (defn baldwin-witness? [traj threshold accessible?]
   (empty? (witness-failures traj threshold accessible?)))

@@ -75,11 +75,17 @@
   (testing "Lean BaldwinWitness — the checker must say WHICH condition fails"
     (let [ok [{:genome {:field [1 1] :hold [false false]} :performance 0.9 :dependence 1.0}
               {:genome {:field [1 1] :hold [true false]}  :performance 0.9 :dependence 0.5}
-              {:genome {:field [1 1] :hold [true true]}   :performance 0.9 :dependence 0.0}]
+              {:genome {:field [1 1] :hold [true true]}   :performance 0.9 :dependence 0.0
+               :inherited-performance 0.9}]
           valley (assoc-in (vec ok) [1 :performance] 0.1)
           flat [{:genome {:field [1 1] :hold [false false]} :performance 0.9 :dependence 1.0}
-                {:genome {:field [1 1] :hold [true true]}   :performance 0.9 :dependence 1.0}]]
+                {:genome {:field [1 1] :hold [true true]}   :performance 0.9 :dependence 1.0
+                 :inherited-performance 0.9}]]
       (is (spec/baldwin-witness? ok 0.5 (constantly true)))
+      (is (some #{:inherited-function}
+                (spec/witness-failures (update (vec ok) 2 dissoc :inherited-performance)
+                                       0.5 (constantly true)))
+          "raw function may not stand in for the measured all-held endpoint")
       (is (some #{:high-function} (spec/witness-failures valley 0.5 (constantly true)))
           "a path crossing a valley must be named as such")
       (is (some #{:strict-assimilation} (spec/witness-failures flat 0.5 (constantly true)))))))
