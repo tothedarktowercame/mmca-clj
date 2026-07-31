@@ -29,7 +29,13 @@ readonly SCOPE=(
   holes/BALDWIN-SEARCH-PREREGISTRATION.edn
   src/mmca/baldwin_preregistration.clj
   src/mmca/baldwin_selection.clj
+  src/mmca/baldwin_spec.clj
+  src/mmca/baldwin_search_analysis.clj
   src/mmca/baldwin_search_smoke.clj
+  scripts/analyze_baldwin_search.clj
+  scripts/baldwin_search_remote_battery.sh
+  scripts/baldwin_search_artifact_spec.sh
+  scripts/check_baldwin_search_separation.clj
   scripts/baldwin_selection.clj
   scripts/baldwin_search_smoke.clj
   scripts/baldwin_search_smoke.sh
@@ -49,8 +55,10 @@ readonly FIXED_P0=$(clojure -M -e \
 
 echo "source gates"
 clj-kondo --lint src/mmca/baldwin_selection.clj \
-  src/mmca/baldwin_preregistration.clj src/mmca/baldwin_search_smoke.clj \
+  src/mmca/baldwin_preregistration.clj src/mmca/baldwin_spec.clj \
+  src/mmca/baldwin_search_analysis.clj src/mmca/baldwin_search_smoke.clj \
   scripts/baldwin_selection.clj scripts/baldwin_search_smoke.clj \
+  scripts/analyze_baldwin_search.clj scripts/check_baldwin_search_separation.clj \
   >"$OUT/clj-kondo.log" 2>&1
 clojure -M:test -m mmca.test-runner >"$OUT/tests.log" 2>&1
 clojure -M scripts/hinton_nowlan_positive.clj >"$OUT/positive-control.tsv"
@@ -86,6 +94,9 @@ run_arm independent-variable independent variable 0
 run_arm coupled-variable coupled variable 0
 run_arm independent-fixed independent fixed 0
 run_arm coupled-fixed coupled fixed 0
+
+clojure -M scripts/analyze_baldwin_search.clj \
+  "$REGISTRATION" "$OUT" "$OUT/smoke-result.edn" >"$OUT/smoke-analysis.stdout"
 
 echo "building fail-closed receipt"
 clojure -M scripts/baldwin_search_smoke.clj \

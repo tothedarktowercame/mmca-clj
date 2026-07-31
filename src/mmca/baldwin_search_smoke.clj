@@ -97,7 +97,8 @@
         (not= (generation-signature (:independent-variable arms) 1)
               (generation-signature (:coupled-variable arms) 1))
         expected-files
-        (concat ["preflight.edn" "positive-control.tsv"]
+        (concat ["preflight.edn" "positive-control.tsv" "smoke-result.edn"
+                 "smoke-analysis.stdout"]
                 (mapcat (fn [arm]
                           [(str (name arm) ".tsv")
                            (str (name arm) ".edn")
