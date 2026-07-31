@@ -234,7 +234,14 @@
 ;; a cost dodge rather than assimilation. Pinning isolates the mechanism under study.
 (defn mutate [^java.util.Random rng {:keys [gamma update-prob field mask hold]} field-rate gamma-pinned?
               & [plasticity-pinned?]]
-  {:update-prob (step-level rng UPDATE-LEVELS (or update-prob 1.0))
+  ;; The pin MUST be applied here as well as to :mask. It was not, in the first
+  ;; version: the patch targeted an older `(if (< (.nextDouble rng) 0.15) ...)` form
+  ;; that no longer existed, str.replace silently no-opped, and clj-kondo passed
+  ;; because the result was still valid Clojure that ignored the new parameter. Both
+  ;; pin arms then ran unpinned and merely duplicated c05 and c2.
+  {:update-prob (if plasticity-pinned?
+                  (or update-prob 1.0)
+                  (step-level rng UPDATE-LEVELS (or update-prob 1.0)))
    :gamma (if gamma-pinned? gamma
             (nth GAMMA-LEVELS
                  (max 0 (min (dec (count GAMMA-LEVELS))

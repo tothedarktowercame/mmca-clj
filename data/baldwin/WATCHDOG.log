@@ -1,0 +1,11 @@
+21:37:29Z watchdog start; polling for run2_done (max 260min)
+21:47:53Z watchdog start; polling for run2_done (max 260min)
+23:46:59Z both markers seen after 118min
+23:46:59Z banking artefacts
+23:47:07Z   data ok
+23:47:18Z   records ok
+23:47:25Z banked: 37 files
+23:47:25Z destroying linode 101801986
+timeout: failed to run command ‘linode-cli’: No such file or directory
+23:47:33Z DESTROYED and confirmed absent
+23:47:33Z watchdog done
