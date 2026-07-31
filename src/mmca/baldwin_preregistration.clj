@@ -5,7 +5,8 @@
    structurally valid while remaining deliberately blocked until the new treatments
    have produced a revision-bound smoke trace."
   (:require [clojure.edn :as edn]
-            [clojure.set :as set]))
+            [clojure.set :as set]
+            [clojure.string :as str]))
 
 (def required-arm-ids
   #{:neutral :independent-variable :coupled-variable
@@ -44,6 +45,17 @@
       (not= 1 (:schema registration))
       (conj :wrong-schema)
 
+      (not (and (string? (:fixed-p0 registration))
+                (= 80 (count (:fixed-p0 registration)))
+                (every? #{\0 \1} (:fixed-p0 registration))))
+      (conj :invalid-fixed-p0)
+
+      (not= 0.02 (:mutation-rate registration))
+      (conj :wrong-mutation-rate)
+
+      (not= 256 (:rule-count registration))
+      (conj :wrong-rule-count)
+
       (empty? pilot)
       (conj :missing-pilot-seed)
 
@@ -81,6 +93,9 @@
   [registration smoke]
   (and (empty? (failures registration))
        (= :smoke-passed (:implementation-status registration))
+       (not (str/blank? (:implementation-revision registration)))
+       (= (:implementation-revision registration) (:revision smoke))
+       (= (:fixed-p0 registration) (:fixed-p0 smoke))
        (every? true? (map smoke required-observations))))
 
 (defn report [registration smoke]

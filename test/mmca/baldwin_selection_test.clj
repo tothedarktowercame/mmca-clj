@@ -20,7 +20,10 @@
     (is (thrown-with-msg? clojure.lang.ExceptionInfo #"pairs"
                           (selection/parse-arguments ["--mode"])))
     (is (= {"mode" "hold-only" "c" "2"}
-           (selection/parse-arguments ["--mode" "hold-only" "--c" "2"])))))
+           (selection/parse-arguments ["--mode" "hold-only" "--c" "2"])))
+    (is (= {"mutation-mode" "coupled" "p0-mode" "fixed"}
+           (selection/parse-arguments ["--mutation-mode" "coupled"
+                                       "--p0-mode" "fixed"])))))
 
 (deftest numeric-configuration-is-strict
   (let [valid {:cost 0.05 :generations 30 :population 24
@@ -53,6 +56,33 @@
       (is (every? true? (:hold child)))
       (is (not= (:field static) (:field child)))
       (is (selection/assert-mode! "static-search" [child])))))
+
+(deftest search-mutation-is-tape-aligned-and-couples-the-allele
+  (let [independent-rng (java.util.Random. 17)
+        coupled-rng (java.util.Random. 17)
+        independent (selection/mutate-search independent-rng base-genome 1.0
+                                                :independent true true false)
+        coupled (selection/mutate-search coupled-rng base-genome 1.0
+                                          :coupled true true false)]
+    (testing "both treatments consume the identical scheduled random tape"
+      (is (= (.nextLong independent-rng) (.nextLong coupled-rng))))
+    (testing "a plastic-to-held event installs a separately drawn uniform allele"
+      (is (every? true? (:hold coupled)))
+      (is (not= (:field independent) (:field coupled))))
+    (testing "the treatment cannot unpin other plasticity routes"
+      (is (= 1.0 (:gamma coupled)))
+      (is (= 1.0 (:update-prob coupled)))
+      (is (every? true? (:mask coupled))))))
+
+(deftest fixed-p0-is-used-without-removing-the-seeded-draw
+  (let [fixed (apply str (take selection/W (cycle "0011")))
+        g (:field base-genome)
+        a (selection/two-stage 1.0 1.0 (:mask base-genome) (:hold base-genome)
+                               1 g nil nil fixed)
+        b (selection/two-stage 1.0 1.0 (:mask base-genome) (:hold base-genome)
+                               2 g nil nil fixed)]
+    (is (= fixed (first (:phe a))))
+    (is (= fixed (first (:phe b))))))
 
 (deftest recorded-genomes-round-trip-to-mode-checker
   (let [recorded (-> base-genome

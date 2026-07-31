@@ -123,40 +123,55 @@
 ;; `g0` is INJECTED rather than derived from the seed: that is what makes the
 ;; initial field heritable, and hence what gives assimilation somewhere to
 ;; accumulate. Everything else matches river_gain.clj/two-stage.
-(defn two-stage [gamma update-prob mask hold seed g0 intervene frozen*]
-  (let [r (java.util.Random. (long seed))
-        gate (java.util.Random. (long (+ 987654321 seed)))
-        upd (java.util.Random. (long (+ 123456789 seed)))
-        ;; river_gain.clj draws the genotype from `r` BEFORE the phenotype. We
-        ;; inject the genotype instead, so `r` must still be advanced by exactly
-        ;; those draws or `p0` diverges from the published initial condition and
-        ;; the numbers stop being comparable to the paper's rows.
-        _ (c/java-random-genotype r W)
-        p0 (c/java-random-phenotype r W)
-        a (run-from r gate upd g0 p0 TSTAR gamma update-prob mask hold (or frozen* p0))
-        g* (:gen a) p* (peek (:phe a))
-        [g' p'] (if intervene (intervene g* p*) [g* p*])
-        b (run-from r gate upd g' p' (- STEPS TSTAR) gamma update-prob mask hold (or frozen* p0))]
-    {:phe (into (:phe a) (rest (:phe b)))}))
+(defn two-stage
+  ([gamma update-prob mask hold seed g0 intervene frozen*]
+   (two-stage gamma update-prob mask hold seed g0 intervene frozen* nil))
+  ([gamma update-prob mask hold seed g0 intervene frozen* fixed-p0]
+   (let [r (java.util.Random. (long seed))
+         gate (java.util.Random. (long (+ 987654321 seed)))
+         upd (java.util.Random. (long (+ 123456789 seed)))
+         ;; river_gain.clj draws the genotype from `r` BEFORE the phenotype. We
+         ;; inject the genotype instead, so `r` must still be advanced by exactly
+         ;; those draws or `p0` diverges from the published initial condition and
+         ;; the numbers stop being comparable to the paper's rows.
+         _ (c/java-random-genotype r W)
+         sampled-p0 (c/java-random-phenotype r W)
+         ;; The draw above is unconditional.  Fixed and variable treatments
+         ;; therefore consume the identical tape; fixed-p0 selects a committed
+         ;; value only after the ordinary value has been drawn and discarded.
+         p0 (or fixed-p0 sampled-p0)
+         a (run-from r gate upd g0 p0 TSTAR gamma update-prob mask hold (or frozen* p0))
+         g* (:gen a) p* (peek (:phe a))
+         [g' p'] (if intervene (intervene g* p*) [g* p*])
+         b (run-from r gate upd g' p' (- STEPS TSTAR) gamma update-prob mask hold (or frozen* p0))]
+     {:phe (into (:phe a) (rest (:phe b)))})))
 
 (defn flip-at [x] (fn [g p] [g (str (subs p 0 x) (if (= \1 (nth p x)) \0 \1) (subs p (inc x)))]))
 
 ;; --- reach, at the published protocol ---------------------------------------
-(defn reach [{:keys [gamma update-prob field mask hold]} seeds sites]
-  (let [ms (for [seed seeds]
-             (let [up (if (nil? update-prob) 1.0 update-prob)
-                   mk (or mask (vec (repeat W true)))
-                   hd (or hold (vec (repeat W false)))
-                   ref (two-stage 1.0 up mk hd seed field nil nil)
-                   frozen* (nth (:phe ref) TSTAR)
-                   A (two-stage gamma up mk hd seed field nil frozen*)]
-               (for [x sites]
-                 (let [B (two-stage gamma up mk hd seed field (flip-at x) frozen*)]
-                   (reduce + (map #(if (= %1 %2) 0 1)
-                                  (nth (:phe A) (+ TSTAR DT))
-                                  (nth (:phe B) (+ TSTAR DT))))))))
-        all (mapv double (flatten ms))]
-    {:mean (/ (reduce + all) (count all)) :n (count all)}))
+(defn reach
+  ([genome seeds sites]
+   (reach genome seeds sites {}))
+  ([{:keys [gamma update-prob field mask hold]} seeds sites
+    {:keys [p0-mode fixed-p0] :or {p0-mode :variable}}]
+   (let [initial (case p0-mode
+                   :variable nil
+                   :fixed fixed-p0
+                   (throw (ex-info "unknown p0 mode" {:p0-mode p0-mode})))
+         ms (for [seed seeds]
+              (let [up (if (nil? update-prob) 1.0 update-prob)
+                    mk (or mask (vec (repeat W true)))
+                    hd (or hold (vec (repeat W false)))
+                    ref (two-stage 1.0 up mk hd seed field nil nil initial)
+                    frozen* (nth (:phe ref) TSTAR)
+                    A (two-stage gamma up mk hd seed field nil frozen* initial)]
+                (for [x sites]
+                  (let [B (two-stage gamma up mk hd seed field (flip-at x) frozen* initial)]
+                    (reduce + (map #(if (= %1 %2) 0 1)
+                                   (nth (:phe A) (+ TSTAR DT))
+                                   (nth (:phe B) (+ TSTAR DT))))))))
+         all (mapv double (flatten ms))]
+     {:mean (/ (reduce + all) (count all)) :n (count all)})))
 
 ;; two-sided: peaks in the complex band, penalising stasis AND saturation, so
 ;; the population cannot win by evolving toward rule-30 behaviour
@@ -293,6 +308,58 @@
              h0
              (mapv (fn [h] (if (< (.nextDouble rng) field-rate) (not h) h)) h0)))})
 
+(defn mutate-search
+  "Mutation operator for the preregistered search experiment.
+
+   Every locus consumes the same five draws in both treatments: field coin,
+   field allele, mask coin, hold coin, and coupled allele.  The independent arm
+   discards the coupled allele.  In the coupled arm, a plastic-to-held proposal
+   installs that uninformed uniform allele in the same event; it never consults
+   a fitness map or post-hoc probe.  Held-to-plastic proposals remain symmetric.
+
+   This is separate from `mutate` so the historical battery remains exactly
+   reproducible."
+  [^java.util.Random rng {:keys [gamma update-prob field mask hold]}
+   field-rate mutation-mode gamma-pinned? plasticity-pinned? hold-pinned?]
+  (when-not (#{:independent :coupled} mutation-mode)
+    (throw (ex-info "unknown search mutation mode" {:mutation-mode mutation-mode})))
+  (let [m0 (or mask (vec (repeat (count field) true)))
+        h0 (or hold (vec (repeat (count field) false)))
+        proposals
+        (mapv (fn [_]
+                {:field? (< (.nextDouble rng) field-rate)
+                 :field-allele (.nextInt rng c/rule-count)
+                 :mask? (< (.nextDouble rng) field-rate)
+                 :hold? (< (.nextDouble rng) field-rate)
+                 :coupled-allele (.nextInt rng c/rule-count)})
+              field)
+        next-hold (mapv (fn [h p]
+                          (if (and (not hold-pinned?) (:hold? p)) (not h) h))
+                        h0 proposals)
+        next-field
+        (mapv (fn [rule h p]
+                (let [independent-rule (if (:field? p) (:field-allele p) rule)]
+                  (if (and (= :coupled mutation-mode)
+                           (not hold-pinned?) (not h) (:hold? p))
+                    (:coupled-allele p)
+                    independent-rule)))
+              field h0 proposals)
+        next-mask (if plasticity-pinned?
+                    m0
+                    (mapv (fn [m p] (if (:mask? p) (not m) m)) m0 proposals))]
+    {:update-prob (if plasticity-pinned?
+                    (or update-prob 1.0)
+                    (step-level rng UPDATE-LEVELS (or update-prob 1.0)))
+     :gamma (if gamma-pinned?
+              gamma
+              (nth GAMMA-LEVELS
+                   (max 0 (min (dec (count GAMMA-LEVELS))
+                               (+ (.indexOf GAMMA-LEVELS gamma)
+                                  (dec (.nextInt rng 3)))))))
+     :field next-field
+     :mask next-mask
+     :hold next-hold}))
+
 
 ;; ---------------------------------------------------------------- PREFLIGHT ----
 ;; Delegates to mmca.baldwin-spec, which is the port of DarkTower/BaldwinDesign.lean
@@ -377,9 +444,10 @@
     (.flush ^java.io.Writer w)))
 
 (def ^:private allowed-arguments
-  #{"c" "evolution-seed" "field-rate" "gens" "hgt" "manifest" "mode"
-    "neutral" "pin" "pop" "preflight-certificate" "preflight-only" "record"
-    "revision" "seeds" "sites" "warmup"})
+  #{"c" "evolution-seed" "field-rate" "fixed-p0" "gens" "hgt" "manifest"
+    "mode" "mutation-mode" "neutral" "p0-mode" "pin" "pop"
+    "preflight-certificate" "preflight-only" "record" "revision" "seeds"
+    "sites" "warmup"})
 
 (defn parse-arguments
   "Parse strict --key value pairs. Unknown, duplicate, and incomplete arguments
@@ -523,7 +591,8 @@
    mutation-only arms. Keeping this lifecycle in one function prevents a cheap
    null from silently becoming a different null."
   [ranked ^java.util.Random rng ^java.util.Random hrng
-   {:keys [hgt? field-rate gamma-pinned? plasticity-pinned? hold-pinned? fresh-id]}]
+   {:keys [hgt? field-rate mutation-mode gamma-pinned? plasticity-pinned?
+           hold-pinned? fresh-id]}]
   (let [n (count ranked)
         survivors (vec (take (max 1 (quot n 2)) ranked))
         offspring (vec
@@ -532,9 +601,14 @@
                     #(let [pa (nth survivors (.nextInt rng (count survivors)))
                            pb (nth survivors (.nextInt rng (count survivors)))
                            used-hgt? (and hgt? (not= pa pb))
-                           base (if used-hgt? (hgt hrng pa pb) pa)]
-                       (assoc (mutate rng base field-rate gamma-pinned?
-                                      plasticity-pinned? hold-pinned?)
+                           base (if used-hgt? (hgt hrng pa pb) pa)
+                           child (if mutation-mode
+                                   (mutate-search rng base field-rate mutation-mode
+                                                  gamma-pinned? plasticity-pinned?
+                                                  hold-pinned?)
+                                   (mutate rng base field-rate gamma-pinned?
+                                           plasticity-pinned? hold-pinned?))]
+                       (assoc child
                               :id (fresh-id)
                               :parent (:id pa)
                               :donor (when used-hgt? (:id pb))))))]
@@ -562,6 +636,27 @@
         pinned (some-> pin Double/parseDouble)
         warm (Integer/parseInt (or warmup "8"))
         mode (get argm "mode" "standard")
+        mutation-mode (some-> (get argm "mutation-mode") keyword)
+        _mutation-check
+        (when (and mutation-mode (not (#{:independent :coupled} mutation-mode)))
+          (throw (ex-info "--mutation-mode must be independent or coupled"
+                          {:mutation-mode mutation-mode})))
+        p0-mode (keyword (get argm "p0-mode" "variable"))
+        fixed-p0 (get argm "fixed-p0")
+        _p0-check
+        (case p0-mode
+          :variable
+          (when fixed-p0
+            (throw (ex-info "--fixed-p0 is only valid with --p0-mode fixed"
+                            {:p0-mode p0-mode})))
+          :fixed
+          (when-not (and (string? fixed-p0) (= W (count fixed-p0))
+                         (every? #{\0 \1} fixed-p0))
+            (throw (ex-info "fixed p0 must be an 80-bit binary phenotype"
+                            {:p0-mode p0-mode :fixed-p0 fixed-p0})))
+          (throw (ex-info "--p0-mode must be variable or fixed"
+                          {:p0-mode p0-mode})))
+        evaluation-options {:p0-mode p0-mode :fixed-p0 fixed-p0}
         settings (mode-settings mode)
         mode-gamma (:gamma settings)
         _mode-check (when (and mode-gamma pinned (not= mode-gamma pinned))
@@ -595,6 +690,7 @@
         config {:mode mode :cost cost :generations G :population P
                 :evaluation-seed-count nseeds :evaluation-site-count nsites
                 :field-rate frate :warmup warm :hgt hgt? :neutral neutral?
+                :mutation-mode mutation-mode :p0-mode p0-mode :fixed-p0 fixed-p0
                 :evolution-seed evolution-seed
                 :pin pinned
                 :gamma-pinned (some? gamma-start)
@@ -637,7 +733,8 @@
         (let [c-now (if (< gen warm) 0.0 cost)
               evaluated (vec
                          (pmap (fn [g]
-                                 (let [r (:mean (reach g seed-set site-set))
+                                 (let [r (:mean (reach g seed-set site-set
+                                                      evaluation-options))
                                        b (band-score r)
                                        d (plastic-dependence g)]
                                    ;; Band and cost stay separate so the witness
@@ -657,6 +754,7 @@
               n (count ranked)
               breeding (breed ranked rng hrng
                               {:hgt? hgt? :field-rate frate
+                               :mutation-mode mutation-mode
                                :gamma-pinned? (some? gamma-start)
                                :plasticity-pinned? pin-plast?
                                :hold-pinned? hold-pinned?
@@ -676,7 +774,8 @@
               best (first ranked)
               ;; Lean inheritedFunction: does the best genome still work when EVERY
               ;; locus is held? Without this a witness cannot be completed.
-              endpoint (reach (assoc best :hold (vec (repeat W true))) seed-set site-set)
+              endpoint (reach (assoc best :hold (vec (repeat W true)))
+                              seed-set site-set evaluation-options)
               _ (write-records! w gen ranked endpoint)]
           (assert-mode! mode next-population)
           (println (format "%d\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f"

@@ -2,7 +2,11 @@
  :schema 1
  :name "baldwin-search-operator-2x2"
  :implementation-status :blocked-pending-smoke
+ :implementation-revision nil
  :question "Does coupled hold/rule mutation repair mutation supply, does fixed p0 repair a moving target, or is their interaction required?"
+ :fixed-p0 "01011111101100010000000111010011001010110101011111011001100001010010111111100101"
+ :mutation-rate 0.02
+ :rule-count 256
  :pilot-seeds [20260730]
  :confirmation-seeds [20260801 20260802]
  :budget-minutes 240
