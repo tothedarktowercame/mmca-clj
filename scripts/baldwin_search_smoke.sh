@@ -13,8 +13,11 @@ readonly REPO=$(cd "$(dirname "$0")/.." && pwd)
 readonly REGISTRATION=$REPO/holes/BALDWIN-SEARCH-PREREGISTRATION.edn
 readonly GENERATIONS=2
 readonly POPULATION=8
-readonly SEEDS=1
-readonly SITES=2
+# The invariant profile is itself a measured quantity.  A cheaper 1x2 smoke made
+# every sampled gamma level score zero and was correctly rejected as a dead axis;
+# use the preregistered production evaluation shape rather than weakening I6.
+readonly SEEDS=3
+readonly SITES=10
 readonly EVOLUTION_SEED=20260730
 
 [[ $REVISION =~ ^[0-9a-f]{40}$ ]] || { echo "revision must be a full SHA" >&2; exit 64; }
