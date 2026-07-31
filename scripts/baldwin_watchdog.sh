@@ -16,6 +16,29 @@ MAX_MIN=260                      # hard ceiling: bank and destroy regardless
 
 mkdir -p "$DEST"
 say () { echo "$(date -u +%H:%M:%SZ) $*" >> "$LOG"; }
+
+# PREFLIGHT -- resolve every external tool NOW, not hours from now when the box is
+# billing and the only remaining job is to kill it. A systemd --user unit gets a
+# minimal PATH without ~/.local/bin, so linode-cli resolved interactively and not
+# here; that was discovered only at teardown, and the delete never ran.
+CLI=""
+for cand in "$(command -v linode-cli 2>/dev/null)" /home/joe/.local/bin/linode-cli \
+            /usr/local/bin/linode-cli "$HOME/.local/bin/linode-cli"; do
+  [ -n "$cand" ] && [ -x "$cand" ] && { CLI="$cand"; break; }
+done
+if [ -z "$CLI" ]; then
+  say "FATAL: linode-cli not found in this environment (PATH=$PATH)"
+  say "       refusing to start -- a watchdog that cannot destroy the box is worse"
+  say "       than none, because it looks like teardown is handled."
+  exit 1
+fi
+# Prove it actually WORKS, not merely that the file exists: a present-but-unauthorised
+# CLI fails identically to a missing one at the moment it matters.
+if ! timeout 60 "$CLI" linodes list --text --format=id >/dev/null 2>&1; then
+  say "FATAL: $CLI present but cannot list linodes (auth or network). Refusing to start."
+  exit 1
+fi
+say "preflight ok: $CLI can list linodes"
 ssh_box () { timeout 60 ssh -o BatchMode=yes -o StrictHostKeyChecking=no \
              -o ConnectTimeout=15 root@$IP "$@" 2>/dev/null; }
 
@@ -44,12 +67,26 @@ timeout 300 scp -q -o BatchMode=yes -o StrictHostKeyChecking=no \
 say "banked: $(ls -1 "$DEST" | wc -l) files"
 
 say "destroying linode $LINODE"
-timeout 180 linode-cli linodes delete "$LINODE" >> "$LOG" 2>&1
+timeout 180 "$CLI" linodes delete "$LINODE" >> "$LOG" 2>&1
+
+# VERIFY FAIL-CLOSED. The previous version piped a missing binary into grep -c, got
+# 0, and reported success -- the check shared a failure mode with the thing it was
+# checking. Distinguish three outcomes, and treat "cannot tell" as failure.
 sleep 8
-remaining=$(timeout 90 linode-cli linodes list --text --format=id 2>/dev/null | grep -c "^${LINODE}$")
-if [ "$remaining" = "0" ]; then
-  say "DESTROYED and confirmed absent"
+listing=$(timeout 90 "$CLI" linodes list --text --format=id 2>/dev/null)
+if [ -z "$listing" ]; then
+  say "!! CANNOT VERIFY: linode list returned nothing. $LINODE MAY STILL BE BILLING."
+  say "   check by hand: $CLI linodes list"
+elif echo "$listing" | grep -qx "$LINODE"; then
+  say "!! DELETE FAILED: linode $LINODE is STILL PRESENT and billing. Retrying once."
+  timeout 180 "$CLI" linodes delete "$LINODE" >> "$LOG" 2>&1
+  sleep 8
+  if timeout 90 "$CLI" linodes list --text --format=id 2>/dev/null | grep -qx "$LINODE"; then
+    say "!! RETRY FAILED -- linode $LINODE still present. MANUAL ACTION REQUIRED."
+  else
+    say "DESTROYED on retry, confirmed absent from a non-empty listing"
+  fi
 else
-  say "!! DELETE DID NOT CONFIRM -- linode $LINODE may still be billing; check manually"
+  say "DESTROYED and confirmed absent from a non-empty listing of $(echo "$listing" | wc -l) linodes"
 fi
 say "watchdog done"
