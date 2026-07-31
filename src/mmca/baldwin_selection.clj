@@ -120,6 +120,15 @@
             ng (gain-genotype-step random gate upd g p np frozen gamma update-prob mask hold)]
         (recur (inc t) ng np (conj phes np))))))
 
+(defn sampled-initial-phenotype
+  "Reproduce the published seed-to-p0 construction, including the genotype draws
+   which precede it on the tape.  Used only for manifest observation; `two-stage`
+   performs the same draws on the live evaluation RNG."
+  [seed]
+  (let [r (java.util.Random. (long seed))]
+    (c/java-random-genotype r W)
+    (c/java-random-phenotype r W)))
+
 ;; `g0` is INJECTED rather than derived from the seed: that is what makes the
 ;; initial field heritable, and hence what gives assimilation somewhere to
 ;; accumulate. Everything else matches river_gain.clj/two-stage.
@@ -543,6 +552,13 @@
    :configuration config
    :evaluation-seeds (vec seed-set)
    :evaluation-sites (vec site-set)
+   :effective-p0
+   (into (sorted-map)
+         (map (fn [seed]
+                [seed (if (= :fixed (:p0-mode config))
+                        (:fixed-p0 config)
+                        (sampled-initial-phenotype seed))])
+              seed-set))
    :protocol {:width W :steps STEPS :tstar TSTAR :damage-time DT
               :band-low BAND-LOW :band-high BAND-HIGH}})
 

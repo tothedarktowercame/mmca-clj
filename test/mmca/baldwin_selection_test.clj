@@ -77,10 +77,13 @@
 (deftest fixed-p0-is-used-without-removing-the-seeded-draw
   (let [fixed (apply str (take selection/W (cycle "0011")))
         g (:field base-genome)
+        variable (selection/two-stage 1.0 1.0 (:mask base-genome) (:hold base-genome)
+                                      1 g nil nil)
         a (selection/two-stage 1.0 1.0 (:mask base-genome) (:hold base-genome)
                                1 g nil nil fixed)
         b (selection/two-stage 1.0 1.0 (:mask base-genome) (:hold base-genome)
                                2 g nil nil fixed)]
+    (is (= (selection/sampled-initial-phenotype 1) (first (:phe variable))))
     (is (= fixed (first (:phe a))))
     (is (= fixed (first (:phe b))))))
 
