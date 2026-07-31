@@ -1,0 +1,1 @@
+{:kind :baldwin-preflight, :schema 1, :key {:revision "1d4baf3f94e20b1439a51d3f6a5a650a01f54eb7", :evaluation-seeds [1 2 3], :evaluation-sites [0 8 16 24 32 40 48 56 64 72], :protocol {:width 80, :steps 120, :tstar 60, :damage-time 59, :band-low 10.0, :band-high 18.7}}, :passed? true, :failures []}

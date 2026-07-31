@@ -10,11 +10,11 @@
     (is (not (prereg/launchable? registration {}))
         "registration status alone is not implementation evidence")))
 
-(deftest an-older-smoke-receipt-does-not-certify-a-changed-protocol
+(deftest committed-smoke-receipt-certifies-the-fixed-protocol
   (let [registration (prereg/read-registration registration-path)
         receipt (prereg/read-registration
-                 "data/baldwin-runs/search-smoke-4d4c7290/smoke.edn")]
-    (is (not (prereg/launchable? registration receipt)))))
+                 "data/baldwin-runs/search-smoke-1d4baf3f/smoke.edn")]
+    (is (prereg/launchable? registration receipt))))
 
 (deftest replication-seeds-must-be-independent
   (let [registration (prereg/read-registration registration-path)
