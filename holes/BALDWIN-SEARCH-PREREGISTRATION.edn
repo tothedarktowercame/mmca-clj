@@ -1,0 +1,39 @@
+{:kind :baldwin-search-preregistration
+ :schema 1
+ :name "baldwin-search-operator-2x2"
+ :implementation-status :blocked-pending-smoke
+ :question "Does coupled hold/rule mutation repair mutation supply, does fixed p0 repair a moving target, or is their interaction required?"
+ :pilot-seeds [20260730]
+ :confirmation-seeds [20260801 20260802]
+ :budget-minutes 240
+ :estimated-minutes 180
+ :arms [{:id :neutral :selection? false :mutation :independent :p0 :variable}
+        {:id :independent-variable :selection? true :mutation :independent :p0 :variable}
+        {:id :coupled-variable :selection? true :mutation :coupled :p0 :variable}
+        {:id :independent-fixed :selection? true :mutation :independent :p0 :fixed}
+        {:id :coupled-fixed :selection? true :mutation :coupled :p0 :fixed}]
+ :required-smoke-observations
+ [:independent-mutation-observed
+  :coupled-mutation-observed
+  :variable-p0-observed
+  :fixed-p0-observed
+  :shared-random-tape
+  :configuration-valid
+  :positive-control-passed
+  :treatment-separated
+  :artifacts-complete]
+ :stop-rules
+ [:invalid-configuration
+  :failed-positive-control
+  :inert-treatment
+  :missing-artifacts
+  :deadline]
+ :outcomes
+ [:baseline-assimilation
+  :coordination-bottleneck
+  :moving-target-bottleneck
+  :interaction
+  :no-tested-repair]
+ :claim-rule "Only an executable BaldwinWitness licenses assimilation; treatment effects diagnose mechanisms, not weaker Baldwin claims."
+ :leakage-rule "Coupled mutation draws a uniform rule. It may not use the post hoc rule maps to choose an allele."
+ :launch-rule "Change implementation-status to :smoke-passed only after every required observation is true in a revision-bound smoke artifact."}

@@ -14,6 +14,7 @@
             [mmca.river-feedback-test]
             [mmca.hinton-nowlan-test]
             [mmca.baldwin-artifacts-test]
+            [mmca.baldwin-preregistration-test]
             [mmca.baldwin-selection-test]
             [mmca.baldwin-spec-test]))
 
@@ -29,6 +30,7 @@
                         'mmca.multiscale-spectra-test
                         'mmca.hinton-nowlan-test
                         'mmca.baldwin-artifacts-test
+                        'mmca.baldwin-preregistration-test
                         'mmca.baldwin-selection-test
                         'mmca.baldwin-spec-test
                         'mmca.direct-computation-test
