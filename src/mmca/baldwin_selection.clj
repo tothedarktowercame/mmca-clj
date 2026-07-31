@@ -1,14 +1,3 @@
-
-;; GENERATED FILE -- do not edit. Regenerate with:
-;;   python3 -c "import pathlib; \
-;;     s=pathlib.Path('scripts/baldwin_selection.clj').read_text().replace('(apply -main *command-line-args*)\n',''); \
-;;     pathlib.Path('scripts/baldwin_selection_lib.clj').write_text(s)"
-;;
-;; This is baldwin_selection.clj with its -main invocation stripped, so other
-;; scripts can load-file it as a library. It was committed once and then drifted:
-;; the plastic-fraction -> plastic-dependence rename landed in the source and not
-;; here, and the assimilation probe failed on the box with an unresolved symbol.
-;; Regenerate whenever the source changes.
 ;; A selection loop over (gamma, initial genotype field), scored by the paper's
 ;; own causal-reach protocol with an explicit cost on plasticity.
 ;;
@@ -28,8 +17,12 @@
 ;; See futon5/holes/tech-notes/TN-part-III-b-baldwin-recovery.md for the
 ;; preregistered criteria; they were fixed before this script existed.
 
-(require '[mmca.core :as c] '[clojure.string :as str] '[mmca.baldwin-spec :as spec]
-         '[clojure.java.io])
+(ns mmca.baldwin-selection
+  (:require [clojure.java.io :as io]
+            [clojure.edn :as edn]
+            [clojure.string :as str]
+            [mmca.baldwin-spec :as spec]
+            [mmca.core :as c]))
 
 (def W 80) (def STEPS 120) (def TSTAR 60) (def DT 59)
 ;; CALIBRATION, measured in THIS experiment's own frame (same reach fn, same
@@ -198,6 +191,30 @@
 ;; retained name for the reporting column, now identical to what is charged
 (def plastic-fraction plastic-dependence)
 
+(defn decode-record-genome
+  "Convert the compact 0/1 record representation back to an executable genome."
+  [record]
+  (-> record
+      (update :field vec)
+      (update :mask #(mapv (partial = 1) %))
+      (update :hold #(mapv (partial = 1) %))))
+
+(defn best-genome-from-record
+  "Recover the highest raw-band genome from an experiment record. Cost-adjusted
+   score is deliberately not used: mechanistic probes ask what function evolution
+   built, independently of the treatment cost."
+  [path]
+  (let [best (->> (str/split-lines (slurp path))
+                  (remove str/blank?)
+                  (map edn/read-string)
+                  (remove :kind)
+                  (sort-by #(or (:band %) -1.0) >)
+                  first)]
+    (when-not best
+      (throw (ex-info "record contains no genomes" {:path path})))
+    (select-keys (decode-record-genome best)
+                 [:gamma :update-prob :field :mask :hold])))
+
 (defn fitness [genome c seeds sites]
   ;; charge for the plasticity actually carried: a genome that has assimilated
   ;; half its cells pays half as much. Under a scalar gamma this reduces to c*gamma.
@@ -237,8 +254,22 @@
              :hold (splice (or (:hold a) (vec (repeat w false)))
                            (or (:hold b) (vec (repeat w false)))))))
 
-(defn mutate [^java.util.Random rng {:keys [gamma update-prob field mask hold]} field-rate gamma-pinned?]
-  {:update-prob (step-level rng UPDATE-LEVELS (or update-prob 1.0))
+;; When `plasticity-pinned?`, mutation may not touch `update-prob` or `mask`.
+;; `hold-only` additionally pins gamma through `gamma-pinned?`; all three must be
+;; fixed to make holding the only route by which dependence can fall. The failed
+;; pin arms fixed only mask, then update-prob collapsed and gamma remained another
+;; escape route.
+(defn mutate
+  [^java.util.Random rng {:keys [gamma update-prob field mask hold]} field-rate
+   gamma-pinned? plasticity-pinned? hold-pinned?]
+  ;; The pin MUST be applied here as well as to :mask. It was not, in the first
+  ;; version: the patch targeted an older `(if (< (.nextDouble rng) 0.15) ...)` form
+  ;; that no longer existed, str.replace silently no-opped, and clj-kondo passed
+  ;; because the result was still valid Clojure that ignored the new parameter. Both
+  ;; pin arms then ran unpinned and merely duplicated c05 and c2.
+  {:update-prob (if plasticity-pinned?
+                  (or update-prob 1.0)
+                  (step-level rng UPDATE-LEVELS (or update-prob 1.0)))
    :gamma (if gamma-pinned? gamma
             (nth GAMMA-LEVELS
                  (max 0 (min (dec (count GAMMA-LEVELS))
@@ -252,11 +283,15 @@
                 field)
    ;; each cell's plasticity flips independently -- the per-locus analogue of
    ;; Hinton & Nowlan mutating a `?` to a fixed value or back
-   :mask (mapv (fn [m] (if (< (.nextDouble rng) field-rate) (not m) m))
-               (or mask (vec (repeat (count field) true))))
+   :mask (let [m0 (or mask (vec (repeat (count field) true)))]
+           (if plasticity-pinned?
+             m0
+             (mapv (fn [m] (if (< (.nextDouble rng) field-rate) (not m) m)) m0)))
    ;; each locus independently flips between plastic and FIXED -- H&N's ? <-> value
-   :hold (mapv (fn [h] (if (< (.nextDouble rng) field-rate) (not h) h))
-               (or hold (vec (repeat (count field) false))))})
+   :hold (let [h0 (or hold (vec (repeat (count field) false)))]
+           (if hold-pinned?
+             h0
+             (mapv (fn [h] (if (< (.nextDouble rng) field-rate) (not h) h)) h0)))})
 
 
 ;; ---------------------------------------------------------------- PREFLIGHT ----
@@ -289,7 +324,7 @@
         a (assoc neutral :hold (vec (repeat W true)))
         b (assoc neutral :field (c/java-random-genotype (java.util.Random. 2) W))
         child (hgt rng a b)
-        walk (take 4000 (iterate #(mutate rng % 0.05 false) neutral))
+        walk (take 4000 (iterate #(mutate rng % 0.05 false false false) neutral))
         probe (mapv #(band-score (:mean (reach (assoc neutral :gamma %) seed-set site-set)))
                     GAMMA-LEVELS)
         ;; I2 layering fidelity -- Lean Extension.agrees
@@ -341,8 +376,182 @@
                           :held-reach (:mean best-endpoint)}) "\n"))
     (.flush ^java.io.Writer w)))
 
+(def ^:private allowed-arguments
+  #{"c" "evolution-seed" "field-rate" "gens" "hgt" "manifest" "mode"
+    "neutral" "pin" "pop" "preflight-certificate" "preflight-only" "record"
+    "revision" "seeds" "sites" "warmup"})
+
+(defn parse-arguments
+  "Parse strict --key value pairs. Unknown, duplicate, and incomplete arguments
+   are errors: silently accepting a misspelled treatment flag creates a plausible
+   control arm and is therefore unsafe."
+  [args]
+  (when (odd? (count args))
+    (throw (ex-info "arguments must be --key value pairs" {:args args})))
+  (let [pairs (mapv (fn [[k v]]
+                      (when-not (str/starts-with? k "--")
+                        (throw (ex-info "argument name must start with --" {:argument k})))
+                      [(subs k 2) v])
+                    (partition 2 args))
+        duplicates (->> pairs (map first) frequencies (keep (fn [[k n]] (when (> n 1) k))) sort vec)
+        unknown (->> pairs (map first) (remove allowed-arguments) sort vec)]
+    (when (seq duplicates)
+      (throw (ex-info "duplicate arguments" {:duplicates duplicates})))
+    (when (seq unknown)
+      (throw (ex-info "unknown arguments" {:unknown unknown :allowed (sort allowed-arguments)})))
+    (into {} pairs)))
+
+(defn- flag? [argm k]
+  (let [v (get argm k "0")]
+    (when-not (#{"0" "1"} v)
+      (throw (ex-info "boolean argument must be 0 or 1" {:argument k :value v})))
+    (= "1" v)))
+
+(defn mode-settings
+  "Return the causal degrees of freedom for an explicit experimental mode.
+
+   `hold-only` is the mechanistic ablation the failed pin arms intended: gamma,
+   update probability, and every mask bit are fixed, while field and hold evolve.
+   `static-search` is a positive/control arm in which every locus is permanently
+   held and only the inherited rule field evolves."
+  [mode]
+  (case mode
+    "standard" {:gamma nil :plasticity-pinned? false :hold-pinned? false
+                :initial-hold false}
+    "hold-only" {:gamma 1.0 :plasticity-pinned? true :hold-pinned? false
+                 :initial-hold false}
+    "static-search" {:gamma 1.0 :plasticity-pinned? true :hold-pinned? true
+                     :initial-hold true}
+    (throw (ex-info "unknown experimental mode"
+                    {:mode mode :allowed ["standard" "hold-only" "static-search"]}))))
+
+(defn validate-config!
+  [{:keys [cost generations population evaluation-seed-count evaluation-site-count
+           field-rate warmup pin]}]
+  (when-not (and (pos? generations) (pos? evaluation-seed-count)
+                 (<= 1 evaluation-site-count W)
+                 (<= 0 warmup generations)
+                 (<= 0.0 field-rate 1.0)
+                 (not (neg? cost))
+                 (>= population 2)
+                 (even? population))
+    (throw (ex-info "invalid experiment configuration"
+                    {:cost cost :generations generations :population population
+                     :evaluation-seed-count evaluation-seed-count
+                     :evaluation-site-count evaluation-site-count
+                     :field-rate field-rate :warmup warmup})))
+  (when (and pin (not (some #{pin} GAMMA-LEVELS)))
+    (throw (ex-info "--pin must be one of the heritable gamma levels"
+                    {:pin pin :levels GAMMA-LEVELS})))
+  true)
+
+(defn assert-mode!
+  "Fail immediately if a genome violates the treatment that its label promises."
+  [mode genomes]
+  (when (#{"hold-only" "static-search"} mode)
+    (doseq [g genomes]
+      (when-not (= 1.0 (double (:gamma g)))
+        (throw (ex-info "mode invariant failed: gamma is not pinned"
+                        {:mode mode :id (:id g) :gamma (:gamma g)})))
+      (when-not (= 1.0 (double (:update-prob g)))
+        (throw (ex-info "mode invariant failed: update-prob is not pinned"
+                        {:mode mode :id (:id g) :update-prob (:update-prob g)})))
+      (when-not (every? true? (:mask g))
+        (throw (ex-info "mode invariant failed: mask is not all live"
+                        {:mode mode :id (:id g)})))))
+  (when (= "static-search" mode)
+    (doseq [g genomes]
+      (when-not (every? true? (:hold g))
+        (throw (ex-info "mode invariant failed: static-search locus became plastic"
+                        {:mode mode :id (:id g)})))))
+  true)
+
+(defn- run-manifest [argm config seed-set site-set]
+  {:kind :manifest
+   :schema 1
+   :revision (get argm "revision" "unrecorded")
+   :arguments (into (sorted-map)
+                    (dissoc argm "manifest" "preflight-certificate" "record"))
+   :configuration config
+   :evaluation-seeds (vec seed-set)
+   :evaluation-sites (vec site-set)
+   :protocol {:width W :steps STEPS :tstar TSTAR :damage-time DT
+              :band-low BAND-LOW :band-high BAND-HIGH}})
+
+(defn- preflight-key [revision seed-set site-set]
+  {:revision revision
+   :evaluation-seeds (vec seed-set)
+   :evaluation-sites (vec site-set)
+   :protocol {:width W :steps STEPS :tstar TSTAR :damage-time DT
+              :band-low BAND-LOW :band-high BAND-HIGH}})
+
+(defn ensure-preflight!
+  "Run the expensive invariant battery once, or validate a passing certificate
+   bound to the exact revision and evaluation design. A certificate is a cache,
+   not a bypass: any mismatch refuses the run."
+  [revision seed-set site-set certificate-path create?]
+  (let [key (preflight-key revision seed-set site-set)]
+    (if create?
+      (let [fails (vec (preflight seed-set site-set))
+            certificate {:kind :baldwin-preflight :schema 1 :key key
+                         :passed? (empty? fails) :failures fails}]
+        (spit certificate-path (str (pr-str certificate) "\n"))
+        (when (seq fails)
+          (throw (ex-info "preflight failed" {:failures fails})))
+        certificate)
+      (if certificate-path
+        (let [certificate (edn/read-string (slurp certificate-path))]
+          (when-not (and (= :baldwin-preflight (:kind certificate))
+                         (= 1 (:schema certificate))
+                         (:passed? certificate)
+                         (empty? (:failures certificate))
+                         (= key (:key certificate)))
+            (throw (ex-info "preflight certificate does not match this run"
+                            {:expected key :certificate certificate})))
+          certificate)
+        (let [fails (vec (preflight seed-set site-set))]
+          (when (seq fails)
+            (throw (ex-info "preflight failed" {:failures fails})))
+          {:kind :baldwin-preflight :schema 1 :key key
+           :passed? true :failures []})))))
+
+(def ^:private heritable-keys
+  [:id :gamma :update-prob :field :mask :hold])
+
+(defn breed
+  "Apply the one shared truncation/reproduction operator used by selected and
+   mutation-only arms. Keeping this lifecycle in one function prevents a cheap
+   null from silently becoming a different null."
+  [ranked ^java.util.Random rng ^java.util.Random hrng
+   {:keys [hgt? field-rate gamma-pinned? plasticity-pinned? hold-pinned? fresh-id]}]
+  (let [n (count ranked)
+        survivors (vec (take (max 1 (quot n 2)) ranked))
+        offspring (vec
+                   (repeatedly
+                    (- n (count survivors))
+                    #(let [pa (nth survivors (.nextInt rng (count survivors)))
+                           pb (nth survivors (.nextInt rng (count survivors)))
+                           used-hgt? (and hgt? (not= pa pb))
+                           base (if used-hgt? (hgt hrng pa pb) pa)]
+                       (assoc (mutate rng base field-rate gamma-pinned?
+                                      plasticity-pinned? hold-pinned?)
+                              :id (fresh-id)
+                              :parent (:id pa)
+                              :donor (when used-hgt? (:id pb))))))]
+    {:survivors survivors
+     :offspring offspring
+     :population (into (mapv #(select-keys % heritable-keys) survivors)
+                       offspring)}))
+
+(defn- write-manifest! [path record-writer manifest]
+  (when path
+    (spit path (str (pr-str manifest) "\n")))
+  (when record-writer
+    (.write ^java.io.Writer record-writer (str (pr-str manifest) "\n"))
+    (.flush ^java.io.Writer record-writer)))
+
 (defn -main [& args]
-  (let [argm (apply hash-map (map #(if (str/starts-with? % "--") (subs % 2) %) args))
+  (let [argm (parse-arguments args)
         {:strs [c gens pop seeds sites field-rate pin warmup]} argm
         cost (Double/parseDouble (or c "0.0"))
         G (Integer/parseInt (or gens "12"))
@@ -352,46 +561,73 @@
         frate (Double/parseDouble (or field-rate "0.02"))
         pinned (some-> pin Double/parseDouble)
         warm (Integer/parseInt (or warmup "8"))
+        mode (get argm "mode" "standard")
+        settings (mode-settings mode)
+        mode-gamma (:gamma settings)
+        _mode-check (when (and mode-gamma pinned (not= mode-gamma pinned))
+                      (throw (ex-info "--pin conflicts with experimental mode"
+                                      {:mode mode :mode-gamma mode-gamma :pin pinned})))
+        gamma-start (or mode-gamma pinned)
         ;; read from the arg map, NOT a destructured `hgt` binding -- that would
         ;; shadow the hgt fn and (hgt rng pa pb) would try to call a string
-        hgt? (= "1" (get argm "hgt" "0"))
+        hgt? (flag? argm "hgt")
+        pin-plast? (:plasticity-pinned? settings)
+        hold-pinned? (:hold-pinned? settings)
         ;; dedicated streams: HGT cut points and neutral-mode coins must not shift
         ;; the mutation tape, or paired arms cease to be comparable
-        hrng (java.util.Random. 555000001)
-        nrng (java.util.Random. 555000002)
-        neutral? (= "1" (get argm "neutral" "0"))
+        evolution-seed (Long/parseLong (get argm "evolution-seed" "20260730"))
+        hrng (java.util.Random. (+ evolution-seed 555000001))
+        nrng (java.util.Random. (+ evolution-seed 555000002))
+        neutral? (flag? argm "neutral")
+        preflight-only? (flag? argm "preflight-only")
+        certificate-path (get argm "preflight-certificate")
+        _certificate-check
+        (when (and preflight-only? (nil? certificate-path))
+          (throw (ex-info "--preflight-only requires --preflight-certificate"
+                          {:arguments argm})))
         record-file (get argm "record")
-        w (when record-file (clojure.java.io/writer record-file))
+        w (when record-file (io/writer record-file))
         !next-id (atom 0)
         fresh-id #(swap! !next-id inc)
-        rng (java.util.Random. 20260730)
+        rng (java.util.Random. evolution-seed)
         seed-set (range 1 (inc nseeds))
-        site-set (take nsites (range 0 W (max 1 (quot W nsites))))]
-    (let [fails (preflight seed-set site-set)]
-      (when (seq fails)
-        (binding [*out* *err*]
-          (println "PREFLIGHT FAILED -- refusing to run:")
-          (doseq [f fails] (println "  " f)))
-        (System/exit 2))
+        site-set (take nsites (range 0 W (max 1 (quot W nsites))))
+        config {:mode mode :cost cost :generations G :population P
+                :evaluation-seed-count nseeds :evaluation-site-count nsites
+                :field-rate frate :warmup warm :hgt hgt? :neutral neutral?
+                :evolution-seed evolution-seed
+                :pin pinned
+                :gamma-pinned (some? gamma-start)
+                :plasticity-pinned pin-plast? :hold-pinned hold-pinned?}]
+    (validate-config! config)
+    (ensure-preflight! (get argm "revision" "unrecorded")
+                       seed-set site-set certificate-path preflight-only?)
+    (when preflight-only?
       (binding [*out* *err*]
-        (println "preflight: I2 I3 I4 I6 pass. NOT checked here:"
-                 "I1 tape alignment, I5 empirical null, I7 endpoint, I8 calibration,"
-                 "I9 treatment separation.")))
+        (println "preflight certificate written:" certificate-path))
+      (when w (.close ^java.io.Writer w))
+      (System/exit 0))
+    (binding [*out* *err*]
+      (println "preflight: certified I2 I3 I4 I6. NOT checked here:"
+               "I1 tape alignment, I5 empirical null, I7 endpoint, I8 calibration,"
+               "I9 treatment separation."))
+    (write-manifest! (get argm "manifest") w (run-manifest argm config seed-set site-set))
     (println "gen\tmean-gamma\tmean-score\tmean-reach\tbest-score\tbest-gamma\tmean-update\tbest-update\tmean-plastic\tmean-held")
     (loop [gen 0
            population (vec (repeatedly P #(hash-map
-                                            :gamma (or pinned (nth GAMMA-LEVELS (.nextInt rng 8)))
+                                            :gamma (or gamma-start (nth GAMMA-LEVELS (.nextInt rng 8)))
                                             ;; Start at 1.0 -- where the river dynamics actually work, as the pre-G5 runs
    ;; implicitly did. Randomising this crippled most lineages from generation 0,
    ;; band-score was then 0 for the whole population, and the only ranking signal
    ;; left was -c*gamma, so selection just minimised gamma and never found reach.
    ;; Mutation still walks update-prob down to 0, so degeneration stays reachable.
-   :update-prob 1.0
+                                            :update-prob 1.0
                                             :mask (vec (repeat W true))
-                                            :hold (vec (repeat W false))
+                                            :hold (vec (repeat W (:initial-hold settings)))
                                             :field (c/java-random-genotype rng W)
                                             :id (fresh-id))))]
       (when (< gen G)
+        (assert-mode! mode population)
         ;; Fitness evaluation is embarrassingly parallel across the population:
         ;; each genome's reach builds its own seeded RNGs and shares no state, so
         ;; pmap changes wall-clock only, never the numbers. This is what lets one
@@ -399,34 +635,33 @@
         ;; Baldwin's first phase is plasticity ESTABLISHING; charging for it from
         ;; generation 0 forecloses that by construction. Cost applies after warm-up.
         (let [c-now (if (< gen warm) 0.0 cost)
-              scored (vec (pmap (fn [g]
-                                  (let [r (:mean (reach g seed-set site-set))
-                                        b (band-score r)
-                                        d (plastic-dependence g)]
-                                    ;; band and cost kept SEPARATE so the witness
-                                    ;; check can test raw function independently
-                                    (assoc g :reach r :band b :dependence d
-                                             :score (if neutral?
-                                                      ;; no selection: survival is a
-                                                      ;; coin, not a ranking. A CONSTANT
-                                                      ;; score would keep the same half
-                                                      ;; every generation under a stable
-                                                      ;; sort, which is not neutrality.
-                                                      (.nextDouble ^java.util.Random nrng)
-                                                      (- b (* c-now d))))))
-                                population))
+              evaluated (vec
+                         (pmap (fn [g]
+                                 (let [r (:mean (reach g seed-set site-set))
+                                       b (band-score r)
+                                       d (plastic-dependence g)]
+                                   ;; Band and cost stay separate so the witness
+                                   ;; checker can inspect raw function.
+                                   (assoc g :reach r :band b :dependence d
+                                            :score (- b (* c-now d)))))
+                               population))
+              ;; Neutral coins must be assigned SEQUENTIALLY. Drawing from nrng
+              ;; inside pmap made draw-to-genome assignment scheduler-dependent.
+              ;; A constant score is also not neutral because stable sort would
+              ;; retain the same half forever.
+              scored (if neutral?
+                       (mapv #(assoc % :score (.nextDouble ^java.util.Random nrng))
+                             evaluated)
+                       evaluated)
               ranked (vec (sort-by :score > scored))
               n (count ranked)
-              survivors (vec (take (max 1 (quot n 2)) ranked))
-              offspring (vec (repeatedly (- n (count survivors))
-                                         #(let [pa (nth survivors (.nextInt rng (count survivors)))
-                                                pb (nth survivors (.nextInt rng (count survivors)))
-                                                used-hgt? (and hgt? (not= pa pb))
-                                                base (if used-hgt? (hgt hrng pa pb) pa)]
-                                            (assoc (mutate rng base frate (some? pinned))
-                                                   :id (fresh-id)
-                                                   :parent (:id pa)
-                                                   :donor (when used-hgt? (:id pb))))))
+              breeding (breed ranked rng hrng
+                              {:hgt? hgt? :field-rate frate
+                               :gamma-pinned? (some? gamma-start)
+                               :plasticity-pinned? pin-plast?
+                               :hold-pinned? hold-pinned?
+                               :fresh-id fresh-id})
+              next-population (:population breeding)
               mg (/ (reduce + (map :gamma scored)) (double n))
               mu (/ (reduce + (map #(or (:update-prob %) 1.0) scored)) (double n))
               mp (/ (reduce + (map plastic-fraction scored)) (double n))
@@ -443,9 +678,10 @@
               ;; locus is held? Without this a witness cannot be completed.
               endpoint (reach (assoc best :hold (vec (repeat W true))) seed-set site-set)
               _ (write-records! w gen ranked endpoint)]
+          (assert-mode! mode next-population)
           (println (format "%d\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f"
                            gen mg ms mr (:score best) (:gamma best)
                            mu (or (:update-prob best) 1.0) mp mh))
           (flush)
-          (recur (inc gen) (into (mapv #(select-keys % [:id :gamma :update-prob :field :mask :hold]) survivors) offspring)))))))
-
+          (recur (inc gen) next-population))))
+    (when w (.close ^java.io.Writer w))))

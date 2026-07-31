@@ -12,6 +12,9 @@
             [mmca.multiscale-spectra-test]
             [mmca.direct-computation-test]
             [mmca.river-feedback-test]
+            [mmca.hinton-nowlan-test]
+            [mmca.baldwin-artifacts-test]
+            [mmca.baldwin-selection-test]
             [mmca.baldwin-spec-test]))
 
 (defn -main [& _]
@@ -24,6 +27,9 @@
                         'mmca.directed-predictive-info-test
                         'mmca.local-causal-states-test
                         'mmca.multiscale-spectra-test
+                        'mmca.hinton-nowlan-test
+                        'mmca.baldwin-artifacts-test
+                        'mmca.baldwin-selection-test
                         'mmca.baldwin-spec-test
                         'mmca.direct-computation-test
                         'mmca.river-feedback-test)]

@@ -26,8 +26,8 @@ environment the run will actually use.
 - The remote is at the **expected commit** — assert the sha, do not assume `git pull`
   succeeded. A pull can fail on a dirty tree and leave the box running stale code while
   reporting nothing useful.
-- Generated files are regenerated from source, not merely present. A committed
-  generated file drifts silently and then fails as an unresolved symbol on the box.
+- There is one executable library source. Probes import it rather than loading a
+  generated copy that can drift.
 - Working tree is clean, or the diff is explicitly acknowledged.
 
 ## C. Experimental design
@@ -54,7 +54,8 @@ and a check that it occurred:
 
 | flag | observable consequence |
 |---|---|
-| `--pin-plasticity 1` | `update-prob` and `mask` are **constant** across generations |
+| `--mode hold-only` | `gamma = 1`, `update-prob = 1`, and every mask bit stays live |
+| `--mode static-search` | the hold-only invariants hold and every hold bit stays fixed |
 | `--neutral 1` | selection is inert; ranking column is randomised |
 | `--pin <g>` | `gamma` never leaves `<g>` |
 | `--hgt 1` | donor ids appear in the record |

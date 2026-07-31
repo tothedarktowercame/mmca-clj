@@ -10,28 +10,18 @@
 ;;   none function-preserving                      -> the current alleles are not
 ;;                                                    prepared; escalate to all 256.
 
-(require '[mmca.core :as c] '[clojure.edn] '[clojure.string])
-(load-file "scripts/baldwin_selection_lib.clj")
+(ns assimilation-probe
+  (:require [mmca.baldwin-selection :as bs]))
 
 (def SEEDS [1 2 3])
 (def SITES (range 0 80 8))
 
-(defn best-genome [rec-path]
-  (let [recs (->> (slurp rec-path) clojure.string/split-lines
-                  (remove clojure.string/blank?)
-                  (map clojure.edn/read-string) (remove :kind))]
-    (let [b (->> recs (sort-by #(or (:band %) -1) >) first)]
-      {:gamma (:gamma b) :update-prob (:update-prob b)
-       :field (vec (:field b))
-       :mask (mapv #(= 1 %) (:mask b))
-       :hold (mapv #(= 1 %) (:hold b))})))
-
 (let [[rec-path cost-s] *command-line-args*
       cost (Double/parseDouble (or cost-s "0.05"))
-      g0 (best-genome rec-path)
+      g0 (bs/best-genome-from-record rec-path)
       W* (count (:field g0))
-      ev (fn [g] (let [b (band-score (:mean (reach g SEEDS SITES)))
-                       d (plastic-dependence g)]
+      ev (fn [g] (let [b (bs/band-score (:mean (bs/reach g SEEDS SITES)))
+                       d (bs/plastic-dependence g)]
                    {:band b :dep d :fit (- b (* cost d))}))
       base (ev g0)]
   (binding [*out* *err*]

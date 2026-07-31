@@ -7,8 +7,9 @@
 ;; Reach is the count of that field's row at dt; if the field does not look like
 ;; spreading damage, the number is meaningless however exactly it reproduces.
 
-(require '[mmca.core :as c] '[clojure.edn] '[clojure.string])
-(load-file "scripts/baldwin_selection_lib.clj")
+(ns baldwin-frames
+  (:require [mmca.baldwin-selection :as bs]
+            [mmca.core :as c]))
 
 (def W 80) (def TSTAR 60) (def STEPS 120)
 
@@ -27,7 +28,7 @@
         p0 (c/java-random-phenotype r W)
         step (fn [rr gg uu g p frozen]
                (let [np (c/phenotype-step g p)]
-                 [(gain-genotype-step rr gg uu g p np frozen gamma up mk hd) np]))
+                 [(bs/gain-genotype-step rr gg uu g p np frozen gamma up mk hd) np]))
         ;; warm-up, shared by both branches
         warm (loop [t 0 g field p p0 acc []]
                (if (= t TSTAR) {:g g :p p :acc acc}
@@ -57,16 +58,7 @@
 (let [args *command-line-args*
       genome
       (if-let [rec (first args)]
-        (let [recs (->> (slurp rec) clojure.string/split-lines
-                        (remove clojure.string/blank?)
-                        (map clojure.edn/read-string)
-                        (remove :kind))
-              ;; best by RAW band, not cost-adjusted score
-              b (->> recs (sort-by #(or (:band %) -1) >) first)]
-          {:gamma (:gamma b) :update-prob (:update-prob b)
-           :field (vec (:field b))
-           :mask (mapv #(= 1 %) (:mask b))
-           :hold (mapv #(= 1 %) (:hold b))})
+        (bs/best-genome-from-record rec)
         {:gamma 1.0 :update-prob 1.0
          :field (c/java-random-genotype (java.util.Random. 1) W)
          :mask (vec (repeat W true)) :hold (vec (repeat W false))})
