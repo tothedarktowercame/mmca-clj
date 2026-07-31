@@ -4,11 +4,17 @@
 
 (def registration-path "holes/BALDWIN-SEARCH-PREREGISTRATION.edn")
 
-(deftest committed-registration-is-valid-but-blocked
+(deftest committed-registration-is-valid-but-needs-its-exact-receipt
   (let [registration (prereg/read-registration registration-path)]
     (is (empty? (prereg/failures registration)))
     (is (not (prereg/launchable? registration {}))
-        "a valid prose/EDN registration is not implementation evidence")))
+        "registration status alone is not implementation evidence")))
+
+(deftest committed-smoke-receipt-discharges-the-launch-gate
+  (let [registration (prereg/read-registration registration-path)
+        receipt (prereg/read-registration
+                 "data/baldwin-runs/search-smoke-4d4c7290/smoke.edn")]
+    (is (prereg/launchable? registration receipt))))
 
 (deftest replication-seeds-must-be-independent
   (let [registration (prereg/read-registration registration-path)

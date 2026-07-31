@@ -1,0 +1,37 @@
+
+Testing mmca.rng-test
+
+Testing mmca.core-test
+
+Testing mmca.eoc-sweep-test
+
+Testing mmca.figures-test
+
+Testing mmca.paired-perturbation-test
+
+Testing mmca.control-param-scan-test
+
+Testing mmca.transient-scaling-test
+
+Testing mmca.directed-predictive-info-test
+
+Testing mmca.local-causal-states-test
+
+Testing mmca.multiscale-spectra-test
+
+Testing mmca.hinton-nowlan-test
+
+Testing mmca.baldwin-artifacts-test
+
+Testing mmca.baldwin-preregistration-test
+
+Testing mmca.baldwin-selection-test
+
+Testing mmca.baldwin-spec-test
+
+Testing mmca.direct-computation-test
+
+Testing mmca.river-feedback-test
+
+Ran 60 tests containing 146 assertions.
+0 failures, 0 errors.
