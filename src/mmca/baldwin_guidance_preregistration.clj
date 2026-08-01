@@ -34,8 +34,25 @@
    :held-out-tasks 12
    :cost 0.0
    :hgt false
+   :field-rate 0.02
+   :warmup 0
+   :p0-mode :variable
+   :mutation-mode :legacy
+   :seed-offset 0
    :pilot-evolution-seed 20260802
    :arm-timeout-minutes 80})
+
+(def required-smoke-configuration-evidence
+  {:status :post-smoke-clarification
+   :reason
+   "These runner defaults were used by both byte-identical smoke repetitions but omitted from the initial production-protocol record; they are recorded before the paid pilot without changing a value."
+   :manifest-sha256
+   {:learning-evolution
+    "ea6f0d78f22b8aa09cc149948f6fa14cbf8fe04e222d7ff14e7fb5be3d7ab77e"
+    :mutation-only
+    "01ef52886efcfbac46e394552addb89d7f906882e8ad900a2f33aaa996a90748"
+    :no-learning-evolution
+    "61491f7aea372901ae1ed0323c5dce0ad31fa76a78581997d83c1d3c30b985c7"}})
 
 (def required-arms
   #{{:id :mutation-only :selection? false :learning-budget 120}
@@ -81,6 +98,9 @@
       (conj :wrong-preparedness)
       (not= required-production-protocol (:production-protocol registration))
       (conj :wrong-production-protocol)
+      (not= required-smoke-configuration-evidence
+            (:smoke-configuration-evidence registration))
+      (conj :wrong-smoke-configuration-evidence)
       (empty? pilot)
       (conj :missing-pilot-seed)
       (empty? confirmation)
