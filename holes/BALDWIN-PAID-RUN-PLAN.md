@@ -86,11 +86,17 @@ The supervisor:
 1. confirms the instance through a direct HTTPS client;
 2. confirms the unique remote start marker;
 3. arms a separate systemd dead-man deletion;
-4. accepts only the matching success marker;
-5. copies an explicit artifact set into a fresh staging directory;
-6. validates presence and minimum sizes and writes local checksums;
-7. deletes through `linode-cli`;
-8. independently requires an API `GET` to return 404.
+4. accepts only a matching terminal marker;
+5. on success, copies the exact artifact set, validates sizes and checksums,
+   then deletes the worker and independently requires an API `GET` to return
+   404;
+6. on failure, copies every currently available allow-listed artifact, records
+   missing artifacts explicitly, writes a checksummed failure report, and
+   retains the worker for inspection;
+7. leaves the independent dead-man armed while a failed worker is retained, so
+   review remains bounded by the already-authorised outer ceiling;
+8. requires an explicit teardown after review; never cancel the dead-man merely
+   because a human intends to inspect the worker.
 
 Authentication errors, missing executables, empty output, and HTTP errors are
 failures, never evidence of absence.
@@ -121,7 +127,9 @@ remaining budget justify escalation. It has no low-precision rejection screen.
 
 ## Stop rules
 
-Stop and tear down if any of these occurs:
+Stop scientific execution if any of these occurs. Bank the terminal state
+first. A clean success then tears down immediately; an error retains the worker
+for bounded inspection while the independent dead-man remains armed:
 
 - source revision or clean-worktree check fails;
 - preflight certificate does not exactly match revision, evaluation seeds,
