@@ -18,6 +18,7 @@ emit battery.log 1
 emit clj-kondo.log 0
 emit tests.log 10
 emit positive-control.tsv 10
+emit BaldwinMechanismBatteryPreregistration.lean 1000
 emit target-stationarity.edn 1000
 emit target-stationarity.stdout 100
 emit target-stationarity.stderr 0

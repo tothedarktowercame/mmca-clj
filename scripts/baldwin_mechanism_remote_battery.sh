@@ -2,12 +2,13 @@
 # Run the preregistered Baldwin mechanism diagnostics sequentially on one worker.
 set -Eeuo pipefail
 
-if [[ $# -ne 4 ]]; then
-  echo "usage: $0 RUN_ID REVISION INPUT_RECORD INPUT_SHA256" >&2
+if [[ $# -ne 6 ]]; then
+  echo "usage: $0 RUN_ID REVISION INPUT_RECORD INPUT_SHA256 REGISTRATION REGISTRATION_SHA256" >&2
   exit 64
 fi
 
 readonly RUN_ID=$1 REVISION=$2 INPUT_RECORD=$3 INPUT_SHA256=$4
+readonly REGISTRATION=$5 REGISTRATION_SHA256=$6
 readonly REPO=/root/mmca-clj
 readonly OUT=/root/baldwin-runs/$RUN_ID
 readonly STARTED=/root/${RUN_ID}.started
@@ -17,7 +18,12 @@ readonly MAP_CHUNK_WIDTH=5
 [[ $RUN_ID =~ ^[A-Za-z0-9._-]+$ ]] || { echo "invalid run id" >&2; exit 64; }
 [[ $REVISION =~ ^[0-9a-f]{40}$ ]] || { echo "revision must be a full commit SHA" >&2; exit 64; }
 [[ $INPUT_SHA256 =~ ^[0-9a-f]{64}$ ]] || { echo "invalid input checksum" >&2; exit 64; }
+[[ $REGISTRATION_SHA256 =~ ^[0-9a-f]{64}$ ]] || {
+  echo "invalid registration checksum" >&2
+  exit 64
+}
 [[ -f $INPUT_RECORD ]] || { echo "missing input record: $INPUT_RECORD" >&2; exit 1; }
+[[ -f $REGISTRATION ]] || { echo "missing registration: $REGISTRATION" >&2; exit 1; }
 [[ ! -e $OUT && ! -e $STARTED && ! -e $DONE ]] || {
   echo "run id already has remote state; refusing to mix runs" >&2
   exit 1
@@ -48,6 +54,8 @@ git diff --cached --quiet
   exit 1
 }
 printf '%s  %s\n' "$INPUT_SHA256" "$INPUT_RECORD" | sha256sum --check
+printf '%s  %s\n' "$REGISTRATION_SHA256" "$REGISTRATION" | sha256sum --check
+cp "$REGISTRATION" "$OUT/BaldwinMechanismBatteryPreregistration.lean"
 
 echo "running source gates"
 clj-kondo --lint \
@@ -104,6 +112,7 @@ done
   printf 'run_id=%s\n' "$RUN_ID"
   printf 'revision=%s\n' "$REVISION"
   printf 'input_sha256=%s\n' "$INPUT_SHA256"
+  printf 'registration_sha256=%s\n' "$REGISTRATION_SHA256"
   printf 'completed_at=%s\n' "$(date --utc +%FT%TZ)"
 } >"$OUT/manifest.txt"
 (cd "$OUT" && find . -maxdepth 1 -type f \

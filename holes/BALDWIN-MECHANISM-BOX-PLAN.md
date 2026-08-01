@@ -39,6 +39,8 @@ for the preregistered production panel.
 Before creating a worker, record:
 
 - a clean full `mmca-clj` revision containing the battery;
+- the built, axiom-audited
+  `DarkTower/BaldwinMechanismBatteryPreregistration.lean` and its SHA-256;
 - the SHA-256 of the recovered guidance `learning-evolution.edn` input;
 - a unique run id;
 - a run-specific `linodes:read_write` token whose expiry exceeds the hard
@@ -50,7 +52,9 @@ then start:
 ```sh
 nohup /root/mmca-clj/scripts/baldwin_mechanism_remote_battery.sh \
   "$RUN_ID" "$REVISION" /root/baldwin-input/learning-evolution.edn \
-  "$INPUT_SHA256" >"/root/${RUN_ID}.launcher.log" 2>&1 &
+  "$INPUT_SHA256" \
+  /root/baldwin-input/BaldwinMechanismBatteryPreregistration.lean \
+  "$REGISTRATION_SHA256" >"/root/${RUN_ID}.launcher.log" 2>&1 &
 ```
 
 Generate the exact success allow-list locally and start the existing Chicago
