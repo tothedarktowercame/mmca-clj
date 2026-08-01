@@ -9,8 +9,12 @@ mkdir -p "$TMP/bin" "$TMP/remote/root/baldwin-runs/test-run" "$TMP/dest"
 printf 'failed:test-run\n' >"$TMP/remote/root/test-run.done"
 printf 'partial diagnostic output\n' \
   >"$TMP/remote/root/baldwin-runs/test-run/battery.log"
+printf '{:kind :registration}\n' \
+  >"$TMP/remote/root/baldwin-runs/test-run/registration.edn"
 printf '/root/baldwin-runs/test-run/battery.log\tbattery.log\t0\n' \
   >"$TMP/artifacts.tsv"
+printf '/root/baldwin-runs/test-run/registration.edn\tregistration.edn\t10\n' \
+  >>"$TMP/artifacts.tsv"
 printf '/root/baldwin-runs/test-run/result.edn\tresult.edn\t10\n' \
   >>"$TMP/artifacts.tsv"
 
@@ -32,6 +36,7 @@ printf 'called\n' >"$BALDWIN_TEST_ROOT/teardown-called"
 EOF
 cat >"$TMP/bin/ssh" <<'EOF'
 #!/bin/bash
+printf '%s\n' "$*" | grep -Eq '(^| )-n( |$)' || exit 97
 cmd=${!#}
 case $cmd in
   *"cat /root/test-run.started"*) printf 'started:test-run\n' ;;
@@ -74,12 +79,15 @@ set -e
 [[ ! -e $TMP/teardown-called ]]
 [[ -f $TMP/dest/test-run.failure/FAILURE-REPORT.txt ]]
 [[ -f $TMP/dest/test-run.failure/battery.log ]]
+[[ -f $TMP/dest/test-run.failure/registration.edn ]]
 [[ -f $TMP/dest/test-run.failure/REMOTE-STATE.txt ]]
 [[ ! -e $TMP/dest/test-run.failure/result.edn ]]
 grep -F $'result.edn\t/root/baldwin-runs/test-run/result.edn' \
   "$TMP/dest/test-run.failure/MISSING.tsv" >/dev/null
 grep -F 'worker_retained=true' \
   "$TMP/dest/test-run.failure/FAILURE-REPORT.txt" >/dev/null
+[[ ! -s $TMP/dest/test-run.failure/COPY-ERRORS.tsv ]]
+[[ ! -s $TMP/dest/test-run.failure/UNDERSIZED.tsv ]]
 (cd "$TMP/dest/test-run.failure" && sha256sum --check CHECKSUMS.sha256 >/dev/null)
 
 printf 'PASS: failure artifacts banked\n'

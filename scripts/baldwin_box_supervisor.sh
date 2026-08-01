@@ -43,7 +43,10 @@ say() {
 }
 
 ssh_box() {
-  timeout 60 "$SSH" -o BatchMode=yes -o StrictHostKeyChecking=no \
+  # Never let ssh consume the artifact-spec loop's standard input. Without
+  # `-n`, the first remote probe drains the remainder of the TSV and silently
+  # prevents later failure artifacts from being considered.
+  timeout 60 "$SSH" -n -o BatchMode=yes -o StrictHostKeyChecking=no \
     -o ConnectTimeout=15 "root@$IP" "$@"
 }
 
@@ -77,6 +80,8 @@ bank_failure() {
   cp "$LOG" "$incoming/SUPERVISOR.log"
   : >"$incoming/AVAILABLE.tsv"
   : >"$incoming/MISSING.tsv"
+  : >"$incoming/COPY-ERRORS.tsv"
+  : >"$incoming/UNDERSIZED.tsv"
 
   while IFS=$'\t' read -r remote_path local_name min_bytes; do
     [[ -z $remote_path || $remote_path == \#* ]] && continue
@@ -84,11 +89,20 @@ bank_failure() {
     [[ $local_name != */* && -n $local_name ]] || return 1
     [[ $min_bytes =~ ^[0-9]+$ ]] || return 1
     if ssh_box "test -f '$remote_path'"; then
-      timeout 600 "$SCP" -q -o BatchMode=yes -o StrictHostKeyChecking=no \
-        "root@$IP:$remote_path" "$incoming/$local_name"
-      size=$(stat --format=%s "$incoming/$local_name")
-      printf '%s\t%s\t%s\n' "$local_name" "$size" "$min_bytes" \
-        >>"$incoming/AVAILABLE.tsv"
+      if timeout 600 "$SCP" -q -o BatchMode=yes -o StrictHostKeyChecking=no \
+          "root@$IP:$remote_path" "$incoming/$local_name"; then
+        size=$(stat --format=%s "$incoming/$local_name")
+        if (( size >= min_bytes )); then
+          printf '%s\t%s\t%s\n' "$local_name" "$size" "$min_bytes" \
+            >>"$incoming/AVAILABLE.tsv"
+        else
+          printf '%s\t%s\t%s\n' "$local_name" "$size" "$min_bytes" \
+            >>"$incoming/UNDERSIZED.tsv"
+        fi
+      else
+        printf '%s\t%s\n' "$local_name" "$remote_path" \
+          >>"$incoming/COPY-ERRORS.tsv"
+      fi
     else
       printf '%s\t%s\n' "$local_name" "$remote_path" >>"$incoming/MISSING.tsv"
     fi

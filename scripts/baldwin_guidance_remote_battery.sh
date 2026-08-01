@@ -10,6 +10,7 @@ fi
 readonly RUN_ID=$1 IMPLEMENTATION_REVISION=$2 AUTHORIZATION_REVISION=$3
 readonly EVOLUTION_SEED=$4
 readonly REPO=/root/mmca-clj
+readonly AUTH_REPO=/root/mmca-clj-authorization-$RUN_ID
 readonly BUNDLE=/root/baldwin-guidance-launch
 readonly REGISTRATION=$BUNDLE/registration.edn
 readonly SMOKE=$BUNDLE/smoke.edn
@@ -39,6 +40,20 @@ printf 'started:%s\n' "$RUN_ID" >"$STARTED"
 cd "$REPO"
 [[ $(git rev-parse HEAD) == "$IMPLEMENTATION_REVISION" ]]
 [[ -z $(git status --porcelain --untracked-files=all) ]]
+
+# The launch authorization may postdate the frozen scientific implementation
+# when it records a preregistration clarification. In that case only the
+# registration validator is allowed to differ. Materialize the authorization
+# revision separately and prove the experiment/analysis implementation is
+# byte-identical before using its validator for the final result.
+[[ ! -e $AUTH_REPO ]]
+git cat-file -e "${AUTHORIZATION_REVISION}^{commit}"
+git diff --quiet "$IMPLEMENTATION_REVISION" "$AUTHORIZATION_REVISION" -- \
+  src/mmca/baldwin_selection.clj src/mmca/baldwin_guidance.clj \
+  scripts/baldwin_selection.clj scripts/analyze_baldwin_guidance.clj
+git worktree add --quiet --detach "$AUTH_REPO" "$AUTHORIZATION_REVISION"
+[[ $(git -C "$AUTH_REPO" rev-parse HEAD) == "$AUTHORIZATION_REVISION" ]]
+[[ -z $(git -C "$AUTH_REPO" status --porcelain --untracked-files=all) ]]
 
 echo "verifying immutable launch authorization"
 clojure -M "$BUNDLE/check-launch-bundle.clj" \
@@ -113,8 +128,11 @@ run_arm mutation-only 120 1
 run_arm no-learning-evolution 0 0
 run_arm learning-evolution 120 0
 
-clojure -M scripts/analyze_baldwin_guidance.clj \
-  "$REGISTRATION" "$OUT" "$OUT/result.edn" >"$OUT/analysis.stdout"
+(
+  cd "$AUTH_REPO"
+  clojure -M scripts/analyze_baldwin_guidance.clj \
+    "$REGISTRATION" "$OUT" "$OUT/result.edn"
+) >"$OUT/analysis.stdout"
 
 (cd "$OUT" && find . -maxdepth 1 -type f \
   ! -name battery.log ! -name CHECKSUMS.remote.sha256 \
