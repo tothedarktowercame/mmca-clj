@@ -1,8 +1,8 @@
 {:kind :baldwin-guidance-preregistration
  :schema 1
  :name "metaca-evolution-of-learnability"
- :implementation-status :planned
- :implementation-revision nil
+ :implementation-status :smoke-passed
+ :implementation-revision "8b869e313bb2bebf6724cba6e9c7a818798b59c6"
  :lean-registration "DarkTower.BaldwinGuidancePreregistration.experiment"
  :lean-revision "f50d34cffbd2d92b624592ef50e9d57f7b84af98"
  :question "Does evolution with lifetime rewriting produce inherited populations that learn sooner and generalise better than paired evolution without rewriting?"
