@@ -1,0 +1,66 @@
+{:kind :baldwin-guidance-preregistration
+ :schema 1
+ :name "metaca-evolution-of-learnability"
+ :implementation-status :planned
+ :implementation-revision nil
+ :lean-registration "DarkTower.BaldwinGuidancePreregistration.experiment"
+ :lean-revision "f50d34cffbd2d92b624592ef50e9d57f7b84af98"
+ :question "Does evolution with lifetime rewriting produce inherited populations that learn sooner and generalise better than paired evolution without rewriting?"
+ :task-partition
+ {:training {:specification "metaca-guidance-tasks-v1/train/seeds=1..3/sites=0,20,40,60"
+             :seeds [1 2 3]
+             :sites [0 20 40 60]}
+  :held-out {:specification "metaca-guidance-tasks-v1/heldout/seeds=101..103/sites=0,20,40,60"
+             :seeds [101 102 103]
+             :sites [0 20 40 60]}}
+ :learning-budgets [0 4 16 64 120]
+ :preparedness
+ {:metric :population-mean-band-score
+  :budgets [0 4 16 64]
+  :functional-budget 120
+  :functional-mean-reach-threshold 10.0
+  :guidance-rule "The learning-evolved final population must have strictly greater preparedness than the no-learning-evolved final population on both training and held-out tasks."}
+ :production-protocol
+ {:mode "guidance-field"
+  :generations 40
+  :population 32
+  :evaluation-seeds 3
+  :evaluation-sites 4
+  :training-tasks 12
+  :held-out-tasks 12
+  :cost 0.0
+  :hgt false
+  :pilot-evolution-seed 20260802
+  :arm-timeout-minutes 80}
+ :pilot-seeds [20260802]
+ :confirmation-seeds [20260803 20260804 20260805]
+ :budget-minutes 300
+ :estimated-minutes 240
+ :arms
+ [{:id :mutation-only :selection? false :learning-budget 120}
+  {:id :no-learning-evolution :selection? true :learning-budget 0}
+  {:id :learning-evolution :selection? true :learning-budget 120}]
+ :required-smoke-observations
+ [:learning-enabled-observed
+  :learning-disabled-observed
+  :paired-genetic-tape
+  :paired-evaluation-tape
+  :task-partition-observed
+  :learning-budgets-observed
+  :configuration-valid
+  :positive-control-passed
+  :treatment-separated
+  :artifacts-complete]
+ :stop-rules
+ [:invalid-configuration
+  :failed-positive-control
+  :inert-treatment
+  :missing-artifacts
+  :deadline]
+ :outcomes
+ [:guidance-and-assimilation
+  :guidance-only
+  :assimilation-without-guidance
+  :neither-certified]
+ :claim-rule "Guidance requires a paired population-level GuidanceWitness. Final reach after unrestricted rewriting is not guidance. Assimilation additionally requires the existing BaldwinWitness."
+ :launch-rule "Only implementation-status :smoke-passed with revision-bound positive observations may launch the paid pilot; the scientific guidance certificate is not required to pass smoke."}

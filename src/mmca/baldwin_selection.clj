@@ -113,12 +113,26 @@
            centre)))                          ; G5: hold the rule -- no rewrite
      (range width))))
 
-(defn run-from [random gate upd genotype phenotype steps gamma update-prob mask hold frozen]
-  (loop [t 0 g genotype p phenotype phes [phenotype]]
-    (if (= t steps) {:phe phes :gen g}
-      (let [np (c/phenotype-step g p)
-            ng (gain-genotype-step random gate upd g p np frozen gamma update-prob mask hold)]
-        (recur (inc t) ng np (conj phes np))))))
+(defn run-from
+  ([random gate upd genotype phenotype steps gamma update-prob mask hold frozen]
+   (run-from random gate upd genotype phenotype steps gamma update-prob mask hold
+             frozen 0 nil))
+  ([random gate upd genotype phenotype steps gamma update-prob mask hold frozen
+    time-offset learning-budget]
+   (loop [t 0 g genotype p phenotype phes [phenotype]]
+     (if (= t steps) {:phe phes :gen g}
+       (let [np (c/phenotype-step g p)
+             ;; A learning budget limits realised genotype rewriting, not random
+             ;; tape consumption. `gain-genotype-step` still draws every scheduled
+             ;; coin and allele when the budget is exhausted, then update-prob 0
+             ;; discards them. Existing callers pass nil and retain the exact old
+             ;; dynamics.
+             learning? (or (nil? learning-budget)
+                           (< (+ time-offset t) learning-budget))
+             effective-update (if learning? update-prob 0.0)
+             ng (gain-genotype-step random gate upd g p np frozen gamma
+                                    effective-update mask hold)]
+         (recur (inc t) ng np (conj phes np)))))))
 
 (defn sampled-initial-phenotype
   "Reproduce the published seed-to-p0 construction, including the genotype draws
@@ -134,8 +148,10 @@
 ;; accumulate. Everything else matches river_gain.clj/two-stage.
 (defn two-stage
   ([gamma update-prob mask hold seed g0 intervene frozen*]
-   (two-stage gamma update-prob mask hold seed g0 intervene frozen* nil))
+   (two-stage gamma update-prob mask hold seed g0 intervene frozen* nil nil))
   ([gamma update-prob mask hold seed g0 intervene frozen* fixed-p0]
+   (two-stage gamma update-prob mask hold seed g0 intervene frozen* fixed-p0 nil))
+  ([gamma update-prob mask hold seed g0 intervene frozen* fixed-p0 learning-budget]
    (let [r (java.util.Random. (long seed))
          gate (java.util.Random. (long (+ 987654321 seed)))
          upd (java.util.Random. (long (+ 123456789 seed)))
@@ -149,10 +165,12 @@
          ;; therefore consume the identical tape; fixed-p0 selects a committed
          ;; value only after the ordinary value has been drawn and discarded.
          p0 (or fixed-p0 sampled-p0)
-         a (run-from r gate upd g0 p0 TSTAR gamma update-prob mask hold (or frozen* p0))
+         a (run-from r gate upd g0 p0 TSTAR gamma update-prob mask hold
+                     (or frozen* p0) 0 learning-budget)
          g* (:gen a) p* (peek (:phe a))
          [g' p'] (if intervene (intervene g* p*) [g* p*])
-         b (run-from r gate upd g' p' (- STEPS TSTAR) gamma update-prob mask hold (or frozen* p0))]
+         b (run-from r gate upd g' p' (- STEPS TSTAR) gamma update-prob mask hold
+                     (or frozen* p0) TSTAR learning-budget)]
      {:phe (into (:phe a) (rest (:phe b)))})))
 
 (defn flip-at [x] (fn [g p] [g (str (subs p 0 x) (if (= \1 (nth p x)) \0 \1) (subs p (inc x)))]))
@@ -162,7 +180,7 @@
   ([genome seeds sites]
    (reach genome seeds sites {}))
   ([{:keys [gamma update-prob field mask hold]} seeds sites
-    {:keys [p0-mode fixed-p0] :or {p0-mode :variable}}]
+    {:keys [p0-mode fixed-p0 learning-budget] :or {p0-mode :variable}}]
    (let [initial (case p0-mode
                    :variable nil
                    :fixed fixed-p0
@@ -171,11 +189,14 @@
               (let [up (if (nil? update-prob) 1.0 update-prob)
                     mk (or mask (vec (repeat W true)))
                     hd (or hold (vec (repeat W false)))
-                    ref (two-stage 1.0 up mk hd seed field nil nil initial)
+                    ref (two-stage 1.0 up mk hd seed field nil nil initial
+                                   learning-budget)
                     frozen* (nth (:phe ref) TSTAR)
-                    A (two-stage gamma up mk hd seed field nil frozen* initial)]
+                    A (two-stage gamma up mk hd seed field nil frozen* initial
+                                 learning-budget)]
                 (for [x sites]
-                  (let [B (two-stage gamma up mk hd seed field (flip-at x) frozen* initial)]
+                  (let [B (two-stage gamma up mk hd seed field (flip-at x) frozen*
+                                     initial learning-budget)]
                     (reduce + (map #(if (= %1 %2) 0 1)
                                    (nth (:phe A) (+ TSTAR DT))
                                    (nth (:phe B) (+ TSTAR DT))))))))
@@ -454,9 +475,9 @@
 
 (def ^:private allowed-arguments
   #{"c" "evolution-seed" "field-rate" "fixed-p0" "gens" "hgt" "manifest"
-    "mode" "mutation-mode" "neutral" "p0-mode" "pin" "pop"
+    "learning-budget" "mode" "mutation-mode" "neutral" "p0-mode" "pin" "pop"
     "preflight-certificate" "preflight-only" "record" "revision" "seeds"
-    "sites" "warmup"})
+    "seed-offset" "sites" "warmup"})
 
 (defn parse-arguments
   "Parse strict --key value pairs. Unknown, duplicate, and incomplete arguments
@@ -490,7 +511,10 @@
    `hold-only` is the mechanistic ablation the failed pin arms intended: gamma,
    update probability, and every mask bit are fixed, while field and hold evolve.
    `static-search` is a positive/control arm in which every locus is permanently
-   held and only the inherited rule field evolves."
+   held and only the inherited rule field evolves.
+   `guidance-field` holds the lifetime rewriting mechanism fixed and leaves only
+   the inherited initial rule field evolvable. This is the clean inherited-
+   preparedness treatment used by the guidance preregistration."
   [mode]
   (case mode
     "standard" {:gamma nil :plasticity-pinned? false :hold-pinned? false
@@ -499,16 +523,22 @@
                  :initial-hold false}
     "static-search" {:gamma 1.0 :plasticity-pinned? true :hold-pinned? true
                      :initial-hold true}
+    "guidance-field" {:gamma 1.0 :plasticity-pinned? true :hold-pinned? true
+                      :initial-hold false}
     (throw (ex-info "unknown experimental mode"
-                    {:mode mode :allowed ["standard" "hold-only" "static-search"]}))))
+                    {:mode mode :allowed ["standard" "hold-only" "static-search"
+                                          "guidance-field"]}))))
 
 (defn validate-config!
   [{:keys [cost generations population evaluation-seed-count evaluation-site-count
-           field-rate warmup pin]}]
+           field-rate learning-budget seed-offset warmup pin]
+    :or {learning-budget STEPS seed-offset 0}}]
   (when-not (and (pos? generations) (pos? evaluation-seed-count)
                  (<= 1 evaluation-site-count W)
                  (<= 0 warmup generations)
                  (<= 0.0 field-rate 1.0)
+                 (<= 0 learning-budget STEPS)
+                 (<= 0 seed-offset)
                  (not (neg? cost))
                  (>= population 2)
                  (even? population))
@@ -516,7 +546,8 @@
                     {:cost cost :generations generations :population population
                      :evaluation-seed-count evaluation-seed-count
                      :evaluation-site-count evaluation-site-count
-                     :field-rate field-rate :warmup warmup})))
+                     :field-rate field-rate :learning-budget learning-budget
+                     :seed-offset seed-offset :warmup warmup})))
   (when (and pin (not (some #{pin} GAMMA-LEVELS)))
     (throw (ex-info "--pin must be one of the heritable gamma levels"
                     {:pin pin :levels GAMMA-LEVELS})))
@@ -525,7 +556,7 @@
 (defn assert-mode!
   "Fail immediately if a genome violates the treatment that its label promises."
   [mode genomes]
-  (when (#{"hold-only" "static-search"} mode)
+  (when (#{"hold-only" "static-search" "guidance-field"} mode)
     (doseq [g genomes]
       (when-not (= 1.0 (double (:gamma g)))
         (throw (ex-info "mode invariant failed: gamma is not pinned"
@@ -540,6 +571,11 @@
     (doseq [g genomes]
       (when-not (every? true? (:hold g))
         (throw (ex-info "mode invariant failed: static-search locus became plastic"
+                        {:mode mode :id (:id g)})))))
+  (when (= "guidance-field" mode)
+    (doseq [g genomes]
+      (when-not (every? false? (:hold g))
+        (throw (ex-info "mode invariant failed: guidance-field locus became held"
                         {:mode mode :id (:id g)})))))
   true)
 
@@ -642,13 +678,15 @@
 
 (defn -main [& args]
   (let [argm (parse-arguments args)
-        {:strs [c gens pop seeds sites field-rate pin warmup]} argm
+        {:strs [c gens pop seeds sites field-rate learning-budget pin seed-offset warmup]} argm
         cost (Double/parseDouble (or c "0.0"))
         G (Integer/parseInt (or gens "12"))
         P (Integer/parseInt (or pop "12"))
         nseeds (Integer/parseInt (or seeds "2"))
         nsites (Integer/parseInt (or sites "8"))
         frate (Double/parseDouble (or field-rate "0.02"))
+        learning-limit (Integer/parseInt (or learning-budget (str STEPS)))
+        seed-start (Integer/parseInt (or seed-offset "0"))
         pinned (some-> pin Double/parseDouble)
         warm (Integer/parseInt (or warmup "8"))
         mode (get argm "mode" "standard")
@@ -672,7 +710,8 @@
                             {:p0-mode p0-mode :fixed-p0 fixed-p0})))
           (throw (ex-info "--p0-mode must be variable or fixed"
                           {:p0-mode p0-mode})))
-        evaluation-options {:p0-mode p0-mode :fixed-p0 fixed-p0}
+        evaluation-options {:p0-mode p0-mode :fixed-p0 fixed-p0
+                            :learning-budget learning-limit}
         settings (mode-settings mode)
         mode-gamma (:gamma settings)
         _mode-check (when (and mode-gamma pinned (not= mode-gamma pinned))
@@ -701,11 +740,12 @@
         !next-id (atom 0)
         fresh-id #(swap! !next-id inc)
         rng (java.util.Random. evolution-seed)
-        seed-set (range 1 (inc nseeds))
+        seed-set (range (inc seed-start) (+ seed-start nseeds 1))
         site-set (take nsites (range 0 W (max 1 (quot W nsites))))
         config {:mode mode :cost cost :generations G :population P
                 :evaluation-seed-count nseeds :evaluation-site-count nsites
                 :field-rate frate :warmup warm :hgt hgt? :neutral neutral?
+                :learning-budget learning-limit :seed-offset seed-start
                 :mutation-mode mutation-mode :p0-mode p0-mode :fixed-p0 fixed-p0
                 :evolution-seed evolution-seed
                 :pin pinned

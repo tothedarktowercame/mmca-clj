@@ -23,7 +23,10 @@
            (selection/parse-arguments ["--mode" "hold-only" "--c" "2"])))
     (is (= {"mutation-mode" "coupled" "p0-mode" "fixed"}
            (selection/parse-arguments ["--mutation-mode" "coupled"
-                                       "--p0-mode" "fixed"])))))
+                                       "--p0-mode" "fixed"])))
+    (is (= {"learning-budget" "16" "seed-offset" "100"}
+           (selection/parse-arguments ["--learning-budget" "16"
+                                       "--seed-offset" "100"])))))
 
 (deftest numeric-configuration-is-strict
   (let [valid {:cost 0.05 :generations 30 :population 24
@@ -57,6 +60,18 @@
       (is (not= (:field static) (:field child)))
       (is (selection/assert-mode! "static-search" [child])))))
 
+(deftest guidance-field-mutation-contract
+  (testing "only inherited rules mutate while rewriting remains available"
+    (let [settings (selection/mode-settings "guidance-field")
+          child (selection/mutate (java.util.Random. 7) base-genome 1.0
+                                  true true true)]
+      (is (= {:gamma 1.0 :plasticity-pinned? true :hold-pinned? true
+              :initial-hold false}
+             settings))
+      (is (not= (:field base-genome) (:field child)))
+      (is (every? false? (:hold child)))
+      (is (selection/assert-mode! "guidance-field" [child])))))
+
 (deftest search-mutation-is-tape-aligned-and-couples-the-allele
   (let [independent-rng (java.util.Random. 17)
         coupled-rng (java.util.Random. 17)
@@ -86,6 +101,18 @@
     (is (= (selection/sampled-initial-phenotype 1) (first (:phe variable))))
     (is (= fixed (first (:phe a))))
     (is (= fixed (first (:phe b))))))
+
+(deftest learning-budget-is-default-preserving-and-causal
+  (let [g (:field base-genome)
+        args [1.0 1.0 (:mask base-genome) (:hold base-genome) 1 g nil nil]
+        historical (apply selection/two-stage args)
+        unlimited (apply selection/two-stage (concat args [nil nil]))
+        disabled (apply selection/two-stage (concat args [nil 0]))]
+    (testing "omitting a budget is byte-for-byte the historical evaluator"
+      (is (= historical unlimited)))
+    (testing "budget zero disables rewriting without disabling phenotype evolution"
+      (is (= (inc selection/STEPS) (count (:phe disabled))))
+      (is (not= (:phe unlimited) (:phe disabled))))))
 
 (deftest recorded-genomes-round-trip-to-mode-checker
   (let [recorded (-> base-genome
