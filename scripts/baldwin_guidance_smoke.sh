@@ -39,18 +39,20 @@ emacs -Q --batch -l "$PAREN_CHECK" \
 
 clojure -M:test >"$OUT/tests.log" 2>&1
 
+# The preflight is revision- and task-bound, not run-bound. Run it once and
+# require both deterministic repetitions to consume the same certificate.
+timeout 20m clojure -M scripts/baldwin_selection.clj \
+  --mode guidance-field --learning-budget 120 \
+  --gens 2 --pop 4 --seeds 3 --sites 4 --seed-offset 0 \
+  --evolution-seed 20260802 --field-rate 0.02 \
+  --c 0 --warmup 0 --hgt 0 --neutral 1 \
+  --revision "$REVISION" --preflight-only 1 \
+  --preflight-certificate "$OUT/preflight.edn" \
+  >"$OUT/preflight.stdout" 2>"$OUT/preflight.stderr"
+
 run_once() {
   local target=$1
   clojure -M scripts/hinton_nowlan_positive.clj >"$target/positive-control.tsv"
-
-  timeout 20m clojure -M scripts/baldwin_selection.clj \
-    --mode guidance-field --learning-budget 120 \
-    --gens 2 --pop 4 --seeds 3 --sites 4 --seed-offset 0 \
-    --evolution-seed 20260802 --field-rate 0.02 \
-    --c 0 --warmup 0 --hgt 0 --neutral 1 \
-    --revision "$REVISION" --preflight-only 1 \
-    --preflight-certificate "$target/preflight.edn" \
-    >"$target/preflight.stdout" 2>"$target/preflight.stderr"
 
   run_arm() {
     local arm=$1
@@ -62,7 +64,7 @@ run_once() {
       --evolution-seed 20260802 --field-rate 0.02 \
       --c 0 --warmup 0 --hgt 0 --neutral "$neutral" \
       --revision "$REVISION" \
-      --preflight-certificate "$target/preflight.edn" \
+      --preflight-certificate "$OUT/preflight.edn" \
       --record "$target/$arm.edn" --manifest "$target/$arm.manifest.edn" \
       >"$target/$arm.tsv" 2>"$target/$arm.stderr"
   }
@@ -79,7 +81,7 @@ run_once() {
 run_once "$OUT/a"
 run_once "$OUT/b"
 
-for artifact in positive-control.tsv preflight.edn \
+for artifact in positive-control.tsv \
   mutation-only.edn mutation-only.manifest.edn mutation-only.tsv \
   no-learning-evolution.edn no-learning-evolution.manifest.edn \
   no-learning-evolution.tsv learning-evolution.edn \
@@ -91,7 +93,7 @@ clojure -M scripts/baldwin_guidance_smoke_receipt.clj \
   "$REGISTRATION" "$OUT/a/result.edn" "$REVISION" "$LEAN_REVISION" \
   "$OUT/smoke.edn" \
   "$OUT/clj-kondo.log" "$OUT/check-parens.log" "$OUT/tests.log" \
-  "$OUT/a/positive-control.tsv" "$OUT/a/preflight.edn" \
+  "$OUT/a/positive-control.tsv" "$OUT/preflight.edn" \
   "$OUT/a/mutation-only.edn" "$OUT/a/no-learning-evolution.edn" \
   "$OUT/a/learning-evolution.edn" "$OUT/a/result.edn" \
   >"$OUT/smoke.stdout"
@@ -99,7 +101,7 @@ clojure -M scripts/baldwin_guidance_smoke_receipt.clj \
 clojure -M scripts/validate_baldwin_guidance_preregistration.clj \
   "$REGISTRATION" "$OUT/smoke.edn" >"$OUT/smoke.validation.edn"
 
-sha256sum "$OUT"/a/*.edn "$OUT"/a/*.tsv "$OUT/smoke.edn" \
+sha256sum "$OUT"/preflight.edn "$OUT"/a/*.edn "$OUT"/a/*.tsv "$OUT/smoke.edn" \
   >"$OUT/CHECKSUMS.sha256"
 
 cat "$OUT/smoke.edn"

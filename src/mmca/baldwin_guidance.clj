@@ -70,11 +70,12 @@
         (mapv
          (fn [budget]
            (let [reaches
-                 (mapv (fn [genome]
-                         (:mean
-                          (selection/reach genome seeds sites
-                                           {:learning-budget budget})))
-                       population)]
+                 (->> population
+                      (pmap (fn [genome]
+                              (:mean
+                               (selection/reach genome seeds sites
+                                                {:learning-budget budget}))))
+                      vec)]
              {:budget budget
               :mean-reach (mean reaches)
               :mean-band-score (mean (map selection/band-score reaches))}))
