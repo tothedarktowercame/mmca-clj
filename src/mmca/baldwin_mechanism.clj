@@ -96,6 +96,17 @@
      :familywise-significant?
      (familywise-significant-direction? positive negative family-size)}))
 
+(defn classify-battery
+  [{:keys [valid? responsive-alleles useful-held-endpoints]}]
+  (cond
+    (not valid?) :invalid
+    (zero? responsive-alleles)
+    (if (zero? useful-held-endpoints)
+      :content-flat-no-endpoint
+      :content-flat-useful-endpoint)
+    (zero? useful-held-endpoints) :content-responsive-no-endpoint
+    :else :content-responsive-useful-endpoint))
+
 (defn stationarity-cell
   [genome environment-seeds rewrite-seeds fixed-p0]
   (when-not (= (count environment-seeds) (count rewrite-seeds))

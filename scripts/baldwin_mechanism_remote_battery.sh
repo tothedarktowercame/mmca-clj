@@ -63,6 +63,7 @@ clj-kondo --lint \
   scripts/baldwin_target_stationarity.clj \
   scripts/baldwin_context_stationarity.clj \
   scripts/baldwin_allele_sensitivity.clj \
+  scripts/analyze_baldwin_mechanism_battery.clj \
   scripts/assimilation_map.clj \
   test/mmca/baldwin_mechanism_test.clj \
   >"$OUT/clj-kondo.log" 2>&1
@@ -107,6 +108,11 @@ for start in $(seq 0 "$MAP_CHUNK_WIDTH" 79); do
   fi
 done
 [[ $(wc -l <"$OUT/assimilation-map.tsv") -eq 20481 ]]
+
+echo "validating and applying the preregistered battery decision rule"
+clojure -M scripts/analyze_baldwin_mechanism_battery.clj \
+  "$OUT/allele-sensitivity.edn" "$OUT/assimilation-map.tsv" \
+  "$OUT/result.edn" >"$OUT/result.stdout" 2>"$OUT/result.stderr"
 
 {
   printf 'run_id=%s\n' "$RUN_ID"

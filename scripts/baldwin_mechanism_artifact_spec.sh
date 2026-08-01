@@ -30,6 +30,9 @@ emit allele-sensitivity.stdout 100
 emit allele-sensitivity.stderr 0
 emit timings.tsv 10
 emit assimilation-map.tsv 100000
+emit result.edn 100
+emit result.stdout 100
+emit result.stderr 0
 for start in $(seq 0 5 79); do
   end=$((start + 5))
   (( end <= 80 )) || end=80

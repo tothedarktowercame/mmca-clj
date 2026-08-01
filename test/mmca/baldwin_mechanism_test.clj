@@ -70,6 +70,23 @@
     (is (= {:non-tied 0 :dominant-sign :tie :familywise-significant? false}
            (mechanism/paired-sign-summary {:positive 0 :negative 0} 640)))))
 
+(deftest mechanism-battery-decision-keeps-gradient-and-endpoint-gates-separate
+  (is (= :invalid
+         (mechanism/classify-battery
+          {:valid? false :responsive-alleles 1 :useful-held-endpoints 1})))
+  (is (= :content-flat-no-endpoint
+         (mechanism/classify-battery
+          {:valid? true :responsive-alleles 0 :useful-held-endpoints 0})))
+  (is (= :content-flat-useful-endpoint
+         (mechanism/classify-battery
+          {:valid? true :responsive-alleles 0 :useful-held-endpoints 1})))
+  (is (= :content-responsive-no-endpoint
+         (mechanism/classify-battery
+          {:valid? true :responsive-alleles 1 :useful-held-endpoints 0})))
+  (is (= :content-responsive-useful-endpoint
+         (mechanism/classify-battery
+          {:valid? true :responsive-alleles 1 :useful-held-endpoints 1}))))
+
 (deftest context-instrument-preserves-the-river-step
   (let [g (:field genome)
         p (selection/sampled-initial-phenotype 3)
