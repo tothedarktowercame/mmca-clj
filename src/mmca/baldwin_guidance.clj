@@ -31,7 +31,9 @@
                 :population (mapv selection/decode-record-genome rows)}))))
 
 (defn heritable-signature [population]
-  (mapv #(select-keys % [:id :gamma :update-prob :field :mask :hold]) population))
+  (->> population
+       (sort-by :id)
+       (mapv #(select-keys % [:id :gamma :update-prob :field :mask :hold]))))
 
 (defn valid-population-path?
   "Every later individual must be either an unchanged survivor or name a parent

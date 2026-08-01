@@ -32,6 +32,12 @@
     (is (false? (guidance/valid-population-path? skipped)))
     (is (false? (guidance/valid-population-path? orphaned)))))
 
+(deftest heritable-signature-is-independent-of-fitness-ranking
+  (let [individuals [{:id 2 :gamma 1.0 :field [2]}
+                     {:id 1 :gamma 1.0 :field [1]}]]
+    (is (= (guidance/heritable-signature individuals)
+           (guidance/heritable-signature (reverse individuals))))))
+
 (deftest preparedness-is-fixed-area-over-registered-budgets
   (let [summary {:curve [{:budget 0 :mean-band-score 0.1}
                          {:budget 4 :mean-band-score 0.2}
