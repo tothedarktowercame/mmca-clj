@@ -61,4 +61,5 @@ print(f"  wrote {out}")
 d = grids.get("damage")
 if d:
     last = max(d)
-    print(f"  reach at final step = {sum(d[last].values())}")
+    measurement = 60 + 59 - 1
+    print(f"  reach at registered dt=59 = {sum(d[measurement].values())}")
