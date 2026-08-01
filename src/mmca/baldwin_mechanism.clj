@@ -92,3 +92,128 @@
     (assoc grid :apparatus-valid?
            (= 1.0 (get-in grid
                           [:fixed-p0/shared-rewrite :mean-pairwise-agreement])))))
+
+(defn paired-reach
+  "Preserve the experimental unit instead of collapsing directly to an arm mean."
+  [genome seeds sites options]
+  (mapv (fn [[seed site]]
+          {:seed seed
+           :site site
+           :reach (:mean (selection/reach genome [seed] [site] options))})
+        (for [seed seeds site sites] [seed site])))
+
+(defn replace-unheld-allele [genome locus rule]
+  (when-not (< -1 locus (count (:field genome)))
+    (throw (ex-info "locus outside field" {:locus locus})))
+  (when (get (:hold genome) locus)
+    (throw (ex-info "allele-sensitivity probe requires an unheld locus"
+                    {:locus locus})))
+  (assoc genome :field (assoc (:field genome) locus rule)))
+
+(defn allele-sensitivity
+  "Paired selection coefficient of one inherited allele under active rewriting."
+  [genome locus rule baseline seeds sites options]
+  (let [candidate-genome (replace-unheld-allele genome locus rule)
+        candidate (paired-reach candidate-genome seeds sites options)
+        deltas (mapv (fn [a b]
+                       (when-not (= (select-keys a [:seed :site])
+                                    (select-keys b [:seed :site]))
+                         (throw (ex-info "paired evaluation order diverged"
+                                         {:baseline a :candidate b})))
+                       (- (:reach b) (:reach a)))
+                     baseline candidate)]
+    {:locus locus
+     :rule rule
+     :current-rule (get (:field genome) locus)
+     :n (count deltas)
+     :mean-delta (mean deltas)
+     :positive (count (filter pos? deltas))
+     :negative (count (filter neg? deltas))
+     :ties (count (filter zero? deltas))
+     :deltas deltas}))
+
+(defn context-key [bits]
+  (reduce (fn [n bit] (+ (* 2 n) bit)) 0 bits))
+
+(defn context-step
+  "One gamma=1/update=1 river step with context-indexed observation.
+
+   Draw order and resulting genotype are tested against
+   `selection/gain-genotype-step`; this is instrumentation, not a new dynamic."
+  [^java.util.Random random ^java.util.Random gate ^java.util.Random upd
+   genotype phenotype next-phenotype frozen tally]
+  (let [width (count genotype)]
+    (mapv
+     (fn [i]
+       (let [_ (.nextDouble upd)
+             _ (.nextDouble gate)
+             predecessor (if (zero? i) c/default-rule (nth genotype (dec i)))
+             centre (nth genotype i)
+             successor (if (= i (dec width)) c/default-rule (nth genotype (inc i)))
+             context (when (and (pos? i) (< i (dec width)))
+                       [(Character/digit (nth phenotype (dec i)) 2)
+                        (Character/digit (nth phenotype i) 2)
+                        (Character/digit (nth phenotype (inc i)) 2)
+                        (Character/digit (nth next-phenotype i) 2)])
+             frozen-context (when context
+                              [(Character/digit (nth frozen (dec i)) 2)
+                               (Character/digit (nth frozen i) 2)
+                               (Character/digit (nth frozen (inc i)) 2)
+                               (Character/digit (nth frozen i) 2)])
+             live-rule (c/original-river-combine-rule
+                        predecessor centre successor context)
+             frozen-rule (c/original-river-combine-rule
+                          predecessor centre successor frozen-context)
+             source (.nextInt random c/bit-count)]
+         (when context
+           (let [k (context-key context)]
+             (vswap! tally
+                     (fn [m]
+                       (-> m
+                           (update-in [k :count] (fnil inc 0))
+                           (update-in [k :equal]
+                                      (fnil + 0) (if (= live-rule frozen-rule) 1 0))
+                           (update-in [k :rules live-rule] (fnil inc 0)))))))
+         (c/propagate-at live-rule c/river-writing source)))
+     (range width))))
+
+(defn initial-state
+  [environment-seed rewrite-seed fixed-p0]
+  (let [random (java.util.Random. (long rewrite-seed))
+        gate (java.util.Random. (long (+ 987654321 rewrite-seed)))
+        upd (java.util.Random. (long (+ 123456789 rewrite-seed)))
+        _ (c/java-random-genotype random selection/W)
+        _ (c/java-random-phenotype random selection/W)]
+    {:random random :gate gate :upd upd
+     :phenotype (or fixed-p0
+                    (selection/sampled-initial-phenotype environment-seed))}))
+
+(defn context-profile
+  "Profile the learned rule selected within each of the 16 live contexts."
+  [genome environment-seed rewrite-seed fixed-p0]
+  (let [state (initial-state environment-seed rewrite-seed fixed-p0)
+        reference (selection/run-from
+                   (:random state) (:gate state) (:upd state) (:field genome)
+                   (:phenotype state) selection/TSTAR 1.0 1.0
+                   (vec (repeat selection/W true))
+                   (vec (repeat selection/W false)) (:phenotype state))
+        frozen (peek (:phe reference))
+        state (initial-state environment-seed rewrite-seed fixed-p0)
+        tally (volatile! {})]
+    (loop [t 0 g (:field genome) p (:phenotype state)]
+      (if (= t selection/TSTAR)
+        @tally
+        (let [np (c/phenotype-step g p)
+              ng (context-step (:random state) (:gate state) (:upd state)
+                               g p np frozen tally)]
+          (recur (inc t) ng np))))))
+
+(defn summarize-context [context observations]
+  (let [n (:count observations)
+        [modal-rule modal-count] (apply max-key val (:rules observations))]
+    {:context context
+     :count n
+     :live-frozen-agreement (/ (:equal observations) (double n))
+     :modal-rule modal-rule
+     :modal-share (/ modal-count (double n))
+     :distinct-rules (count (:rules observations))}))

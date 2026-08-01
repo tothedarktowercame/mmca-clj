@@ -40,3 +40,44 @@
 (deftest field-agreement-rejects-mismatched-widths
   (is (thrown-with-msg? clojure.lang.ExceptionInfo #"widths differ"
                         (mechanism/field-agreement [1] [1 2]))))
+
+(deftest allele-sensitivity-preserves-paired-units
+  (let [small (assoc genome :field [1 2] :hold [false false])
+        baseline [{:seed 1 :site 0 :reach 2.0}
+                  {:seed 1 :site 8 :reach 4.0}]]
+    (with-redefs [mechanism/paired-reach
+                  (fn [_ _ _ _]
+                    [{:seed 1 :site 0 :reach 3.0}
+                     {:seed 1 :site 8 :reach 2.0}])]
+      (is (= {:locus 0 :rule 90 :current-rule 1 :n 2 :mean-delta -0.5
+              :positive 1 :negative 1 :ties 0 :deltas [1.0 -2.0]}
+             (mechanism/allele-sensitivity
+              small 0 90 baseline [1] [0 8] {}))))))
+
+(deftest allele-sensitivity-refuses-held-loci
+  (is (thrown-with-msg? clojure.lang.ExceptionInfo #"unheld locus"
+                        (mechanism/replace-unheld-allele
+                         (assoc genome :hold (assoc (:hold genome) 3 true))
+                         3 90))))
+
+(deftest context-instrument-preserves-the-river-step
+  (let [g (:field genome)
+        p (selection/sampled-initial-phenotype 3)
+        np (c/phenotype-step g p)
+        frozen (selection/sampled-initial-phenotype 4)
+        r1 (java.util.Random. 17) q1 (java.util.Random. 18) u1 (java.util.Random. 19)
+        r2 (java.util.Random. 17) q2 (java.util.Random. 18) u2 (java.util.Random. 19)
+        tally (volatile! {})
+        expected (selection/gain-genotype-step
+                  r1 q1 u1 g p np frozen 1.0 1.0
+                  (:mask genome) (:hold genome))
+        observed (mechanism/context-step r2 q2 u2 g p np frozen tally)]
+    (is (= expected observed))
+    (is (= (- selection/W 2)
+           (reduce + (map :count (vals @tally)))))))
+
+(deftest context-profile-covers-every-interior-cell-step
+  (let [profile (mechanism/context-profile genome 1 1 nil)]
+    (is (= (* (- selection/W 2) selection/TSTAR)
+           (reduce + (map :count (vals profile)))))
+    (is (= (set (range 16)) (set (keys profile))))))
