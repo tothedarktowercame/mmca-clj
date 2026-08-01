@@ -60,6 +60,16 @@
                          (assoc genome :hold (assoc (:hold genome) 3 true))
                          3 90))))
 
+(deftest content-response-sign-test-is-exact-and-familywise
+  (testing "24 paired units require at least 22 concordant signs across 640 probes"
+    (is (mechanism/familywise-significant-direction? 22 2 640))
+    (is (not (mechanism/familywise-significant-direction? 21 3 640)))
+    (is (mechanism/familywise-significant-direction? 2 22 640)))
+  (testing "ties never manufacture evidence"
+    (is (not (mechanism/familywise-significant-direction? 0 0 640)))
+    (is (= {:non-tied 0 :dominant-sign :tie :familywise-significant? false}
+           (mechanism/paired-sign-summary {:positive 0 :negative 0} 640)))))
+
 (deftest context-instrument-preserves-the-river-step
   (let [g (:field genome)
         p (selection/sampled-initial-phenotype 3)

@@ -4,6 +4,7 @@
             [mmca.baldwin-selection :as selection]))
 
 (def probe-rules [0 30 54 90 110 154 170 204])
+(def max-probe-tests 640)
 
 (defn -main [& [record-path output-path seed-count-s site-count-s]]
   (when-not (and record-path output-path)
@@ -26,8 +27,10 @@
                      rule probe-rules]
                  [locus rule])
         rows (doall (pmap (fn [[locus rule]]
-                            (mechanism/allele-sensitivity
-                             genome locus rule baseline seeds sites options))
+                            (let [row (mechanism/allele-sensitivity
+                                       genome locus rule baseline seeds sites options)]
+                              (merge row (mechanism/paired-sign-summary
+                                          row max-probe-tests))))
                           probes))
         report {:kind :baldwin-inherited-allele-sensitivity
                 :schema 1
@@ -35,6 +38,9 @@
                 :seeds seeds
                 :sites sites
                 :probe-rules probe-rules
+                :familywise-alpha 0.05
+                :family-size max-probe-tests
+                :test "two-sided exact paired sign test; ties excluded; Bonferroni"
                 :baseline baseline
                 :rows (vec rows)}]
     (spit output-path (str (pr-str report) "\n"))
@@ -47,6 +53,8 @@
        :negative-majorities
        (count (filter #(< (:positive %) (:negative %)) rows))
        :all-tied (count (filter #(zero? (+ (:positive %) (:negative %))) rows))
+       :familywise-responsive
+       (count (filter :familywise-significant? rows))
        :mean-absolute-delta
        (mechanism/mean (map #(Math/abs (double (:mean-delta %))) rows))}))))
 

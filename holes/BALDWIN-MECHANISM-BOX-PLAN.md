@@ -9,6 +9,13 @@ runs. They share one immutable evolved-population record and one source
 revision, and execute sequentially because each evaluator already parallelises
 over the machine.
 
+The paid-battery decision is formally registered in
+`DarkTower/BaldwinMechanismBatteryPreregistration.lean`. In particular,
+"content response" is not inferred from mutation reachability: each allele is
+tested by a two-sided exact paired sign test, ties excluded, with Bonferroni
+familywise correction over the fixed family of 640 possible probes. At the
+production 24 paired units, 22 concordant signs pass and 21 do not.
+
 1. Reproduce the preregistered four-cell stationarity grid and its exact fully
    fixed apparatus control.
 2. Reproduce the 16-context diagnostic.

@@ -55,6 +55,47 @@
   (when (empty? xs) (throw (ex-info "mean requires data" {})))
   (/ (reduce + (map double xs)) (double (count xs))))
 
+(defn binomial
+  "Exact binomial coefficient in arbitrary-precision integer arithmetic."
+  [n k]
+  (when-not (and (integer? n) (integer? k) (<= 0 k n))
+    (throw (ex-info "invalid binomial arguments" {:n n :k k})))
+  (let [k (min k (- n k))]
+    (loop [i 1 acc 1N]
+      (if (> i k)
+        acc
+        (recur (inc i) (quot (*' acc (+ (- n k) i)) i))))))
+
+(defn binomial-tail [n k]
+  (reduce +' 0N (map #(binomial n %) (range k (inc n)))))
+
+(defn pow2 [n]
+  (reduce *' 1N (repeat n 2N)))
+
+(defn familywise-significant-direction?
+  "Two-sided exact sign test with Bonferroni familywise alpha 0.05.
+
+   Ties are excluded. `family-size` is fixed by the preregistration rather than
+   reduced when some probes are unavailable, so missing tests cannot relax the
+   gate. The integer inequality is
+   2 * tail / 2^n <= 0.05 / family-size."
+  [positive negative family-size]
+  (let [n (+ positive negative)
+        k (max positive negative)]
+    (and (pos? n)
+         (pos? family-size)
+         (<= (*' 40N family-size (binomial-tail n k)) (pow2 n)))))
+
+(defn paired-sign-summary [row family-size]
+  (let [positive (:positive row)
+        negative (:negative row)]
+    {:non-tied (+ positive negative)
+     :dominant-sign (cond (> positive negative) :positive
+                          (< positive negative) :negative
+                          :else :tie)
+     :familywise-significant?
+     (familywise-significant-direction? positive negative family-size)}))
+
 (defn stationarity-cell
   [genome environment-seeds rewrite-seeds fixed-p0]
   (when-not (= (count environment-seeds) (count rewrite-seeds))
