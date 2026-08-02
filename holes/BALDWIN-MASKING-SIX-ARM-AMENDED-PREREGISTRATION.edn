@@ -2,7 +2,7 @@
  :schema 1
  :lean-registration "DarkTower.BaldwinMaskingSixArmAmendment.experiment"
  :lean-revision "1445d9bd4de70b532cccbd06927285588f96fc1d"
- :implementation-revision "69b0409a05de8c8b2eb4fe138af39ee3fcd4b27d"
+ :implementation-revision "fc8bfcaa3fd26ed78cec90b7183592af156925f2"
  :discovery-revision "f893a4005842ca0ceeb472020990ed131bb2de67"
  :discovery-map-sha256 "2d883386dfb04420af393b6c11513216ab810e062f984a61d1fb818e9dbb4b63"
  :source-record-sha256 "5fa7c5b5e26066cbd58f450bef7de270e34b4ef0d1a7490a2bfe1dc924816f24"
