@@ -2,7 +2,8 @@
   (:require [clojure.set :as set]
             [clojure.test :refer [deftest is testing]]
             [mmca.baldwin-masking-intervention :as masking]
-            [mmca.baldwin-masking-six-arm :as six]))
+            [mmca.baldwin-masking-six-arm :as six]
+            [mmca.baldwin-selection :as selection]))
 
 (def base-genome
   {:gamma 1.0
@@ -39,6 +40,14 @@
 (deftest amended-familywise-boundaries
   (is (six/familywise-win? {:wins 14 :losses 2 :ties 0}))
   (is (not (six/familywise-win? {:wins 13 :losses 3 :ties 0}))))
+
+(deftest batched-sites-equal-independent-evaluator
+  (let [genome (six/intervene base-genome entry :held-good)
+        sites [4 12]
+        batched (six/reach-by-site genome 7 11 sites)]
+    (doseq [site sites]
+      (is (= (:mean (selection/reach-separated genome [[7 11]] [site]))
+             (batched site))))))
 
 (deftest tape-degradation-has-classification-precedence
   (let [pass {:wins 14 :losses 2 :ties 0}

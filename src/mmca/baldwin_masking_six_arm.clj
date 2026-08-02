@@ -28,39 +28,74 @@
 (defn intervene [genome entry arm]
   (masking/intervene genome entry (intervention-arm arm)))
 
-(defn unit-row [base entry arm environment-seed tape-slot site]
+(defn reach-by-site [genome environment-seed rewrite-tape sites]
+  (let [{:keys [gamma update-prob field mask hold]} genome
+        up (if (nil? update-prob) 1.0 update-prob)
+        mk (or mask (vec (repeat selection/W true)))
+        hd (or hold (vec (repeat selection/W false)))
+        ref (selection/two-stage-separated 1.0 up mk hd environment-seed
+                                           rewrite-tape field nil nil)
+        frozen* (nth (:phe ref) selection/TSTAR)
+        a (selection/two-stage-separated gamma up mk hd environment-seed
+                                         rewrite-tape field nil frozen*)]
+    (into {}
+          (for [site sites
+                :let [b (selection/two-stage-separated
+                         gamma up mk hd environment-seed rewrite-tape field
+                         (selection/flip-at site) frozen*)]]
+            [site
+             (double
+              (reduce + (map #(if (= %1 %2) 0 1)
+                             (nth (:phe a) (+ selection/TSTAR selection/DT))
+                             (nth (:phe b) (+ selection/TSTAR selection/DT)))))]))))
+
+(defn unit-rows [base entry arm environment-seed tape-slot sites]
   (let [rewrite-tape (nth (tapes-for-arm arm) tape-slot)
         genome (intervene base entry arm)
-        reach (:mean (selection/reach-separated
-                      genome [[environment-seed rewrite-tape]] [site]))
+        reaches (reach-by-site genome environment-seed rewrite-tape sites)
         dependence (selection/plastic-dependence genome)]
-    (merge entry
-           {:arm arm
-            :environment-seed environment-seed
-            :rewrite-tape rewrite-tape
-            :tape-slot tape-slot
-            :site site
-            :reach reach
-            :band (selection/band-score reach)
-            :dependence dependence
-            :fitness (- (selection/band-score reach)
-                        (* masking/capacity-cost dependence))
-            :intervened-rule (get (:field genome) (:locus entry))
-            :held (get (:hold genome) (:locus entry))})))
+    (mapv
+     (fn [site]
+       (let [reach (reaches site)]
+         (merge entry
+                {:arm arm
+                 :environment-seed environment-seed
+                 :rewrite-tape rewrite-tape
+                 :tape-slot tape-slot
+                 :site site
+                 :reach reach
+                 :band (selection/band-score reach)
+                 :dependence dependence
+                 :fitness (- (selection/band-score reach)
+                             (* masking/capacity-cost dependence))
+                 :intervened-rule (get (:field genome) (:locus entry))
+                 :held (get (:hold genome) (:locus entry))})))
+     sites)))
 
-(defn schedule [environment-seeds]
+(defn unit-row [base entry arm environment-seed tape-slot site]
+  (first (unit-rows base entry arm environment-seed tape-slot [site])))
+
+(defn combination-schedule [environment-seeds]
   (for [entry masking/registered-panel
         arm arms
         environment-seed environment-seeds
-        tape-slot (range (count discovery-rewrite-tapes))
+        tape-slot (range (count discovery-rewrite-tapes))]
+    [entry arm environment-seed tape-slot]))
+
+(defn schedule [environment-seeds]
+  (for [[entry arm environment-seed tape-slot]
+        (combination-schedule environment-seeds)
         site masking/evaluation-sites]
     [entry arm environment-seed tape-slot site]))
 
 (defn run-panel [base environment-seeds]
-  ;; Each cell owns its RNGs; pmap affects runtime only, not row order or value.
-  (->> (schedule environment-seeds)
-       (pmap (fn [[entry arm environment-seed tape-slot site]]
-               (unit-row base entry arm environment-seed tape-slot site)))
+  ;; Each environment/tape combination owns its RNGs; pmap affects runtime only,
+  ;; not row order or value. Sites share the identical reference trajectory.
+  (->> (combination-schedule environment-seeds)
+       (pmap (fn [[entry arm environment-seed tape-slot]]
+               (unit-rows base entry arm environment-seed tape-slot
+                          masking/evaluation-sites)))
+       (mapcat identity)
        vec))
 
 (defn row-key [row]
