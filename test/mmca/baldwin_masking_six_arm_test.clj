@@ -66,3 +66,54 @@
          clojure.lang.ExceptionInfo
          #"evaluation cells differ"
          (six/validate-rows! [] six/pilot-environment-seeds)))))
+
+(def banked-readout-analysis
+  (delay
+    (six/readout-analysis
+     (six/read-edn-lines
+      "data/baldwin-runs/masking-six-arm-smoke-fc8bfca/a/raw.edn"))))
+
+(deftest every-readout-and-unit-estimate-is-always-emitted
+  (let [analysis @banked-readout-analysis
+        audited (:contrasts
+                 (read-string
+                  (slurp
+                   "data/baldwin-runs/masking-six-arm-smoke-fc8bfca/readout-reanalysis.edn")))]
+    (is (= audited (:contrasts-by-field analysis)))
+    (is (= (set six/readout-fields)
+           (set (keys (:unit-level-estimates analysis)))))
+    (doseq [[_ estimates] (:unit-level-estimates analysis)
+            [_ estimate] estimates]
+      (is (= 1152 (:units estimate)))
+      (is (= 1152 (+ (:wins estimate) (:losses estimate) (:ties estimate)))))
+    (is (:score-decomposition-valid analysis))))
+
+(deftest banked-capacity-refund-fires-all-readout-gates
+  (let [analysis @banked-readout-analysis
+        good-plastic
+        (get-in analysis
+                [:additive-term-attribution
+                 :good-held-vs-plastic-good :capacity-cost])
+        current-plastic
+        (get-in analysis
+                [:additive-term-attribution
+                 :held-current-vs-plastic-current :capacity-cost])
+        held-control
+        (get-in analysis
+                [:additive-term-attribution
+                 :good-held-vs-current-held :capacity-cost])]
+    (is (= #{:good-held-vs-plastic-good :held-current-vs-plastic-current}
+           (set (map :contrast (:readout-disagreements analysis)))))
+    (is (= #{:good-held-vs-plastic-good :held-current-vs-plastic-current}
+           (set (map :contrast (:production-bar-disagreements analysis)))))
+    (is (= [859 562] ((juxt :unit-wins :wins-within-offset) good-plastic)))
+    (is (= [860 575] ((juxt :unit-wins :wins-within-offset) current-plastic)))
+    (is (= [323 0 0.0]
+           ((juxt :unit-wins :wins-within-offset :constant-offset)
+            held-control)))
+    (is (= #{:good-held-vs-plastic-good :held-current-vs-plastic-current}
+           (set (map :contrast (:constant-offset-failures analysis)))))))
+
+(deftest score-decomposition-is-gating-evidence
+  (is (not (six/score-decomposition-valid?
+            [{:fitness 1.0 :band 1.0 :dependence 1.0}]))))
