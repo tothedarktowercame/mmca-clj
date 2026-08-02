@@ -32,3 +32,24 @@
                                 (<= 0 i (dec (:width test-config)))))
                          (:coherent-points %))
                 (vals (:per-seed once))))))
+
+(deftest batched-tolerance-selection-preserves-held-out-result
+  ;; Regression values from the pre-batching selector.  The optimized path may
+  ;; share tolerance-independent fits/predictions, but must not change losses.
+  (let [config (assoc test-config
+                      :depths [1 2]
+                      :tolerances [0.1 0.2 0.4])
+        runs (into {}
+                   (for [seed (:seeds config)]
+                     [seed (c/run-propagator (:writing config) seed
+                                             (:width config)
+                                             (:steps config))]))
+        result (lcs/reconstruct-genotype-fields runs config)]
+    (is (= {:loss 1.0118580712803833
+            :held-out-n 120
+            :depth 1
+            :tolerance 0.1}
+           (:selected result)))
+    (is (= [1.0118580712803833 1.0742177148577066 1.22249969943066
+            1.9844235184525272 1.9969901320483827 2.03263068003497]
+           (mapv :loss (:candidates result))))))

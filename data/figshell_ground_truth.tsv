@@ -1,0 +1,4 @@
+boundary_edge_count	boundary_mean	boundary_minus_interior	boundary_samples	evaluation_cells	f1	false_negative	false_positive	interior_mean	interior_samples	mask_cells	method	precision	recall	selected_depth	selected_tolerance	transient_end	true_positive	truth_cells	metric_kind
+				5382	0.3333333333333333	138	414			552	tint	0.25	0.5	1	0.02	52	138	276	boundary_detection
+				5382	0.0	276	0			0	lcs	0.0	0.0	1	0.02	52	0	276	boundary_detection
+4	-0.08881927656296867	-0.11667869781120647	552					0.0278594212482378	10488		known-boundary					52			phenotype_transport

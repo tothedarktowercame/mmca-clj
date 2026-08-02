@@ -222,6 +222,68 @@
                                      (:alpha config))]
     (assoc score :depth depth :tolerance tolerance)))
 
+(defn- fit-states-from-predictions [rows tolerance]
+  (reduce
+   (fn [states {:keys [probabilities future]}]
+     (let [state (signature probabilities tolerance)]
+       (reduce (fn [result output]
+                 (-> result
+                     (update-in [state :n] (fnil inc 0))
+                     (update-in [state :ones output] (fnil + 0)
+                                (nth future output))))
+               states (range (count future)))))
+   {} rows))
+
+(defn- score-predicted-fold [train test tolerance alpha target-count]
+  (let [states (fit-states-from-predictions train tolerance)]
+    {:n (count test)
+     :loss
+     (/ (reduce
+         (fn [loss {:keys [probabilities future]}]
+           (let [state (get states (signature probabilities tolerance))
+                 scored (if state
+                          (state-probabilities state target-count alpha)
+                          probabilities)]
+             (+ loss (row-loss scored future))))
+         0.0 test)
+        (double (count test)))}))
+
+(defn- candidate-scores
+  "Score every tolerance for one depth while fitting each held-out fold once.
+
+  The legacy path called `candidate-score` once per tolerance and therefore
+  repeated the identical Naive Bayes fit and raw predictions.  Quantisation
+  and state fitting remain tolerance-specific here; only those identical
+  upstream calculations are shared."
+  [rows depth config]
+  (let [fold-results
+        (for [fold (range (:folds config))
+              :let [test? #(= fold (mod (:seed %) (:folds config)))
+                    train (vec (remove test? rows))
+                    test (vec (filter test? rows))
+                    model (fit-naive-bayes train)
+                    predict-row #(assoc % :probabilities
+                                        (predict model (:past %) (:alpha config)))
+                    predicted-train (mapv predict-row train)
+                    predicted-test (mapv predict-row test)
+                    target-count (:target-count model)]]
+          (into {}
+                (for [tolerance (:tolerances config)]
+                  [tolerance
+                   (score-predicted-fold predicted-train predicted-test
+                                         tolerance (:alpha config)
+                                         target-count)])))]
+    (mapv
+     (fn [tolerance]
+       (let [scores (map #(get % tolerance) fold-results)
+             n (reduce + (map :n scores))]
+         {:loss (/ (reduce + (map #(* (:n %) (:loss %)) scores))
+                   (double n))
+          :held-out-n n
+          :depth depth
+          :tolerance tolerance}))
+     (:tolerances config))))
+
 (defn- select-model [engine layer config]
   (let [candidates
         (vec
@@ -238,8 +300,7 @@
         (vec
          (mapcat (fn [depth]
                    (let [rows (genotype-field-samples runs depth config)]
-                     (mapv #(candidate-score rows depth % config)
-                           (:tolerances config))))
+                     (candidate-scores rows depth config)))
                  (:depths config)))]
     {:selected (first (sort-by (juxt :loss :depth :tolerance) candidates))
      :candidates candidates}))

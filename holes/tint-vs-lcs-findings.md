@@ -638,3 +638,75 @@ propagate *through*, so some of the correlation is likely substrate rather than
 regime. Distinguishing those needs a diversity-matched control.
 
 `scripts/diversity_vs_damage.clj`.
+
+## 15. Figure 4 ground truth: neither segmentation finds the known stripes
+
+*(2026-08-02. Deterministic seed 1; analysis seed 20260802.)*
+
+The all-even involution $\sigma=[2,3,0,1,5,4,7,6]$ was regenerated as raw
+integer genotype and phenotype fields with
+`clojure -M -m mmca.figures figshell`.  The transient endpoint was located
+without looking at either segmentation: row 52 is the earliest row from which
+the genotype is one unchanged two-rule spatial pattern through the end of the
+run.  The surviving rules are 105 and 201.  On the periodic width-80 lattice,
+the exact change columns are **4, 17, 30, and 61**, producing cyclic stripe
+widths 13, 13, 31, and 23.
+
+Both masks were scored at exact pixel resolution on rows 52--120.  The common
+spatial support excludes one column at each edge because held-out selection
+chose LCS depth 1.  There are 276 true boundary cells in that support.
+
+| method | predicted cells | precision | recall | F1 |
+|---|---:|---:|---:|---:|
+| TINT (paper threshold 0.35) | 552 | **0.250** | **0.500** | **0.333** |
+| LCS coherent structures | 0 | **0.000** | **0.000** | **0.000** |
+
+TINT does not recover the exact vertical boundaries reliably.  Its five-cell
+smoothing shifts the two descending rule-activity transitions inward by two
+columns; the stationary mask is at columns 4/5, 15/16, 30/31, and 59/60 rather
+than the exact changes at 4, 17, 30, and 61.  LCS has 75 retained points over
+the full six-seed reconstruction but none in seed 1's stationary tail.  A
+method that misses this certainly-present boundary is not a reliable boundary
+detector under this reconstruction.
+
+### 15a. The widened LCS grid still selects both low edges
+
+Selection retained the existing seed-held-out procedure (six seeds, three
+folds, burn-in 20), but widened the candidates prospectively to depths 1--4
+and tolerances 0.02, 0.05, 0.1, 0.2, and 0.4.  The selected point was
+**depth 1, tolerance 0.02**, held-out loss **1.508489 bits/bit** over 46,800
+predictions.  It is still at the low edge of both grids.  Thus widening did not
+produce an interior optimum; it moved tolerance selection from the old low
+edge 0.1 to the new low edge 0.02.  This is evidence that the LCS model class or
+search range remains under-resolved, not permission to widen or tune again
+toward a better-looking boundary score.
+
+The exact grid initially took 45 minutes without completing because the legacy
+selector refit the same Naive Bayes model once per tolerance.  The implementation
+was changed to fit once per held-out fold and share the tolerance-independent raw
+predictions; quantisation and causal-state fitting remain tolerance-specific.
+All legacy candidate losses on the regression fixture match bit-for-bit.  The
+full unchanged 4-by-5 grid then completed in about eight minutes.
+
+### 15b. Phenotype transport is lower across the known boundary
+
+For each exact genotype boundary edge, phenotype transfer was measured in both
+directions (left cell to right destination and right cell to left destination)
+over the stationary tail.  Same-rule edges supply the known-interior comparison:
+
+| edge class | directed phenotype transport |
+|---|---:|
+| exact genotype boundary (552 directed samples) | **-0.088819** |
+| genotype interior (10,488 directed samples) | **+0.027859** |
+| boundary minus interior | **-0.116679** |
+
+The certainly-present walls therefore do not carry enhanced phenotype
+information under this measure; the contrast has the opposite sign.  Combined
+with §7, the publishable result is negative: neither an estimated tint wall nor
+an exact known wall supports the claim that genotype boundaries carry phenotype
+transport in these examples.
+
+Artifacts: `src/mmca/experiments/figshell_ground_truth.clj`,
+`scripts/figshell_ground_truth.py`, `data/figshell_lcs_candidates.tsv`,
+`data/figshell_lcs_config.tsv`, `data/figshell_lcs_mask.txt`, and
+`data/figshell_ground_truth.tsv`.
