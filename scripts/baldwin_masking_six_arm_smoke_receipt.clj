@@ -36,8 +36,9 @@
       contrasts (:contrasts result)
       positive-fields (str/split (last (str/split-lines (slurp positive-control)))
                                  #"\t")
-      artifacts (vec (for [directory [run-a run-b] name artifact-names]
-                       (str directory "/" name)))
+      artifacts (conj (vec (for [directory [run-a run-b] name artifact-names]
+                             (str directory "/" name)))
+                      positive-control)
       receipt
       {:kind :baldwin-masking-six-arm-smoke
        :schema 1

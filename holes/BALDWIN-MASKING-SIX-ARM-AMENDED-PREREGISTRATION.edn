@@ -37,4 +37,4 @@
  :estimated-minutes 140
  :budget-minutes 240
  :teardown-deadline-minutes 240
- :implementation-status :registered-awaiting-smoke}
+ :implementation-status :smoke-passed}
