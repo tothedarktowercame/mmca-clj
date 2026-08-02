@@ -1,5 +1,6 @@
-(require '[mmca.baldwin-masking-intervention :as masking])
-(require '[mmca.baldwin-selection :as selection])
+(ns baldwin-masking-intervention
+  (:require [mmca.baldwin-masking-intervention :as masking]
+            [mmca.baldwin-selection :as selection]))
 
 (let [[record-path map-path mode output-directory] *command-line-args*]
   (when-not (and record-path map-path mode output-directory)

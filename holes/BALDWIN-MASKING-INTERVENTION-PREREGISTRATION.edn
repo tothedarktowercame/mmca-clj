@@ -1,0 +1,37 @@
+{:kind :baldwin-masking-intervention-preregistration
+ :schema 1
+ :lean-registration "DarkTower.BaldwinMaskingInterventionPreregistration.experiment"
+ :lean-revision "3495b10b68657778657742edf501e93ef2208741"
+ :implementation-revision "ec988d6a0b7e1350fe74d51f440d8624fd782b17"
+ :discovery-revision "f893a4005842ca0ceeb472020990ed131bb2de67"
+ :discovery-map-sha256 "2d883386dfb04420af393b6c11513216ab810e062f984a61d1fb818e9dbb4b63"
+ :source-record-sha256 "5fa7c5b5e26066cbd58f450bef7de270e34b4ef0d1a7490a2bfe1dc924816f24"
+ :panel-selection "dense strata: four greatest positive endpoint counts; sparse strata: four least positive counts; ties by locus; best useful rule by fitness then rule; matched bad by same Hamming distance, least fitness then rule"
+ :panel [{:stratum :early-dense :locus 0 :current-rule 224 :good-rule 52 :bad-rule 138 :hamming-distance 4}
+         {:stratum :early-dense :locus 1 :current-rule 41 :good-rule 2 :bad-rule 174 :hamming-distance 4}
+         {:stratum :early-dense :locus 2 :current-rule 191 :good-rule 47 :bad-rule 167 :hamming-distance 2}
+         {:stratum :early-dense :locus 3 :current-rule 59 :good-rule 102 :bad-rule 65 :hamming-distance 5}
+         {:stratum :middle-dense :locus 24 :current-rule 168 :good-rule 50 :bad-rule 59 :hamming-distance 4}
+         {:stratum :middle-dense :locus 26 :current-rule 200 :good-rule 71 :bad-rule 123 :hamming-distance 5}
+         {:stratum :middle-dense :locus 28 :current-rule 69 :good-rule 125 :bad-rule 108 :hamming-distance 3}
+         {:stratum :middle-dense :locus 29 :current-rule 24 :good-rule 97 :bad-rule 100 :hamming-distance 5}
+         {:stratum :middle-sparse :locus 45 :current-rule 28 :good-rule 146 :bad-rule 7 :hamming-distance 4}
+         {:stratum :middle-sparse :locus 51 :current-rule 64 :good-rule 169 :bad-rule 27 :hamming-distance 5}
+         {:stratum :middle-sparse :locus 52 :current-rule 105 :good-rule 37 :bad-rule 8 :hamming-distance 3}
+         {:stratum :middle-sparse :locus 54 :current-rule 206 :good-rule 193 :bad-rule 4 :hamming-distance 4}
+         {:stratum :late-sparse :locus 60 :current-rule 122 :good-rule 97 :bad-rule 2 :hamming-distance 4}
+         {:stratum :late-sparse :locus 67 :current-rule 197 :good-rule 18 :bad-rule 10 :hamming-distance 6}
+         {:stratum :late-sparse :locus 75 :current-rule 230 :good-rule 56 :bad-rule 121 :hamming-distance 6}
+         {:stratum :late-sparse :locus 76 :current-rule 174 :good-rule 180 :bad-rule 30 :hamming-distance 3}]
+ :arms [:plastic-current :held-current :plastic-good :held-good :held-bad]
+ :pilot-seeds [901 902 903]
+ :confirmation-seeds [101 102 103 104 105 106 107 108]
+ :evaluation-sites [0 10 20 30 40 50 60 70]
+ :capacity-cost-basis-points 500
+ :primary-contrast-family-size 4
+ :inferential-unit :locus
+ :within-locus-rule :strict-sign-majority-of-paired-seed-site-fitness-deltas
+ :estimated-minutes 90
+ :budget-minutes 180
+ :teardown-deadline-minutes 180
+ :implementation-status :blocked-pending-smoke}
