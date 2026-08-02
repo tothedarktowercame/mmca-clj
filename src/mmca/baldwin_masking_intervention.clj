@@ -163,9 +163,12 @@
             :held (get (:hold genome) (:locus entry))})))
 
 (defn run-panel [base seeds]
-  (mapv (fn [[entry arm seed site]] (unit-row base entry arm seed site))
-        (for [entry registered-panel arm arms seed seeds site evaluation-sites]
-          [entry arm seed site])))
+  ;; Each row is deterministic and owns its RNGs, so bounded JVM worker-pool
+  ;; parallelism changes runtime but not ordering or values.
+  (->> (for [entry registered-panel arm arms seed seeds site evaluation-sites]
+         [entry arm seed site])
+       (pmap (fn [[entry arm seed site]] (unit-row base entry arm seed site)))
+       vec))
 
 (defn- index-rows [rows]
   (let [grouped (group-by (juxt :locus :arm :seed :site) rows)
