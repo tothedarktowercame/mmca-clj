@@ -34,4 +34,4 @@
  :estimated-minutes 90
  :budget-minutes 180
  :teardown-deadline-minutes 180
- :implementation-status :blocked-pending-smoke}
+ :implementation-status :superseded-by-shared-tape-six-arm-redesign}

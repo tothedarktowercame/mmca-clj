@@ -24,7 +24,13 @@
   (is (false? (:launchable? (prereg/report registration nil)))))
 
 (deftest every-smoke-observation-is-gating
-  (is (:launchable? (prereg/report registration passing-smoke)))
+  (let [admitted (assoc registration :implementation-status :smoke-passed)]
+    (is (:launchable? (prereg/report admitted passing-smoke)))
   (doseq [observation prereg/required-smoke-booleans]
     (is (false? (:launchable?
-                 (prereg/report registration (assoc passing-smoke observation false)))))))
+                 (prereg/report admitted (assoc passing-smoke observation false))))))))
+
+(deftest superseded-registration-cannot-launch
+  (is (false? (:launchable? (prereg/report registration passing-smoke))))
+  (is (some #{:implementation-not-admitted}
+            (:failures (prereg/report registration passing-smoke)))))

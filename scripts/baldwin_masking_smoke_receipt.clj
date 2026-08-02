@@ -1,6 +1,7 @@
 (ns baldwin-masking-smoke-receipt
   (:require [mmca.baldwin-masking-intervention :as masking]
-            [mmca.baldwin-masking-preregistration :as prereg]))
+            [mmca.baldwin-masking-preregistration :as prereg]
+            [clojure.string :as str]))
 
 (let [[registration-path map-path record-path run-a run-b positive-control output-path]
       *command-line-args*
@@ -15,6 +16,7 @@
       signatures (set (map (juxt :locus :arm :intervened-rule :held) rows))
       separated? (= (* (count masking/registered-panel) (count masking/arms))
                     (count signatures))
+      positive-fields (str/split (last (str/split-lines (slurp positive-control))) #"\t")
       artifacts [(str run-a "/raw.edn") (str run-a "/result.edn")
                  (str run-a "/manifest.edn") (str run-b "/raw.edn")
                  (str run-b "/result.edn") (str run-b "/manifest.edn")]
@@ -35,7 +37,7 @@
        :paired-schedule (= (masking/expected-keys masking/pilot-seeds)
                            (set (map (juxt :locus :arm :seed :site) rows)))
        :deterministic-rerun same?
-       :positive-control-passed (= "PASS" (.trim (slurp positive-control)))
+       :positive-control-passed (= "0" (nth positive-fields 2 nil))
        :artifacts-complete (every? #(.isFile (java.io.File. %)) artifacts)
        :artifacts-checksummed (every? string? (map masking/sha256 artifacts))
        :deadline-exceeded false

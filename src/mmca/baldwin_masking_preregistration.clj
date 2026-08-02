@@ -59,11 +59,14 @@
 (defn report [registration smoke]
   (let [registration-problems (registration-failures registration)
         smoke-problems (if smoke (smoke-failures registration smoke) [:smoke-absent])
-        failures (into registration-problems smoke-problems)]
+        status-problems (if (= :smoke-passed (:implementation-status registration))
+                          [] [:implementation-not-admitted])
+        failures (into (into registration-problems smoke-problems) status-problems)]
     {:kind :baldwin-masking-preregistration-validation
      :schema 1
      :valid-registration? (empty? registration-problems)
      :smoke-passed? (empty? smoke-problems)
+     :implementation-status (:implementation-status registration)
      :launchable? (empty? failures)
      :failures failures}))
 
