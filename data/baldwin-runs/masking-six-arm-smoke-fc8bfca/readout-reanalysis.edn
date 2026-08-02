@@ -1,0 +1,37 @@
+{:kind :baldwin-masking-six-arm-readout-reanalysis
+ :schema 1
+ :source-raw-sha256 "c4235ddd86aa2af3d4b17aa7055f9a5c8eb0fd623c07922eff765cd07148d378"
+ :classification :capacity-refund-confound
+ :capacity-cost 0.05
+ :held-locus-fraction 0.0125
+ :constant-held-fitness-refund 0.000625
+ :mean-dependence {:held-bad 0.9875
+                   :held-current 0.9875
+                   :held-good 0.9875
+                   :held-good-novel-tape 0.9875
+                   :plastic-current 1.0
+                   :plastic-good 1.0}
+ :contrasts
+ {:fitness {:good-held-vs-plastic-good {:wins 16 :losses 0 :ties 0}
+            :held-current-vs-plastic-current {:wins 16 :losses 0 :ties 0}
+            :good-held-vs-current-held {:wins 9 :losses 4 :ties 3}
+            :good-held-vs-bad-held {:wins 12 :losses 3 :ties 1}
+            :plastic-good-vs-plastic-current {:wins 11 :losses 4 :ties 1}
+            :discovery-held-good-vs-novel-held-good {:wins 7 :losses 7 :ties 2}}
+  :band {:good-held-vs-plastic-good {:wins 6 :losses 7 :ties 3}
+         :held-current-vs-plastic-current {:wins 6 :losses 7 :ties 3}
+         :good-held-vs-current-held {:wins 9 :losses 4 :ties 3}
+         :good-held-vs-bad-held {:wins 12 :losses 3 :ties 1}
+         :plastic-good-vs-plastic-current {:wins 11 :losses 4 :ties 1}
+         :discovery-held-good-vs-novel-held-good {:wins 7 :losses 7 :ties 2}}
+  :reach {:good-held-vs-plastic-good {:wins 6 :losses 10 :ties 0}
+          :held-current-vs-plastic-current {:wins 6 :losses 9 :ties 1}
+          :good-held-vs-current-held {:wins 10 :losses 5 :ties 1}
+          :good-held-vs-bad-held {:wins 15 :losses 1 :ties 0}
+          :plastic-good-vs-plastic-current {:wins 11 :losses 5 :ties 0}
+          :discovery-held-good-vs-novel-held-good {:wins 5 :losses 11 :ties 0}}}
+ :endpoint-map-check {:fitness-selectable 1062
+                      :band-at-least-baseline 1062
+                      :fitness-only 0
+                      :exact-band-ties 82}
+ :recommendation :hold-and-preregister-behavior-or-realized-work-readout}

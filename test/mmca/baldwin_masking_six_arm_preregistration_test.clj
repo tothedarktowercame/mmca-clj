@@ -26,6 +26,12 @@
   (is (empty? (prereg/registration-failures registration)))
   (is (false? (:launchable? (prereg/report registration nil)))))
 
+(deftest reviewed-registration-cannot-launch-on-old-smoke
+  (is (= :design-review-hold (:implementation-status registration)))
+  (is (false? (:launchable? (prereg/report registration passing-smoke))))
+  (is (some #{:implementation-not-admitted}
+            (:failures (prereg/report registration passing-smoke)))))
+
 (deftest every-smoke-observation-is-gating
   (let [admitted (assoc registration :implementation-status :smoke-passed)]
     (is (:launchable? (prereg/report admitted passing-smoke)))
