@@ -2,7 +2,7 @@
  :schema 1
  :lean-registration "DarkTower.BaldwinMaskingInterventionPreregistration.experiment"
  :lean-revision "3495b10b68657778657742edf501e93ef2208741"
- :implementation-revision "ec988d6a0b7e1350fe74d51f440d8624fd782b17"
+ :implementation-revision "db2e67f6e3ccced5e2e4ab3d6ef7d92b8c757dfe"
  :discovery-revision "f893a4005842ca0ceeb472020990ed131bb2de67"
  :discovery-map-sha256 "2d883386dfb04420af393b6c11513216ab810e062f984a61d1fb818e9dbb4b63"
  :source-record-sha256 "5fa7c5b5e26066cbd58f450bef7de270e34b4ef0d1a7490a2bfe1dc924816f24"
