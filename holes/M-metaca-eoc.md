@@ -87,26 +87,37 @@ individual Codex agents (NOT codex-9, who authored the plan) and to Zai agents.
 Recommended order: E1 → (E2,E3) decide *whether* there's a transition →
 (E4,E5,E7) explain *what it computes*.
 
-## Scoreboard (2026-07-18)
+## Scoreboard (updated 2026-08-02)
 
-All experiments topic-named, deterministic, `clojure -M:test` green (23/42).
+All experiments are topic-named and deterministic.  The current repository gate
+is green: `clojure -M:test` passes 91 tests / 231 assertions.
 
 | Exc | file | headline result | commit |
 |-----|------|-----------------|--------|
 | E1 | `paired_perturbation.clj` | X→G≡0 null (ff correctness); live/dead scalpel | `7d331b9` |
-| E2 | `control_param_scan.clj` | **metastability** — susceptibility doesn't sharpen with L | `155569e` |
+| E2 | `control_param_scan.clj` | **metastability** — susceptibility does not sharpen with L; exact offset +1/+2 checks do not rescue a critical-point claim | `155569e`,`d5d3991`,`0d8fd9b` |
 | E3 | `transient_scaling.clj` | collapse width-dependent, **right-censored** at large L | `155569e` |
-| E4 | `directed_predictive_info.clj` | **river X→G = +0.122 bits**, ff ≈0; 105/204 = 0.512 | `756791b` |
-| E6 | `multiscale_spectra.clj` | ff baseline featureless; **river off-DC S_GX feedback signature** | `fedb90b`,`b8ff2d3` |
-| E7 | `direct_computation.clj` | G storage/transmission; **no XOR/modification capacity** | `0b374e8` |
-| E5 | `local_causal_states.clj` | joint vs marginal causal states — **in progress** (codex-4) | — |
+| E4 | `directed_predictive_info.clj` | authentic river/matched ablation isolates **X→G = +0.2092 bits/site-step** | `756791b`,`16f9d77` |
+| E5 | `local_causal_states.clj` | feedback-on has fewer inferred structures (90 vs 125) and worse joint held-out loss (1.016 vs 0.867); **no added causal-state richness** | `bd6f10b`,`270bc62` |
+| E6 | `multiscale_spectra.clj` | authentic river/matched ablation retains an **off-DC S_GX feedback signature** | `fedb90b`,`b8ff2d3`,`6b8f2fb` |
+| E7 | `direct_computation.clj` | authentic river/matched ablation finds weak storage/transmission but **no modification capacity under the registered probes** | `0b374e8`,`4300434` |
+| A–C | phenotype transport + Figure 4 tint/LCS audit | phenotype transport null; exact stripe walls fail boundary-transport scoring; LCS structure is regional, not a wall detector | `9f35ab4`,`7a905f4`,`a555ceb` |
 | — | (rename) | drop self-named files + shims | `8fa6b6c` |
 
 **Convergent finding:** E4 (predictive information) and E6 (cross-spectrum)
-independently detect the river's X→G feedback and its absence on the feedforward
-base. **Honest bounds:** E2 metastability (not a transition), E3 censored
-scaling, E7 no computation — the sweep confirms the coupled-system framing and
-declines the criticality/computation claims the data don't yet support.
+independently detect the river's X→G feedback against matched ablations.  E5
+does not find extra local-causal-state richness, and the corrective A–C audit
+rejects the stronger interpretation that phenotype transport or LCS boundaries
+explain the Figure 4 genotype stripes.  **Honest bounds:** E2 supports
+metastability rather than a transition, E3 remains right-censored, and E7's
+registered probes find only limited storage/transmission and no modification.
+The evidence supports coupled feedback dynamics, but not the stronger
+criticality, computation, or boundary-transport claims.
+
+**Scope note:** this scoreboard covers the MetaCA dynamics/criticality mission.
+The Baldwin-effect programme has separate registrations and run receipts under
+`holes/BALDWIN-*` and `data/baldwin-runs/`; its paid Chicago runs are not MetaCA
+mission excursions.
 
 **Process findings:** fresh agents can use + extend the suite (E6 iterated on
 review). All failures were infra (network / zai-persistence / 30-min job cap);
