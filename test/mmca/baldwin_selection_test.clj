@@ -114,6 +114,18 @@
       (is (= (inc selection/STEPS) (count (:phe disabled))))
       (is (not= (:phe unlimited) (:phe disabled))))))
 
+(deftest separated-tape-interface-is-identical-on-the-diagonal
+  (let [seed 7
+        ordinary (selection/two-stage 1.0 1.0 (:mask base-genome)
+                                     (:hold base-genome) seed
+                                     (:field base-genome) nil nil)
+        separated (selection/two-stage-separated
+                   1.0 1.0 (:mask base-genome) (:hold base-genome)
+                   seed seed (:field base-genome) nil nil)]
+    (is (= ordinary separated))
+    (is (= (selection/reach base-genome [seed] [4 12])
+           (selection/reach-separated base-genome [[seed seed]] [4 12])))))
+
 (deftest recorded-genomes-round-trip-to-mode-checker
   (let [recorded (-> base-genome
                      (update :mask #(mapv (fn [bit] (if bit 1 0)) %))

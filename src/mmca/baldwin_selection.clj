@@ -173,6 +173,27 @@
                      (or frozen* p0) TSTAR learning-budget)]
      {:phe (into (:phe a) (rest (:phe b)))})))
 
+(defn two-stage-separated
+  "Run two-stage with environment and rewrite randomness explicitly separated.
+
+   The environment seed selects p0. The rewrite seed owns every historical
+   random, gate and update draw. The discarded p0 draw remains on the rewrite
+   tape, and equal seeds reproduce `two-stage` exactly."
+  [gamma update-prob mask hold environment-seed rewrite-seed g0 intervene frozen*]
+  (let [r (java.util.Random. (long rewrite-seed))
+        gate (java.util.Random. (long (+ 987654321 rewrite-seed)))
+        upd (java.util.Random. (long (+ 123456789 rewrite-seed)))
+        _ (c/java-random-genotype r W)
+        _ (c/java-random-phenotype r W)
+        p0 (sampled-initial-phenotype environment-seed)
+        a (run-from r gate upd g0 p0 TSTAR gamma update-prob mask hold
+                    (or frozen* p0))
+        g* (:gen a) p* (peek (:phe a))
+        [g' p'] (if intervene (intervene g* p*) [g* p*])
+        b (run-from r gate upd g' p' (- STEPS TSTAR) gamma update-prob mask hold
+                    (or frozen* p0))]
+    {:phe (into (:phe a) (rest (:phe b)))}))
+
 (defn flip-at [x] (fn [g p] [g (str (subs p 0 x) (if (= \1 (nth p x)) \0 \1) (subs p (inc x)))]))
 
 ;; --- reach, at the published protocol ---------------------------------------
@@ -202,6 +223,28 @@
                                    (nth (:phe B) (+ TSTAR DT))))))))
          all (mapv double (flatten ms))]
      {:mean (/ (reduce + all) (count all)) :n (count all)})))
+
+(defn reach-separated
+  "Reach for explicit `[environment-seed rewrite-seed]` pairs."
+  [{:keys [gamma update-prob field mask hold]} seed-pairs sites]
+  (let [up (if (nil? update-prob) 1.0 update-prob)
+        mk (or mask (vec (repeat W true)))
+        hd (or hold (vec (repeat W false)))
+        ms (for [[environment-seed rewrite-seed] seed-pairs]
+             (let [ref (two-stage-separated 1.0 up mk hd environment-seed
+                                            rewrite-seed field nil nil)
+                   frozen* (nth (:phe ref) TSTAR)
+                   a (two-stage-separated gamma up mk hd environment-seed
+                                          rewrite-seed field nil frozen*)]
+               (for [x sites]
+                 (let [b (two-stage-separated gamma up mk hd environment-seed
+                                              rewrite-seed field (flip-at x)
+                                              frozen*)]
+                   (reduce + (map #(if (= %1 %2) 0 1)
+                                  (nth (:phe a) (+ TSTAR DT))
+                                  (nth (:phe b) (+ TSTAR DT))))))))
+        all (mapv double (flatten ms))]
+    {:mean (/ (reduce + all) (count all)) :n (count all)}))
 
 ;; two-sided: peaks in the complex band, penalising stasis AND saturation, so
 ;; the population cannot win by evolving toward rule-30 behaviour
