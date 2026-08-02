@@ -108,3 +108,34 @@
     (is (= (* (- selection/W 2) selection/TSTAR)
            (reduce + (map :count (vals profile)))))
     (is (= (set (range 16)) (set (keys profile))))))
+
+(deftest context-invariance-retains-exact-capture-denominators
+  (let [mk-profile
+        (fn [modal-zero]
+          (into {}
+                (for [context (range 16)]
+                  [context {:count 10 :equal 0
+                            :rules (if (zero? context)
+                                     {modal-zero 7, 99 3}
+                                     {context 6, 99 4})}])))
+        summary (mechanism/context-invariance-summary
+                 [(mk-profile 1) (mk-profile 1) (mk-profile 2)])]
+    (is (= 15 (:stable-contexts summary)))
+    (is (= 270 (:capture-numerator summary)))
+    (is (= 480 (:capture-denominator summary)))
+    (is (= 5625 (:capture-basis-points summary)))
+    (is (false? (get-in summary [:contexts 0 :stable?])))))
+
+(deftest shared-tape-context-classification-is-precommitted
+  (is (= :materially-context-invariant
+         (mechanism/classify-shared-tape-context
+          {:stable-contexts 4 :capture-basis-points 2003}
+          {:stable-contexts 4 :capture-basis-points 2500})))
+  (is (= :shared-tape-improves-but-submaterial
+         (mechanism/classify-shared-tape-context
+          {:stable-contexts 4 :capture-basis-points 2003}
+          {:stable-contexts 5 :capture-basis-points 2200})))
+  (is (= :no-shared-tape-context-gain
+         (mechanism/classify-shared-tape-context
+          {:stable-contexts 4 :capture-basis-points 2003}
+          {:stable-contexts 3 :capture-basis-points 1505}))))

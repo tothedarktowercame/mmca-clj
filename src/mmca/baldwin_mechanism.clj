@@ -269,3 +269,63 @@
      :modal-rule modal-rule
      :modal-share (/ modal-count (double n))
      :distinct-rules (count (:rules observations))}))
+
+(defn context-invariance-summary
+  "Summarize whether context-indexed learned rules survive across profiles.
+
+   A context is stable only when every profile has the same modal rule.  The
+   capture denominator is every observed context event; the numerator counts
+   occurrences of the stable modal rules in their respective contexts.  Basis
+   points use exact integer truncation, with numerator and denominator retained
+   so a threshold cannot hide the underlying counts."
+  [profiles]
+  (when (empty? profiles)
+    (throw (ex-info "context invariance requires profiles" {})))
+  (let [contexts (vec (range 16))
+        rows
+        (mapv
+         (fn [context]
+           (let [observations (mapv #(get % context) profiles)]
+             (when (some nil? observations)
+               (throw (ex-info "profile omits a registered context"
+                               {:context context})))
+             (let [summaries (mapv #(summarize-context context %) observations)
+                   modal-rules (mapv :modal-rule summaries)
+                   stable? (apply = modal-rules)
+                   stable-rule (when stable? (first modal-rules))
+                   captured (if stable?
+                              (reduce + (map #(get-in % [:rules stable-rule] 0)
+                                             observations))
+                              0)
+                   observed (reduce + (map :count observations))]
+               {:context context
+                :modal-rules modal-rules
+                :stable? stable?
+                :stable-rule stable-rule
+                :captured captured
+                :observed observed})))
+         contexts)
+        numerator (reduce + (map :captured rows))
+        denominator (reduce + (map :observed rows))]
+    (when-not (pos? denominator)
+      (throw (ex-info "context profiles contain no observations" {})))
+    {:contexts rows
+     :context-count (count rows)
+     :stable-contexts (count (filter :stable? rows))
+     :capture-numerator numerator
+     :capture-denominator denominator
+     :capture-basis-points (quot (*' 10000 numerator) denominator)}))
+
+(defn classify-shared-tape-context
+  "Apply the preregistered shared-tape diagnostic thresholds."
+  [variable shared]
+  (cond
+    (and (<= 4 (:stable-contexts shared))
+         (<= 2500 (:capture-basis-points shared)))
+    :materially-context-invariant
+
+    (and (< (:stable-contexts variable) (:stable-contexts shared))
+         (< (:capture-basis-points variable) (:capture-basis-points shared)))
+    :shared-tape-improves-but-submaterial
+
+    :else :no-shared-tape-context-gain))
