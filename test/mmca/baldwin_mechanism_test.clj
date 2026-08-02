@@ -139,3 +139,20 @@
          (mechanism/classify-shared-tape-context
           {:stable-contexts 4 :capture-basis-points 2003}
           {:stable-contexts 3 :capture-basis-points 1505}))))
+
+(deftest context-robustness-requires-two-of-three-tapes
+  (is (= :no-gain-reproduced
+         (mechanism/classify-context-robustness
+          [{:stable-contexts 3 :capture-basis-points 1500}
+           {:stable-contexts 4 :capture-basis-points 1900}
+           {:stable-contexts 7 :capture-basis-points 3000}] 4 2003)))
+  (is (= :gain-reproduced
+         (mechanism/classify-context-robustness
+          [{:stable-contexts 5 :capture-basis-points 2100}
+           {:stable-contexts 7 :capture-basis-points 3000}
+           {:stable-contexts 3 :capture-basis-points 1500}] 4 2003)))
+  (is (= :tape-heterogeneous
+         (mechanism/classify-context-robustness
+          [{:stable-contexts 5 :capture-basis-points 1900}
+           {:stable-contexts 3 :capture-basis-points 2100}
+           {:stable-contexts 4 :capture-basis-points 2003}] 4 2003))))

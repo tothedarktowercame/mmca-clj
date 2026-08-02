@@ -329,3 +329,17 @@
     :shared-tape-improves-but-submaterial
 
     :else :no-shared-tape-context-gain))
+
+(defn classify-context-robustness
+  "Require two of three new tapes for a directional robustness conclusion."
+  [results baseline-stable baseline-capture]
+  (let [no-gain (count (filter #(and (<= (:stable-contexts %) baseline-stable)
+                                     (<= (:capture-basis-points %) baseline-capture))
+                               results))
+        gain (count (filter #(and (< baseline-stable (:stable-contexts %))
+                                  (< baseline-capture (:capture-basis-points %)))
+                            results))]
+    (cond
+      (<= 2 no-gain) :no-gain-reproduced
+      (<= 2 gain) :gain-reproduced
+      :else :tape-heterogeneous)))
