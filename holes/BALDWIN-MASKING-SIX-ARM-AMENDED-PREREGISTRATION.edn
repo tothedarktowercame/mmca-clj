@@ -1,8 +1,8 @@
 {:kind :baldwin-masking-six-arm-amended-preregistration
- :schema 1
+ :schema 2
  :lean-registration "DarkTower.BaldwinMaskingSixArmAmendment.experiment"
  :lean-revision "1445d9bd4de70b532cccbd06927285588f96fc1d"
- :implementation-revision "fc8bfcaa3fd26ed78cec90b7183592af156925f2"
+ :implementation-revision "e03296483d29853ef4e0595718ce66805b7d5092"
  :discovery-revision "f893a4005842ca0ceeb472020990ed131bb2de67"
  :discovery-map-sha256 "2d883386dfb04420af393b6c11513216ab810e062f984a61d1fb818e9dbb4b63"
  :source-record-sha256 "5fa7c5b5e26066cbd58f450bef7de270e34b4ef0d1a7490a2bfe1dc924816f24"
@@ -32,7 +32,13 @@
  :capacity-cost-basis-points 500
  :primary-contrast-family-size 5
  :inferential-unit :locus
- :within-locus-rule :strict-sign-majority-of-paired-environment-tape-site-fitness-deltas
+ :within-locus-rule :strict-sign-majority-of-paired-environment-tape-site-deltas-per-readout
+ :readout-fields [:fitness :band :reach]
+ :behavioral-readout :band
+ :score-additive-terms {:behavior {:field :band :coefficient 1.0}
+                        :capacity-cost {:field :dependence :coefficient -0.05}}
+ :constant-offset-win-fraction-threshold 0.20
+ :secondary-unit-level-analysis :paired-unit-mean-delta-with-locus-wlt
  :shared-tape-context-result :failed-recorded-not-gating
  :estimated-minutes 140
  :budget-minutes 240

@@ -34,6 +34,7 @@
                            masking/registered-panel)
       expected-units (prereg/expected-units-per-arm six/pilot-environment-seeds)
       contrasts (:contrasts result)
+      contrasts-by-field (:contrasts-by-field result)
       positive-fields (str/split (last (str/split-lines (slurp positive-control)))
                                  #"\t")
       artifacts (conj (vec (for [directory [run-a run-b] name artifact-names]
@@ -41,7 +42,7 @@
                       positive-control)
       receipt
       {:kind :baldwin-masking-six-arm-smoke
-       :schema 1
+       :schema 2
        :implementation-revision (:implementation-revision registration)
        :lean-revision (:lean-revision registration)
        :map-sha256 (six/sha256 map-path)
@@ -61,9 +62,30 @@
           (set (map six/row-key rows)))
        :within-locus-aggregation-valid
        (and (= (set (keys six/contrast-pairs)) (set (keys contrasts)))
-            (every? #(= (count masking/registered-panel)
-                        (reduce + (vals %)))
-                    (vals contrasts)))
+            (= (set six/readout-fields) (set (keys contrasts-by-field)))
+            (every?
+             (fn [[_ field-contrasts]]
+               (and (= (set (keys six/contrast-pairs))
+                       (set (keys field-contrasts)))
+                    (every? #(= (count masking/registered-panel)
+                                (reduce + (vals %)))
+                            (vals field-contrasts))))
+             contrasts-by-field))
+       :readout-fields six/readout-fields
+       :contrasts-by-field contrasts-by-field
+       :unit-level-estimates (:unit-level-estimates result)
+       :additive-term-attribution (:additive-term-attribution result)
+       :score-decomposition-valid (:score-decomposition-valid result)
+       :readout-disagreements (:readout-disagreements result)
+       :production-bar-disagreements (:production-bar-disagreements result)
+       :constant-offset-win-fraction-threshold
+       (:constant-offset-win-fraction-threshold result)
+       :constant-offset-failures (:constant-offset-failures result)
+       :readout-gates-passed
+       (and (:score-decomposition-valid result)
+            (empty? (:readout-disagreements result))
+            (empty? (:production-bar-disagreements result))
+            (empty? (:constant-offset-failures result)))
        :context-failure-recorded
        (= false (:shared-tape-context-prerequisite-passed manifest))
        :deterministic-rerun same?
