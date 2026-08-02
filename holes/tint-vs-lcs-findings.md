@@ -710,3 +710,57 @@ Artifacts: `src/mmca/experiments/figshell_ground_truth.clj`,
 `scripts/figshell_ground_truth.py`, `data/figshell_lcs_candidates.tsv`,
 `data/figshell_lcs_config.tsv`, `data/figshell_lcs_mask.txt`, and
 `data/figshell_ground_truth.tsv`.
+
+## 16. Full-resolution overlays: LCS marks predictive regions, not walls
+
+*(2026-08-02. Part C; analysis seed 20260802.)*
+
+The LCS masks were finally placed directly on the paper's exact display fields.
+Hyperparameters and causal states were learned from the existing six-seed
+ensembles, then applied without refitting to the seed-1 display runs.  The three
+Figure 13 panels use genotype-past to genotype-future LCS, matching the earlier
+tint comparison.  The authentic river uses joint $(G,X)$ past and future,
+matching E5.  Selection remained three-fold seed-held-out on the declared
+depth `{1,2}` by tolerance `{0.1,0.2,0.4}` grid.
+
+| display field | target size | selected $(d,\tau)$ | held-out loss | coherent cells | structures |
+|---|---:|---:|---:|---:|---:|
+| offset $+1$ | 256×600 | (1, 0.10) | 1.558510 | 45,076 | 550 |
+| two 4-cycles | 256×600 | (1, 0.10) | 1.538839 | 25,968 | 254 |
+| $\sigma=16250374$ | 256×600 | (1, 0.10) | 1.699014 | 23,341 | 476 |
+| river, joint LCS | 240×360 | (1, 0.10) | 1.004980 | 52,000 | 171 |
+
+Bright-green overlays make the relationship to the activity tint inspectable.
+For each tint panel, every retained LCS cell was classified as lying on the
+paper's threshold-gradient boundary, inside the active domain away from a
+boundary, or inside the inactive domain away from a boundary.  Parentheses give
+the fraction expected from the area of that class; enrichment is observed over
+expected.
+
+| field | tint boundary | active interior | inactive interior |
+|---|---:|---:|---:|
+| offset $+1$ | 18.7% (16.7%; 1.12×) | 25.4% (36.6%; 0.69×) | **55.9%** (46.7%; 1.20×) |
+| two 4-cycles | 16.5% (10.4%; 1.59×) | 18.1% (56.8%; 0.32×) | **65.4%** (32.9%; 1.99×) |
+| $\sigma=16250374$ | 21.3% (14.0%; 1.52×) | **54.4%** (73.8%; 0.74×) | 24.3% (12.2%; 2.00×) |
+
+The answer is therefore neither "the same boundaries" nor "spatially
+unrelated."  Boundaries are modestly enriched in every panel, but **79--84% of
+LCS cells are not on a tint boundary**.  Their domain preference is also
+operator-dependent: the first two masks concentrate in inactive interiors,
+whereas the third has most of its absolute mass in active interiors.  The
+green regions follow extended predictive textures crossing and occupying tint
+domains rather than tracing their edges.
+
+The river result is even less particle-like at display scale: joint LCS covers
+**62.8%** of its valid post-burn-in support.  The mask tracks broad evolving
+regions on both layers, not a sparse set of coherent filaments.  Together with
+the exact Figure 4 miss in §15, the overlays support the narrower reading that
+this reconstruction finds relatively uncommon predictive-state regions.  It
+does not operationalize "wall" or "filament" consistently across these fields.
+
+The exact four-dataset run completed locally in 14m43s at 96% of one core,
+peaking at 2.41 GB RAM.  Outputs are deterministic raw masks plus
+`data/lcs_overlay_config.tsv`, `data/lcs_overlay_candidates.tsv`,
+`data/lcs_overlay_summary.tsv`, and
+`figures/lcs_overlay_{tint,river}.{png,pdf}`.  Entry points are
+`mmca.experiments.lcs-overlays` and `scripts/plot_lcs_overlays.py`.

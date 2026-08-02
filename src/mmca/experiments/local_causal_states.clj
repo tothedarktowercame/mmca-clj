@@ -86,13 +86,13 @@
 (defn- genotype-future-cone [run t i]
   (c/rule-bits (nth (nth (:gen run) (inc t)) i)))
 
-(defn- genotype-field-samples
-  "Build the same genotype-layer lightcones used by E5 from supplied runs.
+(defn- field-future-cone [run t i future-layer]
+  (case future-layer
+    :genotype (genotype-future-cone run t i)
+    :joint (future-cone run t i)))
 
-  `runs` maps integer seed IDs to maps containing a rectangular `:gen` field.
-  Keeping the seed IDs on each row is important: model selection below uses
-  the unchanged E5 seed-held-out folds."
-  [runs depth {:keys [seeds width steps burn-in]}]
+(defn- supplied-field-samples
+  [runs depth layer future-layer {:keys [seeds width steps burn-in]}]
   (let [margin depth]
     (vec
      (for [seed seeds
@@ -102,8 +102,19 @@
        {:seed seed
         :t t
         :i i
-        :past (past-cone run t i depth :genotype)
-        :future (genotype-future-cone run t i)}))))
+        :past (past-cone run t i depth layer)
+        :future (field-future-cone run t i future-layer)}))))
+
+(defn- genotype-field-samples
+  "Build the same genotype-layer lightcones used by E5 from supplied runs.
+
+  `runs` maps integer seed IDs to maps containing a rectangular `:gen` field.
+  Keeping the seed IDs on each row is important: model selection below uses
+  the unchanged E5 seed-held-out folds."
+  [runs depth {:keys [seeds width steps burn-in]}]
+  (supplied-field-samples runs depth :genotype :genotype
+                          {:seeds seeds :width width :steps steps
+                           :burn-in burn-in}))
 
 (defn- fit-naive-bayes
   "Fit independent Bernoulli targets with Bernoulli feature likelihoods."
@@ -305,6 +316,18 @@
     {:selected (first (sort-by (juxt :loss :depth :tolerance) candidates))
      :candidates candidates}))
 
+(defn- select-supplied-field-model
+  [runs layer future-layer config]
+  (let [candidates
+        (vec
+         (mapcat (fn [depth]
+                   (candidate-scores
+                    (supplied-field-samples runs depth layer future-layer config)
+                    depth config))
+                 (:depths config)))]
+    {:selected (first (sort-by (juxt :loss :depth :tolerance) candidates))
+     :candidates candidates}))
+
 (defn- background-states [classified background-mass]
   (let [frequencies (frequencies (map :state classified))
         target (* background-mass (count classified))]
@@ -402,6 +425,77 @@
      :state-count (count states)
      :background-state-count (count background)
      :per-seed per-seed}))
+
+(defn reconstruct-target-fields
+  "Fit held-out-selected local causal states on TRAINING-RUNS, then classify
+  separate TARGET-RUNS without reselecting or refitting on the display fields.
+
+  LAYER is the past-lightcone layer (`:genotype` or `:joint`) and FUTURE-LAYER
+  is the predicted future (`:genotype` or `:joint`). TRAINING-CONFIG supplies
+  the seed-held-out selection grid. TARGET-CONFIG supplies the exact width,
+  steps, and burn-in of every target run; its `:seeds` are target identifiers.
+  The returned coherent coordinates use `[t i]` in each target's native field."
+  [training-runs target-runs layer future-layer training-config target-config]
+  (let [selection (select-supplied-field-model training-runs layer future-layer
+                                                training-config)
+        {:keys [depth tolerance] :as selected} (:selected selection)
+        training-rows (supplied-field-samples training-runs depth layer
+                                               future-layer training-config)
+        model (fit-naive-bayes training-rows)
+        states (fit-states model training-rows tolerance (:alpha training-config))
+        classified-training
+        (mapv (fn [row]
+                (assoc row :state
+                       (signature (predict model (:past row)
+                                           (:alpha training-config))
+                                  tolerance)))
+              training-rows)
+        background (background-states classified-training
+                                      (:background-mass training-config))
+        target-rows (supplied-field-samples target-runs depth layer future-layer
+                                            target-config)
+        classified-targets
+        (mapv (fn [row]
+                (assoc row :state
+                       (signature (predict model (:past row)
+                                           (:alpha training-config))
+                                  tolerance)))
+              target-rows)
+        candidate-rows (remove #(contains? background (:state %))
+                               classified-targets)
+        per-target
+        (into {}
+              (for [target (:seeds target-config)
+                    :let [candidate-points
+                          (->> candidate-rows
+                               (filter #(= target (:seed %)))
+                               (map (juxt :seed :t :i)))
+                          retained-components
+                          (->> (components candidate-points)
+                               (filter #(>= (count %)
+                                            (:minimum-structure-size
+                                             training-config)))
+                               vec)
+                          coherent-points
+                          (set (map (fn [[_ t i]] [t i])
+                                    (mapcat seq retained-components)))]]
+                [target {:candidate-point-count (count candidate-points)
+                         :structure-count (count retained-components)
+                         :coherent-point-count (count coherent-points)
+                         :coherent-points coherent-points}]))]
+    {:config {:layer layer
+              :future-layer future-layer
+              :training (select-keys training-config
+                                     [:seeds :width :steps :burn-in :folds
+                                      :depths :tolerances :alpha
+                                      :background-mass :minimum-structure-size])
+              :target (select-keys target-config
+                                   [:seeds :width :steps :burn-in])}
+     :selected selected
+     :candidates (:candidates selection)
+     :state-count (count states)
+     :background-state-count (count background)
+     :per-target per-target}))
 
 (defn- reconstruction
   [engine layer {:keys [depth tolerance]} config]

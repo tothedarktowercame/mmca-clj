@@ -1,0 +1,5 @@
+analysis-seed	dataset	layer	future-layer	training-seeds	training-width	training-steps	training-burn-in	target-seed	target-width	target-steps	selected-depth	selected-tolerance	held-out-loss	held-out-n	state-count	background-state-count	candidate-points	coherent-points	structures
+20260802	offset1	genotype	genotype	0,1,2,3,4,5	64	120	20	1	256	600	1	0.1	1.5585099461617553	37200	13506	6066	46720	45076	550
+20260802	two4cyc	genotype	genotype	0,1,2,3,4,5	64	120	20	1	256	600	1	0.1	1.5388387350505692	37200	6072	472	26572	25968	254
+20260802	sigma16250374	genotype	genotype	0,1,2,3,4,5	64	120	20	1	256	600	1	0.1	1.699014399393149	37200	4533	215	24427	23341	476
+20260802	river	joint	joint	0,1,2,3,4,5	40	56	12	1	240	360	1	0.1	1.004979841054158	10032	6167	4161	52384	52000	171

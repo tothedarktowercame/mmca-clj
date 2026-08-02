@@ -53,3 +53,26 @@
     (is (= [1.0118580712803833 1.0742177148577066 1.22249969943066
             1.9844235184525272 1.9969901320483827 2.03263068003497]
            (mapv :loss (:candidates result))))))
+
+(deftest held-out-model-classifies-separate-target-deterministically
+  (let [training-runs
+        (into {}
+              (for [seed (:seeds test-config)]
+                [seed (c/run-propagator (:writing test-config) seed
+                                        (:width test-config)
+                                        (:steps test-config))]))
+        target-config (assoc test-config :seeds [7] :width 12 :steps 8)
+        target-runs
+        {7 (c/run-propagator (:writing test-config) 7
+                             (:width target-config) (:steps target-config))}
+        reconstruct
+        #(lcs/reconstruct-target-fields
+          training-runs target-runs :genotype :genotype
+          test-config target-config)
+        once (reconstruct)]
+    (is (= once (reconstruct)))
+    (is (= #{7} (set (keys (:per-target once)))))
+    (is (every? (fn [[t i]]
+                  (and (<= 0 t (dec (:steps target-config)))
+                       (<= 0 i (dec (:width target-config)))))
+                (get-in once [:per-target 7 :coherent-points])))))
