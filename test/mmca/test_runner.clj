@@ -15,6 +15,7 @@
             [mmca.hinton-nowlan-test]
             [mmca.baldwin-artifacts-test]
             [mmca.baldwin-guidance-test]
+            [mmca.baldwin-masking-intervention-test]
             [mmca.baldwin-mechanism-test]
             [mmca.baldwin-preregistration-test]
             [mmca.baldwin-selection-test]
@@ -33,6 +34,7 @@
                         'mmca.hinton-nowlan-test
                         'mmca.baldwin-artifacts-test
                         'mmca.baldwin-guidance-test
+                        'mmca.baldwin-masking-intervention-test
                         'mmca.baldwin-mechanism-test
                         'mmca.baldwin-preregistration-test
                         'mmca.baldwin-selection-test
