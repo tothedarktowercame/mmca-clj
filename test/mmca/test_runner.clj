@@ -17,6 +17,7 @@
             [mmca.baldwin-guidance-test]
             [mmca.baldwin-masking-intervention-test]
             [mmca.baldwin-masking-preregistration-test]
+            [mmca.baldwin-masking-six-arm-test]
             [mmca.baldwin-mechanism-test]
             [mmca.baldwin-preregistration-test]
             [mmca.baldwin-selection-test]
@@ -37,6 +38,7 @@
                         'mmca.baldwin-guidance-test
                         'mmca.baldwin-masking-intervention-test
                         'mmca.baldwin-masking-preregistration-test
+                        'mmca.baldwin-masking-six-arm-test
                         'mmca.baldwin-mechanism-test
                         'mmca.baldwin-preregistration-test
                         'mmca.baldwin-selection-test
