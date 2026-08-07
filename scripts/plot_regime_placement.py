@@ -2,8 +2,10 @@
 
 Rows are not "our systems vs theirs" but a statement about coupling. Every
 construction whose genotype update never reads the phenotype is feedforward: a
-phenotype perturbation cannot reach the rule field, and none of them clears the
-bottom of the complex band. Every construction whose genotype update does read
+phenotype perturbation cannot reach the rule field, and none of them clears rule 90.
+The shaded intervals are named for the reference rules that bound them, NOT for
+Wolfram classes: rule 90 is class III and sits at 8.00, so this axis does not order
+by class and no regime is asserted by a position on it. Every construction whose genotype update does read
 the phenotype -- the river, and the conservative phenotype-gated transport --
 lands well inside it. One protocol throughout: L=80, t*=60, single phenotype
 flip, damaged phenotype cells at dt=59.
@@ -25,7 +27,7 @@ fig, ax = plt.subplots(figsize=(12.6, 3.9))
 ax.axvspan(0.02, 8.0, color="#dce8f5", alpha=.75, zorder=0)
 ax.axvspan(8.0, 22.0, color="#e6f2e0", alpha=.85, zorder=0)
 ax.axvspan(22.0, 60, color="#f9e0dc", alpha=.75, zorder=0)
-for x, lab, col in ((0.7, "ordered", "#31567d"), (13.0, "complex", "#3d6b2c"), (36, "chaotic", "#8d3a2f")):
+for x, lab, col in ((0.7, "below rule 90", "#31567d"), (13.0, "rules 90-54", "#3d6b2c"), (36, "above rule 54", "#8d3a2f")):
     ax.text(x, 3.62, lab, ha="center", fontsize=10.5, style="italic", color=col)
 
 DY = {"rule 110": 25, "rule 54": 12}
@@ -61,7 +63,7 @@ ax.set_xlabel("causal reach: mean damaged phenotype cells at $dt=59$   ($L=80$, 
 ax.set_xticks([0.1, 0.3, 1, 3, 10, 30]); ax.set_xticklabels(["0.1", "0.3", "1", "3", "10", "30"])
 ax.grid(axis="x", alpha=.3); ax.set_axisbelow(True)
 for sp in ("top", "right", "left"): ax.spines[sp].set_visible(False)
-fig.suptitle("What separates ordered from complex behaviour is the feedback edge, not any parameter", fontsize=11.5)
+fig.suptitle("What moves causal reach is the feedback edge, not any parameter tested", fontsize=11.5)
 for ext in ("png", "pdf"):
     fig.savefig(f"figures/regime_placement.{ext}", dpi=150, bbox_inches="tight")
 print("wrote figures/regime_placement.{png,pdf}")
