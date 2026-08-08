@@ -5,3 +5,6 @@
 /figures/*.png
 __pycache__/
 holes/E2b-offset2-checkpoint.edn
+
+# Pinned plotting environment (rebuild from requirements-figures.txt)
+.venv-figures/
