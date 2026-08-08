@@ -1,0 +1,89 @@
+;; PREREGISTRATION — interface abundance as a local, single-trajectory detector
+;; of frozen/live coexistence.
+;;
+;; WRITTEN BEFORE THE DATA EXISTS. 26 of the 35 grid cells have never been
+;; generated at 3000 steps. This file is committed before they are, so the
+;; predictions below cannot be edited to fit what comes back.
+;;
+;; Provenance of the hypothesis (this is NOT independent evidence):
+;;   Joe identified the visual cue by eye on FIG-marked-nodes.png -- live
+;;   structure eroding a frozen region from both sides. claude-14 formalised it
+;;   POST-HOC on 5 sheets and got an interior maximum. That fit is the
+;;   hypothesis, not a result. This is its first prospective test.
+
+{:kind :interface-abundance-prereg
+ :date "2026-08-08"
+ :authors ["joe" "claude-14"]
+
+ ;; ---------------------------------------------------------------- statistic
+ :statistic
+ {:name :interface-density
+  :frozen-definition "cell unchanged for w=15 consecutive steps"
+  :interface-definition "cell whose frozen-bit differs from its left OR right
+                         neighbour's; the two lattice edges are excluded"
+  :S "mean interface density over the LAST 500 steps of a 3000-step run"
+  :locality "computable by a cell from its own 15-step history plus its two
+             neighbours' frozen bits. No twin run, no global view, no
+             region drawn from the quantity being measured."}
+
+ ;; ------------------------------------------------------------------ grid
+ :grid {:beta [1 2 4 8 16 32 64]
+        :kappa [0 0.1 0.2 0.5 1]
+        :cells 35
+        :seed 2026102000
+        :steps 3000
+        :already-generated ["2-0.0" "2-0.1" "4-0.0" "4-0.1" "4-0.2"
+                            "8-0.1" "16-0.1" "32-0.1" "64-0.1"]
+        :unseen 26}
+
+ ;; ------------------------------------------- the label S is tested against
+ ;; Computed from persistence and frozen fraction ONLY. S plays no part in it.
+ :coexistence-label
+ {:definition "(never absorbs by t=3000) AND (0.02 <= final frozen fraction <= 0.98)"
+  :rationale "excludes both failure modes independently of S: a run that dies
+              has no live phase, a run with no frozen field has no frozen phase.
+              Neither clause mentions interfaces."}
+
+ ;; ----------------------------------------------------------- PREDICTIONS
+ :predictions
+ [{:id :P1
+   :claim "S is near-zero for BOTH failure modes: absorbing cells and cells with
+           final frozen fraction < 0.02."
+   :threshold "S < 0.02 for every such cell"
+   :falsified-if "any absorbing or all-live cell has S >= 0.02"}
+
+  {:id :P2
+   :claim "S is high for coexistence-labelled cells."
+   :threshold "S >= 0.05 for every coexistence-labelled cell"
+   :falsified-if "any coexistence-labelled cell has S < 0.05"}
+
+  {:id :P3
+   :claim "S separates the two groups with no overlap -- min(S over coexistence)
+           exceeds max(S over non-coexistence)."
+   :falsified-if "the ranges overlap at all"}
+
+  {:id :P4
+   :claim "S is NOT a restatement of activity. Across cells, the correlation
+           between S and mean change-rate is negative."
+   :threshold "corr(S, activity) < 0"
+   :falsified-if "corr >= 0"}]
+
+ ;; ------------------------------------------------------------ what fails
+ :interpretation
+ {:if-all-hold "interface abundance is a local, single-trajectory detector of
+                coexistence, and is a candidate preference target for the AIF
+                engine -- the missing perceiver of project_exotype_xenotype."
+  :if-P3-fails-only "the statistic is informative but not a clean classifier;
+                     usable as a gradient, not as a gate."
+  :if-P1-or-P2-fails "the post-hoc fit on 5 sheets was overfitting. Say so and
+                      stop; do NOT rescue it by re-tuning w or the window."
+  :if-P4-fails "S is an activity proxy and adds nothing over measures already
+                tried."}
+
+ ;; --------------------------------------------------------------- discipline
+ :no-rescue-clause
+ "w=15 and the 500-step window are FIXED by this file. If the result is
+  negative, that is the result. Re-tuning either parameter after seeing the
+  data and re-reporting would make every number here meaningless -- this is
+  the same defect as the 250-step objective window that this project has
+  already documented ranking configurations inverted."}
