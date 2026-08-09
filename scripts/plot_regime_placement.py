@@ -12,6 +12,26 @@ flip, damaged phenotype cells at dt=59.
 """
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import numpy as np
+
+def field_rgb(tag, t0=40, t1=119):
+    """Composite RGB: white bg, phenotype grey, damage red (repo convention)."""
+    phe = [l.strip() for l in open(f"data/inset_{tag}_phe.txt")]
+    dmg = [l.split() for l in open(f"data/inset_{tag}_dmg.txt")]
+    H = t1 - t0 + 1; Wd = len(phe[0])
+    img = np.ones((H, Wd, 3))
+    for r in range(H):
+        t = t0 + r
+        row = phe[t]
+        for x in range(Wd):
+            if row[x] == "1":
+                img[r, x] = (0.80, 0.80, 0.80)
+        di = t if len(dmg) > 60 else t - 60
+        if 0 <= di < len(dmg):
+            for x in range(Wd):
+                if dmg[di][x] == "1":
+                    img[r, x] = (0.77, 0.15, 0.11)
+    return np.kron(img, np.ones((4, 4, 1)))
 
 ECA = [("rule 0", 0.00), ("rule 204", 1.00), ("rule 90", 8.00),
        ("rule 110", 16.68), ("rule 54", 18.30), ("rule 30", 36.45)]
@@ -23,7 +43,18 @@ FF = [("$P_a$ (bare)", 0.03), ("blend $1.00$", 0.03), ("braid $P_a$/two-4", 0.12
       ("river, edge cut", 5.51), ("blend $0.00$", 8.15)]
 FB = [("river construction", 12.97), ("transport $0.50$", 19.27), ("transport $1.00$", 25.38)]
 
-fig, ax = plt.subplots(figsize=(12.6, 3.9))
+fig = plt.figure(figsize=(15.6, 3.9))
+gs = fig.add_gridspec(2, 2, width_ratios=[10.4, 1.9], height_ratios=[1, 1],
+                      wspace=0.04, hspace=0.16)
+ax = fig.add_subplot(gs[:, 0])
+ax_live = fig.add_subplot(gs[0, 1]); ax_cut = fig.add_subplot(gs[1, 1])
+for a, tag, ttl in ((ax_live, "river", "river, live edge --- reach 12.97"),
+                    (ax_cut, "ablated", "edge cut --- reach 5.51")):
+    a.imshow(field_rgb(tag), aspect="equal", interpolation="nearest")
+    a.set_xticks([]); a.set_yticks([])
+    a.set_title(ttl, fontsize=7.6, color="#c44e52", pad=2.5)
+    for sp in a.spines.values(): sp.set_color("#c44e52"); sp.set_linewidth(1.2)
+ax_cut.set_xlabel("one flip at $t^*$, damage in red", fontsize=7.2, color="#666")
 ax.axvspan(0.02, 8.0, color="#dce8f5", alpha=.75, zorder=0)
 ax.axvspan(8.0, 22.0, color="#e6f2e0", alpha=.85, zorder=0)
 ax.axvspan(22.0, 60, color="#f9e0dc", alpha=.75, zorder=0)
@@ -51,8 +82,8 @@ for n, v in FB:
                 ha="center", fontsize=8.4, color="#c44e52", weight="bold")
 ax.annotate("", xy=(12.97, 1.42), xytext=(8.15, 1.82),
             arrowprops=dict(arrowstyle="->", color="#8d3a2f", lw=1.5))
-ax.text(10.2, 1.62, "adding the edge", fontsize=8.2, color="#8d3a2f",
-        style="italic", ha="center", rotation=18)
+ax.text(10.3, 1.80, "adding the edge", fontsize=8.2, color="#8d3a2f",
+        style="italic", ha="center", rotation=-14)
 
 ax.set_xscale("symlog", linthresh=1.0, linscale=0.7)
 ax.set_xlim(0.02, 60); ax.set_ylim(0.30, 3.95)
