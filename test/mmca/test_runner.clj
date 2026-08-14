@@ -16,6 +16,7 @@
             [mmca.baldwin-artifacts-test]
             [mmca.baldwin-guidance-test]
             [mmca.apm-demonstration-preregistration-test]
+            [mmca.apm-cycle-harness-test]
             [mmca.baldwin-masking-intervention-test]
             [mmca.baldwin-masking-preregistration-test]
             [mmca.baldwin-masking-six-arm-test]
@@ -39,6 +40,7 @@
                         'mmca.baldwin-artifacts-test
                         'mmca.baldwin-guidance-test
                         'mmca.apm-demonstration-preregistration-test
+                        'mmca.apm-cycle-harness-test
                         'mmca.baldwin-masking-intervention-test
                         'mmca.baldwin-masking-preregistration-test
                         'mmca.baldwin-masking-six-arm-test
