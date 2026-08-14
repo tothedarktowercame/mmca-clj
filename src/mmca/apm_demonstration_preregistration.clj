@@ -35,12 +35,14 @@
    :structural-invariants :runtime-invariants :problem :variation
    :claim :arms :replication-stage :pilot-units :confirmation-units
    :estimated-cost :budget-cap :teardown-deadline :stop-rules :decision-rule
-   :required-capabilities :required-measurement-fields])
+   :required-capabilities :required-measurement-fields :reg/role-cards])
 
 (def required-trace-keys
   [:problem :frame :launch-gate-refused-without-witness? :cycle-closed?
-   :disposition-ids :memory-offer-ids :memory-disposition-offer-ids
-   :stratum-frozen-at :assigned-at :comparison-regimes
+   :disposition-ids :memory-offers :memory-disposition-offer-ids
+   :stratum-frozen-at :assigned-at :cycle/attempts :cycle/mode
+   :cycle/deposit-state :cycle/paired-with :cycle/store-snapshot-id
+   :cycle/store-snapshot-memory-ids :cycle/window :proctor/dispatch-edges
    :denominator-declared? :denominator-inferred-from-corpus?
    :available-artifact-ids :need-probe-retrieved-ids :containment-claimed?
    :containment-probe-recorded? :containment-probe-passed?
@@ -67,6 +69,34 @@
 (defn probe? [x]
   (and (map? x) (keyword? (:capability x))
        (nonblank-string? (:evidence-id x)) (boolean? (:recorded? x))))
+
+(defn sha40? [x]
+  (and (string? x) (boolean (re-matches #"[0-9a-f]{40}" x))))
+
+(defn instant-string? [x]
+  (and (nonblank-string? x)
+       (try
+         (java.time.Instant/parse x)
+         true
+         (catch Exception _ false))))
+
+(defn attempt? [x]
+  (and (map? x)
+       (nonblank-string? (:cycle/regime x))
+       (sha40? (:cycle/store-revision x))
+       (sha40? (:cycle/harness-revision x))
+       (boolean? (:cycle/runner-freshness x))))
+
+(defn dispatch-edge? [x]
+  (and (map? x)
+       (nonblank-string? (:dispatch/from x))
+       (nonblank-string? (:dispatch/to x))
+       (instant-string? (:dispatch/at x))))
+
+(defn memory-offer? [x]
+  (and (map? x)
+       (nonblank-string? (:offer/id x))
+       (nonblank-string? (:offer/memory-id x))))
 
 (defn registration-shape-failures [registration]
   (if-not (map? registration)
@@ -97,7 +127,13 @@
                 (seq (get-in registration [:decision-rule :outcomes]))
                 (every? keyword? (get-in registration
                                          [:decision-rule :outcomes]))))
-      (conj :malformed-decision-rule))))
+      (conj :malformed-decision-rule)
+      (not (and (map? (:reg/role-cards registration))
+                (seq (:reg/role-cards registration))
+                (every? (fn [[role hash]]
+                          (and (keyword? role) (sha40? hash)))
+                        (:reg/role-cards registration))))
+      (conj :malformed-role-cards))))
 
 (defn trace-shape-failures [trace]
   (if-not (map? trace)
@@ -114,6 +150,32 @@
       (not (and (vector? (:capability-probes trace))
                 (every? probe? (:capability-probes trace))))
       (conj :malformed-capability-probes)
+      (not (and (vector? (:cycle/attempts trace))
+                (seq (:cycle/attempts trace))
+                (every? attempt? (:cycle/attempts trace))))
+      (conj :malformed-cycle-attempts)
+      (not (#{:store-mode :harness-mode} (:cycle/mode trace)))
+      (conj :malformed-cycle-mode)
+      (not (#{:with-deposit :without-deposit :n/a}
+             (:cycle/deposit-state trace)))
+      (conj :malformed-deposit-state)
+      (not (or (nil? (:cycle/paired-with trace))
+               (nonblank-string? (:cycle/paired-with trace))))
+      (conj :malformed-paired-with)
+      (not (nonblank-string? (:cycle/store-snapshot-id trace)))
+      (conj :malformed-store-snapshot-id)
+      (not (string-vector? (:cycle/store-snapshot-memory-ids trace)))
+      (conj :malformed-store-snapshot-membership)
+      (not (and (map? (:cycle/window trace))
+                (instant-string? (get-in trace [:cycle/window :opened-at]))
+                (instant-string? (get-in trace [:cycle/window :closed-at]))))
+      (conj :malformed-cycle-window)
+      (not (and (vector? (:proctor/dispatch-edges trace))
+                (every? dispatch-edge? (:proctor/dispatch-edges trace))))
+      (conj :malformed-dispatch-edges)
+      (not (and (vector? (:memory-offers trace))
+                (every? memory-offer? (:memory-offers trace))))
+      (conj :malformed-memory-offers)
       (not (and (map? (:measurement trace))
                 (map? (get-in trace [:measurement :meas/values]))
                 (every? string? (keys (get-in trace
@@ -194,6 +256,29 @@
     (concat (keys (:meas/values measurement))
             (keys (:meas/unset measurement)))))
 
+(defn memory-offer-ids [trace]
+  (map :offer/id (:memory-offers trace)))
+
+(defn surfaced-memory-ids [trace]
+  (map :offer/memory-id (:memory-offers trace)))
+
+(defn attempt-values [trace field]
+  (map field (:cycle/attempts trace)))
+
+(defn direct-channel-inside-window? [trace]
+  (let [{:keys [opened-at closed-at]} (:cycle/window trace)]
+    (try
+      (let [opened (java.time.Instant/parse opened-at)
+            closed (java.time.Instant/parse closed-at)]
+        (some (fn [edge]
+                (let [at (java.time.Instant/parse (:dispatch/at edge))]
+                  (and (str/starts-with? (:dispatch/from edge) "claude-")
+                       (str/starts-with? (:dispatch/to edge) "zai-")
+                       (not (.isBefore at opened))
+                       (not (.isAfter at closed)))))
+              (:proctor/dispatch-edges trace)))
+      (catch Exception _ false))))
+
 (defn capability-holds? [capability trace]
   (case capability
     :registration-gates-launch (:launch-gate-refused-without-witness? trace)
@@ -207,7 +292,7 @@
     :unique-disposition
     (or (not (:cycle-closed? trace)) (exactly-one? (:disposition-ids trace)))
     :offer-use-disposition
-    (subset? (:memory-offer-ids trace) (:memory-disposition-offer-ids trace))
+    (subset? (memory-offer-ids trace) (:memory-disposition-offer-ids trace))
     :need-retrieval
     (subset? (:available-artifact-ids trace) (:need-probe-retrieved-ids trace))
     :promotion-importable
@@ -236,15 +321,30 @@
       (conj :f1-scaffold-identical-frame)
       (and (:cycle-closed? trace) (not (exactly-one? (:disposition-ids trace))))
       (conj :f2-non-unique-disposition)
-      (not (subset? (:memory-offer-ids trace)
+      (not (subset? (memory-offer-ids trace)
                     (:memory-disposition-offer-ids trace)))
       (conj :f3-undispositioned-offer)
       (not (and (integer? (:stratum-frozen-at trace))
                 (integer? (:assigned-at trace))
                 (< (:stratum-frozen-at trace) (:assigned-at trace))))
       (conj :f4-stratum-not-frozen-before-assignment)
-      (> (count (distinct (:comparison-regimes trace))) 1)
+      (> (count (distinct (attempt-values trace :cycle/regime))) 1)
       (conj :f5-multiple-comparison-regimes)
+      (and (= :harness-mode (:cycle/mode trace))
+           (not (subset? (surfaced-memory-ids trace)
+                         (:cycle/store-snapshot-memory-ids trace))))
+      (conj :new-memory-in-harness-round)
+      (and (= :store-mode (:cycle/mode trace))
+           (> (count (distinct
+                      (attempt-values trace :cycle/harness-revision))) 1))
+      (conj :harness-changed-in-store-round)
+      (and (> (count (distinct
+                      (attempt-values trace :cycle/store-revision))) 1)
+           (> (count (distinct
+                      (attempt-values trace :cycle/harness-revision))) 1))
+      (conj :both-channels-varied)
+      (direct-channel-inside-window? trace)
+      (conj :direct-channel-used)
       (or (not (:denominator-declared? trace))
           (:denominator-inferred-from-corpus? trace))
       (conj :f6-denominator-not-preregistered)

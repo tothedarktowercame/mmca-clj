@@ -31,7 +31,22 @@
    :stop-rules [:caller-supplied]
    :decision-rule {:id :caller-supplied :outcomes [:caller-supplied]}
    :required-capabilities prereg/required-capabilities
-   :required-measurement-fields prereg/required-measurement-fields})
+   :required-measurement-fields prereg/required-measurement-fields
+   :reg/role-cards {:solver prereg/required-lean-revision
+                    :adjudicator prereg/required-lean-revision}})
+
+(def revision-a "1111111111111111111111111111111111111111")
+(def revision-b "2222222222222222222222222222222222222222")
+
+(def attempts
+  [{:cycle/regime "regime/a"
+    :cycle/store-revision revision-a
+    :cycle/harness-revision revision-a
+    :cycle/runner-freshness true}
+   {:cycle/regime "regime/a"
+    :cycle/store-revision revision-a
+    :cycle/harness-revision revision-a
+    :cycle/runner-freshness true}])
 
 (def trace
   {:problem problem
@@ -39,11 +54,19 @@
    :launch-gate-refused-without-witness? true
    :cycle-closed? true
    :disposition-ids ["terminal"]
-   :memory-offer-ids ["offer"]
+   :memory-offers [{:offer/id "offer" :offer/memory-id "memory/known"}]
    :memory-disposition-offer-ids ["offer"]
    :stratum-frozen-at 1
    :assigned-at 2
-   :comparison-regimes ["caller-supplied"]
+   :cycle/attempts attempts
+   :cycle/mode :harness-mode
+   :cycle/deposit-state :n/a
+   :cycle/paired-with nil
+   :cycle/store-snapshot-id "snapshot/round-open"
+   :cycle/store-snapshot-memory-ids ["memory/known"]
+   :cycle/window {:opened-at "2026-08-14T12:00:00Z"
+                  :closed-at "2026-08-14T13:00:00Z"}
+   :proctor/dispatch-edges []
    :denominator-declared? true
    :denominator-inferred-from-corpus? false
    :available-artifact-ids ["artifact"]
@@ -85,7 +108,7 @@
            [:f4-stratum-not-frozen-before-assignment
             (assoc trace :assigned-at 1)]
            [:f5-multiple-comparison-regimes
-            (assoc trace :comparison-regimes ["a" "b"])]
+            (assoc-in trace [:cycle/attempts 1 :cycle/regime] "regime/b")]
            [:f6-denominator-not-preregistered
             (assoc trace :denominator-declared? false)]
            [:f7-missed-available-artifact
@@ -110,7 +133,8 @@
   (let [failures (checked (assoc registration :estimated-cost 2)
                           (-> trace
                               (assoc :denominator-declared? false)
-                              (assoc :comparison-regimes ["a" "b"])))]
+                              (assoc-in [:cycle/attempts 1 :cycle/regime]
+                                        "regime/b")))]
     (is (every? (set failures)
                 [:over-budget :f5-multiple-comparison-regimes
                  :f6-denominator-not-preregistered]))))
@@ -130,3 +154,34 @@
     (is (empty? (checked registration honest-trace)))
     (is (= "deferred to pilot observation"
            (get-in honest-trace [:measurement :meas/unset field])))))
+
+(deftest harness-round-refuses-memory-outside-round-open-snapshot
+  (let [bad-trace (assoc-in trace [:memory-offers 0 :offer/memory-id]
+                            "memory/created-during-round")]
+    (is (some #{:new-memory-in-harness-round}
+              (checked registration bad-trace)))))
+
+(deftest store-round-refuses-changing-harness-revision
+  (let [bad-trace (-> trace
+                      (assoc :cycle/mode :store-mode)
+                      (assoc-in [:cycle/attempts 1 :cycle/harness-revision]
+                                revision-b))]
+    (is (some #{:harness-changed-in-store-round}
+              (checked registration bad-trace)))))
+
+(deftest cycle-refuses-direct-claude-to-zai-channel
+  (let [bad-trace (assoc trace :proctor/dispatch-edges
+                         [{:dispatch/from "claude-2"
+                           :dispatch/to "zai-1"
+                           :dispatch/at "2026-08-14T12:30:00Z"}])]
+    (is (some #{:direct-channel-used}
+              (checked registration bad-trace)))))
+
+(deftest cycle-refuses-both-revision-sequences-changing
+  (let [bad-trace (-> trace
+                      (assoc-in [:cycle/attempts 1 :cycle/store-revision]
+                                revision-b)
+                      (assoc-in [:cycle/attempts 1 :cycle/harness-revision]
+                                revision-b))]
+    (is (some #{:both-channels-varied}
+              (checked registration bad-trace)))))
