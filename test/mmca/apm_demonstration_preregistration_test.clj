@@ -1,6 +1,8 @@
 (ns mmca.apm-demonstration-preregistration-test
   (:require [clojure.test :refer [deftest is testing]]
-            [mmca.apm-demonstration-preregistration :as prereg]))
+            [mmca.apm-demonstration-preregistration :as prereg])
+  (:import [com.sun.net.httpserver HttpHandler HttpServer]
+           [java.net InetSocketAddress]))
 
 (def problem
   {:problem-id "round-1-problem-not-yet-selected"
@@ -66,7 +68,6 @@
    :cycle/store-snapshot-memory-ids ["memory/known"]
    :cycle/window {:opened-at "2026-08-14T12:00:00Z"
                   :closed-at "2026-08-14T13:00:00Z"}
-   :proctor/dispatch-edges []
    :denominator-declared? true
    :denominator-inferred-from-corpus? false
    :available-artifact-ids ["artifact"]
@@ -90,7 +91,8 @@
    :need-tagged-promoted-artifact-ids ["promotion"]})
 
 (defn checked [registration trace]
-  (prereg/failures registration trace prereg/required-lean-revision :observed))
+  (prereg/failures registration trace prereg/required-lean-revision
+                   {:status :ok :jobs []} :observed))
 
 (deftest aligned-positive-witness-is-launchable
   (is (empty? (checked registration trace))))
@@ -127,6 +129,7 @@
   (is (some #{:stale-lean-revision}
             (prereg/failures registration trace
                             "0000000000000000000000000000000000000000"
+                            {:status :ok :jobs []}
                             :observed))))
 
 (deftest all-failures-are-returned-together
@@ -169,13 +172,44 @@
     (is (some #{:harness-changed-in-store-round}
               (checked registration bad-trace)))))
 
-(deftest cycle-refuses-direct-claude-to-zai-channel
-  (let [bad-trace (assoc trace :proctor/dispatch-edges
-                         [{:dispatch/from "claude-2"
-                           :dispatch/to "zai-1"
-                           :dispatch/at "2026-08-14T12:30:00Z"}])]
-    (is (some #{:direct-channel-used}
-              (checked registration bad-trace)))))
+(defn with-job-server [status body f]
+  (let [server (HttpServer/create (InetSocketAddress. 0) 0)]
+    (.createContext
+     server "/jobs"
+     (reify HttpHandler
+       (handle [_ exchange]
+         (let [bytes (.getBytes body "UTF-8")]
+           (.sendResponseHeaders exchange status (count bytes))
+           (with-open [output (.getResponseBody exchange)]
+             (.write output bytes))))))
+    (.start server)
+    (try
+      (f (str "http://127.0.0.1:" (.getPort (.getAddress server)) "/jobs"))
+      (finally (.stop server 0)))))
+
+(deftest agency-log-refuses-direct-claude-to-zai-channel
+  (with-job-server
+    200
+    "{\"jobs\":[{\"caller\":\"claude-2\",\"agent-id\":\"zai-1\",\"created-at\":\"2026-08-14T12:30:00Z\"}]}"
+    (fn [endpoint]
+      (let [evidence (prereg/fetch-agency-jobs endpoint)
+            failures (prereg/failures registration trace
+                                      prereg/required-lean-revision
+                                      evidence :observed)]
+        (is (= :ok (:status evidence)))
+        (is (some #{:direct-channel-used} failures))))))
+
+(deftest unavailable-agency-log-is-not-clean-evidence
+  (with-job-server
+    503 "{}"
+    (fn [endpoint]
+      (let [evidence (prereg/fetch-agency-jobs endpoint)
+            failures (prereg/failures registration trace
+                                      prereg/required-lean-revision
+                                      evidence :observed)]
+        (is (= :unavailable (:status evidence)))
+        (is (some #{:direct-channel-evidence-unavailable} failures))
+        (is (not (some #{:direct-channel-used} failures)))))))
 
 (deftest cycle-refuses-both-revision-sequences-changing
   (let [bad-trace (-> trace

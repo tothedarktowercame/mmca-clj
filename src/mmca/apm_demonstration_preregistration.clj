@@ -3,8 +3,12 @@
   DarkTower.APMDemonstration.round1Registration.  This is not a generator or
   a formal Lean-to-Clojure projection."
   (:require [clojure.edn :as edn]
+            [clojure.data.json :as json]
             [clojure.java.shell :as shell]
-            [clojure.string :as str]))
+            [clojure.string :as str])
+  (:import [java.net URI]
+           [java.net.http HttpClient HttpRequest HttpResponse$BodyHandlers]
+           [java.time Duration]))
 
 (def required-lean-revision "d0623df8992ec23c7c647cf30eac014221bbdb2d")
 (def required-lean-source "DarkTower/APMDemonstrationPreregistration.lean")
@@ -42,7 +46,7 @@
    :disposition-ids :memory-offers :memory-disposition-offer-ids
    :stratum-frozen-at :assigned-at :cycle/attempts :cycle/mode
    :cycle/deposit-state :cycle/paired-with :cycle/store-snapshot-id
-   :cycle/store-snapshot-memory-ids :cycle/window :proctor/dispatch-edges
+   :cycle/store-snapshot-memory-ids :cycle/window
    :denominator-declared? :denominator-inferred-from-corpus?
    :available-artifact-ids :need-probe-retrieved-ids :containment-claimed?
    :containment-probe-recorded? :containment-probe-passed?
@@ -86,12 +90,6 @@
        (sha40? (:cycle/store-revision x))
        (sha40? (:cycle/harness-revision x))
        (boolean? (:cycle/runner-freshness x))))
-
-(defn dispatch-edge? [x]
-  (and (map? x)
-       (nonblank-string? (:dispatch/from x))
-       (nonblank-string? (:dispatch/to x))
-       (instant-string? (:dispatch/at x))))
 
 (defn memory-offer? [x]
   (and (map? x)
@@ -170,9 +168,6 @@
                 (instant-string? (get-in trace [:cycle/window :opened-at]))
                 (instant-string? (get-in trace [:cycle/window :closed-at]))))
       (conj :malformed-cycle-window)
-      (not (and (vector? (:proctor/dispatch-edges trace))
-                (every? dispatch-edge? (:proctor/dispatch-edges trace))))
-      (conj :malformed-dispatch-edges)
       (not (and (vector? (:memory-offers trace))
                 (every? memory-offer? (:memory-offers trace))))
       (conj :malformed-memory-offers)
@@ -265,18 +260,46 @@
 (defn attempt-values [trace field]
   (map field (:cycle/attempts trace)))
 
-(defn direct-channel-inside-window? [trace]
+(defn fetch-agency-jobs
+  "Read independently recorded dispatch jobs.  The complete endpoint,
+  including its caller-chosen limit, is an invocation input."
+  [endpoint]
+  (try
+    (let [client (-> (HttpClient/newBuilder)
+                     (.connectTimeout (Duration/ofSeconds 3))
+                     (.build))
+          request (-> (HttpRequest/newBuilder (URI/create endpoint))
+                      (.timeout (Duration/ofSeconds 5))
+                      (.GET)
+                      (.build))
+          response (.send client request (HttpResponse$BodyHandlers/ofString))]
+      (if (= 200 (.statusCode response))
+        (let [body (json/read-str (.body response) :key-fn keyword)]
+          (if (vector? (:jobs body))
+            {:status :ok :jobs (:jobs body)}
+            {:status :unavailable :reason :missing-jobs-array}))
+        {:status :unavailable :reason :http-status
+         :http-status (.statusCode response)}))
+    (catch Exception e
+      {:status :unavailable :reason :request-failed
+       :message (.getMessage e)})))
+
+(defn direct-channel-inside-window? [trace jobs]
   (let [{:keys [opened-at closed-at]} (:cycle/window trace)]
     (try
       (let [opened (java.time.Instant/parse opened-at)
             closed (java.time.Instant/parse closed-at)]
-        (some (fn [edge]
-                (let [at (java.time.Instant/parse (:dispatch/at edge))]
-                  (and (str/starts-with? (:dispatch/from edge) "claude-")
-                       (str/starts-with? (:dispatch/to edge) "zai-")
-                       (not (.isBefore at opened))
-                       (not (.isAfter at closed)))))
-              (:proctor/dispatch-edges trace)))
+        (some (fn [job]
+                (let [timestamp (or (:created-at job) (:started-at job))]
+                  (when (and (string? (:caller job))
+                             (string? (:agent-id job))
+                             (str/starts-with? (:caller job) "claude-")
+                             (str/starts-with? (:agent-id job) "zai-")
+                             (instant-string? timestamp))
+                    (let [at (java.time.Instant/parse timestamp)]
+                      (and (not (.isBefore at opened))
+                           (not (.isAfter at closed)))))))
+              jobs))
       (catch Exception _ false))))
 
 (defn capability-holds? [capability trace]
@@ -311,7 +334,7 @@
               (nonblank-string? (:evidence-id %)))
         (:capability-probes trace)))
 
-(defn trace-content-failures [registration trace]
+(defn trace-content-failures [registration trace agency-evidence]
   (let [caps (:required-capabilities registration)]
     (cond-> []
       (not= (:problem registration) (:problem trace))
@@ -343,7 +366,10 @@
            (> (count (distinct
                       (attempt-values trace :cycle/harness-revision))) 1))
       (conj :both-channels-varied)
-      (direct-channel-inside-window? trace)
+      (not= :ok (:status agency-evidence))
+      (conj :direct-channel-evidence-unavailable)
+      (and (= :ok (:status agency-evidence))
+           (direct-channel-inside-window? trace (:jobs agency-evidence)))
       (conj :direct-channel-used)
       (or (not (:denominator-declared? trace))
           (:denominator-inferred-from-corpus? trace))
@@ -370,11 +396,12 @@
       (conj :measurement-field-claimed-without-value))))
 
 (defn failures
-  "Return every distinct diagnostic.  The three-argument arity permits a
-  caller or test to supply the observed Lean source revision explicitly."
-  ([registration trace lean-repo]
-   (failures registration trace (lean-source-revision lean-repo) :observed))
-  ([registration trace actual-lean-revision _observed]
+  "Return every distinct diagnostic.  Tests may supply independently observed
+  source and Agency evidence explicitly; production callers supply endpoints."
+  ([registration trace lean-repo agency-endpoint]
+   (failures registration trace (lean-source-revision lean-repo)
+             (fetch-agency-jobs agency-endpoint) :observed))
+  ([registration trace actual-lean-revision agency-evidence _observed]
    (vec (distinct
          (concat (registration-shape-failures registration)
                  (trace-shape-failures trace)
@@ -382,11 +409,16 @@
                    (registration-content-failures registration
                                                   actual-lean-revision))
                  (when (and (map? registration) (map? trace))
-                   (trace-content-failures registration trace)))))))
+                   (trace-content-failures registration trace
+                                           agency-evidence)))))))
 
-(defn report [registration trace lean-repo]
-  (let [problems (failures registration trace lean-repo)]
+(defn report [registration trace lean-repo agency-endpoint]
+  (let [source-revision (lean-source-revision lean-repo)
+        agency-evidence (fetch-agency-jobs agency-endpoint)
+        problems (failures registration trace source-revision
+                           agency-evidence :observed)]
     {:kind :apm-demonstration-round1-validation
-     :lean-source-revision (lean-source-revision lean-repo)
+     :lean-source-revision source-revision
+     :direct-channel-evidence-status (:status agency-evidence)
      :failures problems
      :launchable? (empty? problems)}))
