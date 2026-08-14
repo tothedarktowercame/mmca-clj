@@ -58,7 +58,10 @@
             :recorded? true})
          prereg/required-capabilities)
    :required-measurement-fields prereg/required-measurement-fields
-   :populated-measurement-fields prereg/required-measurement-fields
+   :measurement
+   {:meas/values (into {} (map (fn [field] [field :observed])
+                               prereg/required-measurement-fields))
+    :meas/unset {}}
    :promoted-artifact-ids ["promotion"]
    :importable-promoted-artifact-ids ["promotion"]
    :need-tagged-promoted-artifact-ids ["promotion"]})
@@ -111,3 +114,19 @@
     (is (every? (set failures)
                 [:over-budget :f5-multiple-comparison-regimes
                  :f6-denominator-not-preregistered]))))
+
+(deftest claimed-measurement-fields-require-values
+  (let [bad-trace (assoc trace :measurement
+                         {:meas/values {} :meas/unset {}})]
+    (is (some #{:measurement-field-claimed-without-value}
+              (checked registration bad-trace)))))
+
+(deftest declared-unset-measurement-with-reason-is-valid
+  (let [field (first prereg/required-measurement-fields)
+        honest-trace (-> trace
+                         (update-in [:measurement :meas/values] dissoc field)
+                         (assoc-in [:measurement :meas/unset field]
+                                   "deferred to pilot observation"))]
+    (is (empty? (checked registration honest-trace)))
+    (is (= "deferred to pilot observation"
+           (get-in honest-trace [:measurement :meas/unset field])))))

@@ -45,7 +45,7 @@
    :available-artifact-ids :need-probe-retrieved-ids :containment-claimed?
    :containment-probe-recorded? :containment-probe-passed?
    :capability-probes :required-measurement-fields
-   :populated-measurement-fields :promoted-artifact-ids
+   :measurement :promoted-artifact-ids
    :importable-promoted-artifact-ids :need-tagged-promoted-artifact-ids])
 
 (defn read-edn [path]
@@ -114,6 +114,15 @@
       (not (and (vector? (:capability-probes trace))
                 (every? probe? (:capability-probes trace))))
       (conj :malformed-capability-probes)
+      (not (and (map? (:measurement trace))
+                (map? (get-in trace [:measurement :meas/values]))
+                (every? string? (keys (get-in trace
+                                              [:measurement :meas/values])))
+                (map? (get-in trace [:measurement :meas/unset]))
+                (every? (fn [[field reason]]
+                          (and (string? field) (nonblank-string? reason)))
+                        (get-in trace [:measurement :meas/unset]))))
+      (conj :malformed-measurement)
       (not (every? #(or (true? (get trace %)) (false? (get trace %)))
                    [:launch-gate-refused-without-witness? :cycle-closed?
                     :denominator-declared? :denominator-inferred-from-corpus?
@@ -180,6 +189,11 @@
 (defn exactly-one? [xs]
   (= 1 (count xs)))
 
+(defn measurement-fields [trace]
+  (let [measurement (:measurement trace)]
+    (concat (keys (:meas/values measurement))
+            (keys (:meas/unset measurement)))))
+
 (defn capability-holds? [capability trace]
   (case capability
     :registration-gates-launch (:launch-gate-refused-without-witness? trace)
@@ -204,7 +218,7 @@
              (:need-tagged-promoted-artifact-ids trace))
     :measurement-populated
     (subset? (:required-measurement-fields trace)
-             (:populated-measurement-fields trace))
+             (measurement-fields trace))
     false))
 
 (defn recorded-capability? [capability trace]
@@ -252,8 +266,8 @@
                     (:need-tagged-promoted-artifact-ids trace)))
       (conj :promotion-not-need-taggable)
       (not (subset? required-measurement-fields
-                    (:populated-measurement-fields trace)))
-      (conj :measurement-fields-incomplete))))
+                    (measurement-fields trace)))
+      (conj :measurement-field-claimed-without-value))))
 
 (defn failures
   "Return every distinct diagnostic.  The three-argument arity permits a
