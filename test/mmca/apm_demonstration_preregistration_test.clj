@@ -1,0 +1,113 @@
+(ns mmca.apm-demonstration-preregistration-test
+  (:require [clojure.test :refer [deftest is testing]]
+            [mmca.apm-demonstration-preregistration :as prereg]))
+
+(def problem
+  {:problem-id "round-1-problem-not-yet-selected"
+   :difficulty-stratum "caller-supplied"
+   :regime "caller-supplied"
+   :locked-lemma-exposure ["caller-supplied"]})
+
+(def registration
+  {:kind :apm-demonstration-round1-registration
+   :schema 1
+   :lean-registration prereg/required-lean-registration
+   :lean-source prereg/required-lean-source
+   :lean-revision prereg/required-lean-revision
+   :modules prereg/required-modules
+   :structural-invariants prereg/required-structural-invariants
+   :runtime-invariants prereg/required-runtime-invariants
+   :problem problem
+   :variation {:kind :controlled :endpoint "caller-supplied"}
+   :claim :descriptive
+   :arms [{:name "one problem, one-shot measurement"
+           :neutral? false :axes [] :role :treatment}]
+   :replication-stage :pilot
+   :pilot-units [problem]
+   :confirmation-units []
+   :estimated-cost 1
+   :budget-cap 1
+   :teardown-deadline nil
+   :stop-rules [:caller-supplied]
+   :decision-rule {:id :caller-supplied :outcomes [:caller-supplied]}
+   :required-capabilities prereg/required-capabilities
+   :required-measurement-fields prereg/required-measurement-fields})
+
+(def trace
+  {:problem problem
+   :frame {:scaffold-hash "scaffold" :closing-hash "closing"}
+   :launch-gate-refused-without-witness? true
+   :cycle-closed? true
+   :disposition-ids ["terminal"]
+   :memory-offer-ids ["offer"]
+   :memory-disposition-offer-ids ["offer"]
+   :stratum-frozen-at 1
+   :assigned-at 2
+   :comparison-regimes ["caller-supplied"]
+   :denominator-declared? true
+   :denominator-inferred-from-corpus? false
+   :available-artifact-ids ["artifact"]
+   :need-probe-retrieved-ids ["artifact"]
+   :containment-claimed? true
+   :containment-probe-recorded? true
+   :containment-probe-passed? true
+   :capability-probes
+   (mapv (fn [capability]
+           {:capability capability
+            :evidence-id (str "evidence/" (name capability))
+            :recorded? true})
+         prereg/required-capabilities)
+   :required-measurement-fields prereg/required-measurement-fields
+   :populated-measurement-fields prereg/required-measurement-fields
+   :promoted-artifact-ids ["promotion"]
+   :importable-promoted-artifact-ids ["promotion"]
+   :need-tagged-promoted-artifact-ids ["promotion"]})
+
+(defn checked [registration trace]
+  (prereg/failures registration trace prereg/required-lean-revision :observed))
+
+(deftest aligned-positive-witness-is-launchable
+  (is (empty? (checked registration trace))))
+
+(deftest structural-errors-are-not-misreported-as-content-errors
+  (let [failures (checked (dissoc registration :problem) trace)]
+    (is (some #{:registration-missing-required-key} failures))
+    (is (some #{:malformed-problem} failures))))
+
+(deftest every-runtime-invariant-has-a-named-failure
+  (doseq [[expected bad-trace]
+          [[:f2-non-unique-disposition (assoc trace :disposition-ids [])]
+           [:f3-undispositioned-offer
+            (assoc trace :memory-disposition-offer-ids [])]
+           [:f4-stratum-not-frozen-before-assignment
+            (assoc trace :assigned-at 1)]
+           [:f5-multiple-comparison-regimes
+            (assoc trace :comparison-regimes ["a" "b"])]
+           [:f6-denominator-not-preregistered
+            (assoc trace :denominator-declared? false)]
+           [:f7-missed-available-artifact
+            (assoc trace :need-probe-retrieved-ids [])]
+           [:f8-unwitnessed-containment
+            (assoc trace :containment-probe-recorded? false)]
+           [:f9-capability-probe-missing
+            (update trace :capability-probes pop)]]]
+    (testing (name expected)
+      (is (some #{expected} (checked registration bad-trace))))))
+
+(deftest f1-and-the-lean-pin-fail-loudly
+  (is (some #{:f1-scaffold-identical-frame}
+            (checked registration
+                     (assoc-in trace [:frame :closing-hash] "scaffold"))))
+  (is (some #{:stale-lean-revision}
+            (prereg/failures registration trace
+                            "0000000000000000000000000000000000000000"
+                            :observed))))
+
+(deftest all-failures-are-returned-together
+  (let [failures (checked (assoc registration :estimated-cost 2)
+                          (-> trace
+                              (assoc :denominator-declared? false)
+                              (assoc :comparison-regimes ["a" "b"])))]
+    (is (every? (set failures)
+                [:over-budget :f5-multiple-comparison-regimes
+                 :f6-denominator-not-preregistered]))))

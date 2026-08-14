@@ -15,6 +15,7 @@
             [mmca.hinton-nowlan-test]
             [mmca.baldwin-artifacts-test]
             [mmca.baldwin-guidance-test]
+            [mmca.apm-demonstration-preregistration-test]
             [mmca.baldwin-masking-intervention-test]
             [mmca.baldwin-masking-preregistration-test]
             [mmca.baldwin-masking-six-arm-test]
@@ -37,6 +38,7 @@
                         'mmca.hinton-nowlan-test
                         'mmca.baldwin-artifacts-test
                         'mmca.baldwin-guidance-test
+                        'mmca.apm-demonstration-preregistration-test
                         'mmca.baldwin-masking-intervention-test
                         'mmca.baldwin-masking-preregistration-test
                         'mmca.baldwin-masking-six-arm-test
