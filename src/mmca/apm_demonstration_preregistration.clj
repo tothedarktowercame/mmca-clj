@@ -39,7 +39,8 @@
    :structural-invariants :runtime-invariants :problem :variation
    :claim :arms :replication-stage :pilot-units :confirmation-units
    :estimated-cost :budget-cap :teardown-deadline :stop-rules :decision-rule
-   :required-capabilities :required-measurement-fields :reg/role-cards])
+   :required-capabilities :required-measurement-fields :reg/role-cards
+   :reg/solver-seat])
 
 (def required-trace-keys
   [:problem :frame :launch-gate-refused-without-witness? :cycle-closed?
@@ -317,15 +318,29 @@
                     jobs))
      (count (:memory-offers trace))))
 
-(defn guidance-observation [trace agency-evidence solver-seat]
-  (if (and (= :ok (:status agency-evidence))
-           (nonblank-string? solver-seat))
-    {:status :ok
-     :count (guidance-count trace (:jobs agency-evidence) solver-seat)}
-    {:status :unavailable
-     :reason (if (nonblank-string? solver-seat)
-               (:reason agency-evidence)
-               :missing-solver-seat)}))
+(defn guidance-observation
+  "Observe the guidance count, with the solver seat taken from the REGISTRATION.
+
+  The seat is a parameter of the measurement predicate, not a location like the
+  Lean repo or the Agency endpoint: choosing a different seat silently changes
+  what is counted.  So it is pinned before the round like `:lean-revision`, and
+  an invocation that names a different seat is a loud mismatch rather than a
+  silent retarget."
+  [registration trace agency-evidence invoked-seat]
+  (let [pinned (:reg/solver-seat registration)]
+    (cond
+      (not (nonblank-string? pinned))
+      {:status :unavailable :reason :missing-solver-seat}
+
+      (and (nonblank-string? invoked-seat) (not= invoked-seat pinned))
+      {:status :unavailable :reason :solver-seat-mismatch}
+
+      (not= :ok (:status agency-evidence))
+      {:status :unavailable :reason (:reason agency-evidence)}
+
+      :else
+      {:status :ok
+       :count (guidance-count trace (:jobs agency-evidence) pinned)})))
 
 (defn capability-holds? [capability trace]
   (case capability
@@ -361,7 +376,8 @@
 
 (defn trace-content-failures [registration trace agency-evidence solver-seat]
   (let [caps (:required-capabilities registration)
-        guidance (guidance-observation trace agency-evidence solver-seat)]
+        guidance (guidance-observation registration trace agency-evidence
+                                       solver-seat)]
     (cond-> []
       (not= (:problem registration) (:problem trace))
       (conj :wrong-problem)
@@ -449,7 +465,8 @@
 (defn report [registration trace lean-repo agency-endpoint solver-seat]
   (let [source-revision (lean-source-revision lean-repo)
         agency-evidence (fetch-agency-jobs agency-endpoint)
-        guidance (guidance-observation trace agency-evidence solver-seat)
+        guidance (guidance-observation registration trace agency-evidence
+                                       solver-seat)
         problems (failures registration trace source-revision
                            agency-evidence solver-seat :observed)]
     {:kind :apm-demonstration-round1-validation

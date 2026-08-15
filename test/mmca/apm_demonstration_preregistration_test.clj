@@ -35,7 +35,8 @@
    :required-capabilities prereg/required-capabilities
    :required-measurement-fields prereg/required-measurement-fields
    :reg/role-cards {:solver prereg/required-lean-revision
-                    :adjudicator prereg/required-lean-revision}})
+                    :adjudicator prereg/required-lean-revision}
+   :reg/solver-seat "codex-4"})
 
 (def revision-a "1111111111111111111111111111111111111111")
 (def revision-b "2222222222222222222222222222222222222222")
@@ -216,7 +217,7 @@
         (is (some #{:direct-channel-evidence-unavailable} failures))
         (is (some #{:guidance-evidence-unavailable} failures))
         (is (nil? (:count (prereg/guidance-observation
-                           trace evidence "codex-4"))))
+                           registration trace evidence "codex-4"))))
         (is (not (some #{:direct-channel-used} failures)))))))
 
 (deftest guidance-counts-recipient-and-window-not-claimed-caller
@@ -232,6 +233,21 @@
               {:agent-id "zai-1" :caller "claude-guide"
                :created-at "2026-08-14T12:30:00Z"}]]
     (is (= 2 (prereg/guidance-count trace jobs "codex-4")))))
+
+(deftest solver-seat-comes-from-the-registration-not-the-invocation
+  ;; The seat is a parameter of the measurement predicate, not a location:
+  ;; naming a different seat at validation time would silently change the
+  ;; number. An invocation that disagrees with the pin is a loud failure.
+  (let [evidence {:status :ok :jobs [opening-job]}]
+    (is (= :ok (:status (prereg/guidance-observation
+                         registration trace evidence "codex-4"))))
+    (is (= :solver-seat-mismatch
+           (:reason (prereg/guidance-observation
+                     registration trace evidence "codex-9"))))
+    (is (= :missing-solver-seat
+           (:reason (prereg/guidance-observation
+                     (dissoc registration :reg/solver-seat)
+                     trace evidence "codex-4"))))))
 
 (deftest machine-opening-dispatch-is-not-guidance
   (is (zero? (prereg/guidance-count trace [opening-job] "codex-4"))))
