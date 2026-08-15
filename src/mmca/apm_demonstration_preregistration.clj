@@ -284,23 +284,48 @@
       {:status :unavailable :reason :request-failed
        :message (.getMessage e)})))
 
-(defn direct-channel-inside-window? [trace jobs]
-  (let [{:keys [opened-at closed-at]} (:cycle/window trace)]
+(defn inside-cycle-window?
+  "Whether an independently timestamped record falls in the trace window."
+  [trace record]
+  (let [{:keys [opened-at closed-at]} (:cycle/window trace)
+        timestamp (or (:created-at record) (:started-at record))]
     (try
-      (let [opened (java.time.Instant/parse opened-at)
-            closed (java.time.Instant/parse closed-at)]
-        (some (fn [job]
-                (let [timestamp (or (:created-at job) (:started-at job))]
-                  (when (and (string? (:caller job))
-                             (string? (:agent-id job))
-                             (str/starts-with? (:caller job) "claude-")
-                             (str/starts-with? (:agent-id job) "zai-")
-                             (instant-string? timestamp))
-                    (let [at (java.time.Instant/parse timestamp)]
-                      (and (not (.isBefore at opened))
-                           (not (.isAfter at closed)))))))
-              jobs))
+      (when (instant-string? timestamp)
+        (let [opened (java.time.Instant/parse opened-at)
+              closed (java.time.Instant/parse closed-at)
+              at (java.time.Instant/parse timestamp)]
+          (and (not (.isBefore at opened))
+               (not (.isAfter at closed)))))
       (catch Exception _ false))))
+
+(defn direct-channel-inside-window? [trace jobs]
+  (some #(and (string? (:caller %))
+              (string? (:agent-id %))
+              (str/starts-with? (:caller %) "claude-")
+              (str/starts-with? (:agent-id %) "zai-")
+              (inside-cycle-window? trace %))
+        jobs))
+
+(defn guidance-count
+  "Count in-window dispatches to solver, less machine-recorded openings.
+
+  Caller is deliberately ignored: it is client-authored and therefore cannot
+  be a trustworthy part of the measurement predicate."
+  [trace jobs solver-seat]
+  (- (count (filter #(and (= solver-seat (:agent-id %))
+                          (inside-cycle-window? trace %))
+                    jobs))
+     (count (:memory-offers trace))))
+
+(defn guidance-observation [trace agency-evidence solver-seat]
+  (if (and (= :ok (:status agency-evidence))
+           (nonblank-string? solver-seat))
+    {:status :ok
+     :count (guidance-count trace (:jobs agency-evidence) solver-seat)}
+    {:status :unavailable
+     :reason (if (nonblank-string? solver-seat)
+               (:reason agency-evidence)
+               :missing-solver-seat)}))
 
 (defn capability-holds? [capability trace]
   (case capability
@@ -334,8 +359,9 @@
               (nonblank-string? (:evidence-id %)))
         (:capability-probes trace)))
 
-(defn trace-content-failures [registration trace agency-evidence]
-  (let [caps (:required-capabilities registration)]
+(defn trace-content-failures [registration trace agency-evidence solver-seat]
+  (let [caps (:required-capabilities registration)
+        guidance (guidance-observation trace agency-evidence solver-seat)]
     (cond-> []
       (not= (:problem registration) (:problem trace))
       (conj :wrong-problem)
@@ -371,6 +397,13 @@
       (and (= :ok (:status agency-evidence))
            (direct-channel-inside-window? trace (:jobs agency-evidence)))
       (conj :direct-channel-used)
+      (not= :ok (:status guidance))
+      (conj :guidance-evidence-unavailable)
+      (and (= :ok (:status guidance))
+           (not= (:count guidance)
+                 (get-in trace [:measurement :meas/values
+                                "attempts or closer hops"])))
+      (conj :guidance-measurement-mismatch)
       (or (not (:denominator-declared? trace))
           (:denominator-inferred-from-corpus? trace))
       (conj :f6-denominator-not-preregistered)
@@ -398,10 +431,11 @@
 (defn failures
   "Return every distinct diagnostic.  Tests may supply independently observed
   source and Agency evidence explicitly; production callers supply endpoints."
-  ([registration trace lean-repo agency-endpoint]
+  ([registration trace lean-repo agency-endpoint solver-seat]
    (failures registration trace (lean-source-revision lean-repo)
-             (fetch-agency-jobs agency-endpoint) :observed))
-  ([registration trace actual-lean-revision agency-evidence _observed]
+             (fetch-agency-jobs agency-endpoint) solver-seat :observed))
+  ([registration trace actual-lean-revision agency-evidence solver-seat
+    _observed]
    (vec (distinct
          (concat (registration-shape-failures registration)
                  (trace-shape-failures trace)
@@ -410,15 +444,18 @@
                                                   actual-lean-revision))
                  (when (and (map? registration) (map? trace))
                    (trace-content-failures registration trace
-                                           agency-evidence)))))))
+                                           agency-evidence solver-seat)))))))
 
-(defn report [registration trace lean-repo agency-endpoint]
+(defn report [registration trace lean-repo agency-endpoint solver-seat]
   (let [source-revision (lean-source-revision lean-repo)
         agency-evidence (fetch-agency-jobs agency-endpoint)
+        guidance (guidance-observation trace agency-evidence solver-seat)
         problems (failures registration trace source-revision
-                           agency-evidence :observed)]
+                           agency-evidence solver-seat :observed)]
     {:kind :apm-demonstration-round1-validation
      :lean-source-revision source-revision
      :direct-channel-evidence-status (:status agency-evidence)
+     :guidance-evidence-status (:status guidance)
+     :guidance-count (:count guidance)
      :failures problems
      :launchable? (empty? problems)}))

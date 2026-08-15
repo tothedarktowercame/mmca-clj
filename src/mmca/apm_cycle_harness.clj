@@ -143,13 +143,14 @@
   embedded here."
   [{:keys [store registration-path registration-id cycle-id frame
            scaffold-path closing-path entities lean-repo agency-endpoint
-           authorize!]}]
+           solver-seat authorize!]}]
   (let [registration (prereg/read-edn registration-path)]
     (persist-registration! store registration-id registration-path)
     (let [stored-frame (emit-frame! store frame scaffold-path closing-path)
           stored (into [stored-frame] (persist-entities! store entities))
           trace (derive-trace registration cycle-id stored)
-          report (prereg/report registration trace lean-repo agency-endpoint)]
+          report (prereg/report registration trace lean-repo agency-endpoint
+                                solver-seat)]
       (when-not (:launchable? report)
         (throw (ex-info "cycle refused by registration gate" {:report report})))
       {:trace trace :report report :authorization (authorize! registration trace report)})))

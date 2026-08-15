@@ -83,16 +83,21 @@
          prereg/required-capabilities)
    :required-measurement-fields prereg/required-measurement-fields
    :measurement
-   {:meas/values (into {} (map (fn [field] [field :observed])
-                               prereg/required-measurement-fields))
+   {:meas/values (assoc (into {} (map (fn [field] [field :observed])
+                                      prereg/required-measurement-fields))
+                        "attempts or closer hops" 0)
     :meas/unset {}}
    :promoted-artifact-ids ["promotion"]
    :importable-promoted-artifact-ids ["promotion"]
    :need-tagged-promoted-artifact-ids ["promotion"]})
 
+(def opening-job
+  {:agent-id "codex-4" :caller "cycle-machine"
+   :created-at "2026-08-14T12:00:00Z"})
+
 (defn checked [registration trace]
   (prereg/failures registration trace prereg/required-lean-revision
-                   {:status :ok :jobs []} :observed))
+                   {:status :ok :jobs [opening-job]} "codex-4" :observed))
 
 (deftest aligned-positive-witness-is-launchable
   (is (empty? (checked registration trace))))
@@ -129,7 +134,7 @@
   (is (some #{:stale-lean-revision}
             (prereg/failures registration trace
                             "0000000000000000000000000000000000000000"
-                            {:status :ok :jobs []}
+                            {:status :ok :jobs [opening-job]} "codex-4"
                             :observed))))
 
 (deftest all-failures-are-returned-together
@@ -195,7 +200,7 @@
       (let [evidence (prereg/fetch-agency-jobs endpoint)
             failures (prereg/failures registration trace
                                       prereg/required-lean-revision
-                                      evidence :observed)]
+                                      evidence "codex-4" :observed)]
         (is (= :ok (:status evidence)))
         (is (some #{:direct-channel-used} failures))))))
 
@@ -206,10 +211,39 @@
       (let [evidence (prereg/fetch-agency-jobs endpoint)
             failures (prereg/failures registration trace
                                       prereg/required-lean-revision
-                                      evidence :observed)]
+                                      evidence "codex-4" :observed)]
         (is (= :unavailable (:status evidence)))
         (is (some #{:direct-channel-evidence-unavailable} failures))
+        (is (some #{:guidance-evidence-unavailable} failures))
+        (is (nil? (:count (prereg/guidance-observation
+                           trace evidence "codex-4"))))
         (is (not (some #{:direct-channel-used} failures)))))))
+
+(deftest guidance-counts-recipient-and-window-not-claimed-caller
+  (let [jobs [opening-job
+              ;; Both are guidance despite spoofed/missing caller.
+              {:agent-id "codex-4" :caller "not-the-guide"
+               :created-at "2026-08-14T12:10:00Z"}
+              {:agent-id "codex-4"
+               :created-at "2026-08-14T12:20:00Z"}
+              ;; Excluded: outside window and wrong recipient.
+              {:agent-id "codex-4" :caller "claude-guide"
+               :created-at "2026-08-14T14:00:00Z"}
+              {:agent-id "zai-1" :caller "claude-guide"
+               :created-at "2026-08-14T12:30:00Z"}]]
+    (is (= 2 (prereg/guidance-count trace jobs "codex-4")))))
+
+(deftest machine-opening-dispatch-is-not-guidance
+  (is (zero? (prereg/guidance-count trace [opening-job] "codex-4"))))
+
+(deftest stored-guidance-measurement-must-match-agency-derived-count
+  (let [jobs [opening-job
+              {:agent-id "codex-4" :caller "spoofed"
+               :created-at "2026-08-14T12:30:00Z"}]
+        failures (prereg/failures
+                  registration trace prereg/required-lean-revision
+                  {:status :ok :jobs jobs} "codex-4" :observed)]
+    (is (some #{:guidance-measurement-mismatch} failures))))
 
 (deftest cycle-refuses-both-revision-sequences-changing
   (let [bad-trace (-> trace
