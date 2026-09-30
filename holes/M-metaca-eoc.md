@@ -1,5 +1,7 @@
 # M-metaca-eoc — Edge-of-chaos measurement program for the MetaCA operator family
 
+**Status:** CLOSED — all E1–E7 excursions have committed deterministic results; scoreboard records 91 tests / 231 assertions green.
+
 **Type:** Mission with Excursions (not a full Campaign — simpler).
 **Owner:** claude-2 (design/review). **Basis:** the reproducible Tier-1 suites
 `~/code/mmca` (elisp ground truth) and `~/code/mmca-clj` (grid-identical pure

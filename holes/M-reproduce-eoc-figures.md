@@ -1,5 +1,7 @@
 # M-reproduce-eoc-figures — make mmca-clj regenerate the 3 new EoC paper figures
 
+**Status:** CLOSED — all three EoC figures have committed generators, plotters, README commands, and the consolidated reproduction pipeline (`a556d21`, `795c937`).
+
 Goal (Joe): `~/code/mmca-clj` should contain everything that reproduces **all**
 figures in the paper `futon5/holes/tech-notes/paper/draft3.tex`. The paper's
 original figures already have generators (`mmca.figures` + `scripts/plot_*.py`).
